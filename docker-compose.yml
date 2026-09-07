@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: shrink
+      POSTGRES_PASSWORD: shrink
+      POSTGRES_DB: shrink
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shrink -d shrink"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  jaeger:
+    image: jaegertracing/jaeger:2.9.0
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+
+  api:
+    build:
+      context: ./backend
+    command: ["uvicorn", "shrinkflation.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://shrink:shrink@postgres:5432/shrink
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: ["app"]
+
+  pipeline:
+    build:
+      context: ./backend
+    command: ["shrink", "refresh"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://shrink:shrink@postgres:5432/shrink
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: ["app"]
+
+volumes:
+  pgdata:
