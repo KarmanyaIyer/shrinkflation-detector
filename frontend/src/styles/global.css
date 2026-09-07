@@ -1,0 +1,15 @@
+:root {
+  --bg: #fbfbfa;
+  --ink: #141414;
+  --ink-2: #4a4a47;
+  --ink-3: #6f6f6b;
+  --rule: #e6e6e2;
+  --panel: #f3f3f0;
+  --down: #b83a0e;
+  --up: #2f6f4e;
+  --sans: "Archivo", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font-family: var(--sans); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
