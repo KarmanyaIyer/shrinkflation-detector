@@ -46,3 +46,10 @@ Design choices and the reasons behind them, for anyone reading the code.
 10. **Kroger acceptable use.** The pipeline makes about 25 product requests a day for a fixed
     basket, stores only state changes for its own comparison, shows names, sizes, and prices as
     returned, never compares against other retailers, and stores no customer data.
+
+11. **Visitor identity behind proxies.** X-Forwarded-For is only read when TRUST_PROXY_HOPS says
+    how many proxies of ours stand in front of the app (1 on Container Apps), and only the entry
+    appended by a trusted hop is used. Anything the client sent itself is ignored, so spoofed
+    headers cannot mint fresh rate-limit or question-budget identities. The question budget is
+    consumed with a single atomic upsert committed before the model runs, and outcomes are logged
+    in their own transaction so failed requests still leave an audit row.

@@ -141,8 +141,19 @@ def run_build_basket(
     location_id = settings.kroger_location_id
     if not location_id:
         raise RuntimeError("KROGER_LOCATION_ID is not set")
+    owns_kroger, owns_llm = kroger is None, llm is None
     kroger = kroger or KrogerClient(settings)
     llm = llm or LlmClient(settings)
+    try:
+        return _build_basket(kroger, llm, location_id, target)
+    finally:
+        if owns_kroger:
+            kroger.close()
+        if owns_llm:
+            llm.close()
+
+
+def _build_basket(kroger: KrogerClient, llm: LlmClient, location_id: str, target: int) -> int:
     terms = [(category, term) for category, items in CATEGORY_TERMS.items() for term in items]
     per_term = max(8, -(-target // len(terms)))
     now = datetime.now(UTC)

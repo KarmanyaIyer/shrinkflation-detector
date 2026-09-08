@@ -19,10 +19,18 @@ from shrinkflation.config import get_settings
 
 
 def client_ip(request: Request) -> str:
-    """Client address, honoring the first X-Forwarded-For hop set by the ingress."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    """Client address as vouched for by the deployment's own proxies.
+
+    Anything the client itself puts in X-Forwarded-For is ignored: each trusted proxy appends
+    one entry, so with N trusted hops the Nth entry from the right is the address the closest
+    trusted proxy saw. With no trusted hops configured the socket peer address is used.
+    """
+    hops = get_settings().trust_proxy_hops
+    if hops > 0:
+        forwarded = request.headers.get("x-forwarded-for", "")
+        entries = [entry.strip() for entry in forwarded.split(",") if entry.strip()]
+        if entries:
+            return entries[-min(hops, len(entries))]
     return request.client.host if request.client else "unknown"
 
 
@@ -80,6 +88,12 @@ class FixedWindowLimiter:
             self._counts[bucket] = (count, expires_at)
             if len(self._counts) > 10_000:
                 self._prune(now)
+                # A flood of distinct keys within one window survives pruning; drop the
+                # soonest-expiring half rather than grow without bound.
+                if len(self._counts) > 20_000:
+                    oldest = sorted(self._counts.items(), key=lambda item: item[1][1])
+                    for key_expired, _ in oldest[: len(oldest) // 2]:
+                        del self._counts[key_expired]
         return Decision(
             allowed=count <= rule.limit,
             limit=rule.limit,

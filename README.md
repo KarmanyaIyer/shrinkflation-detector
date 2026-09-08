@@ -14,8 +14,9 @@ the ones that quietly shrank, with before and after evidence.
 - Consecutive snapshots are compared and classified: shrink, grow, price increase, price
   decrease, relabel. Small differences below a noise threshold are ignored, and implausible or
   low confidence transitions go to a review queue instead of the public feed.
-- FastAPI serves the feed, product histories, search, and stats. `POST /api/ask` runs a
-  tool-calling agent that answers questions with read-only tools over the same database.
+- FastAPI serves the feed, product histories, search, a browsable catalog, and stats.
+  `POST /api/ask` runs a tool-calling agent that answers questions with read-only tools over
+  the same database.
 - Every request and every LLM call is traced with OpenTelemetry. LLM calls are also logged with
   token counts, cache hits, cost, and trace ids. Public traffic is rate limited per IP. The agent
   has a per-visitor daily question budget and a global daily spend cap.
@@ -46,6 +47,9 @@ pnpm dev
 ```
 
 Traces are at http://localhost:16686 (Jaeger). API docs are at http://localhost:8000/api/docs.
+`uv run shrink status` prints tracking counts and model spend. `uv run shrink reparse` re-runs
+size parsing for cached labels after a parser change and sends affected published changes back
+to review.
 
 ## Layout
 

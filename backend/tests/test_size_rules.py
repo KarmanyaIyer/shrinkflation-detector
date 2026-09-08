@@ -97,3 +97,15 @@ def test_ambiguous_multipacks_left_to_llm(text: str) -> None:
 )
 def test_not_ambiguous(text: str) -> None:
     assert not is_ambiguous_multipack(text)
+
+
+def test_commas_are_thousands_separators_only() -> None:
+    parsed = parse_with_rules("1,000 ct")
+    assert parsed is not None
+    assert parsed.measure_kind is MeasureKind.COUNT
+    assert parsed.quantity == Decimal("1000.0000")
+    assert parsed.confidence == 1.0
+    # A comma that is not followed by exactly three digits is not a number the rules accept;
+    # the label goes to the model instead of being misread.
+    assert parse_with_rules("1,5 oz") is None
+    assert parse_with_rules("1,00 ct") is None

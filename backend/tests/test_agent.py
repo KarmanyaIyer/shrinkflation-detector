@@ -1,4 +1,5 @@
 import json
+from contextlib import nullcontext
 from types import SimpleNamespace
 from typing import Any, cast
 
@@ -101,7 +102,10 @@ def test_agent_runs_tools_then_answers(db: Session) -> None:
         ]
     )
     result = answer_question(
-        db, cast(LlmClient, llm), "Did Honey Nut Cheerios shrink?", settings=get_settings()
+        cast(LlmClient, llm),
+        "Did Honey Nut Cheerios shrink?",
+        settings=get_settings(),
+        session_factory=lambda: nullcontext(db),
     )
 
     assert result.answer.startswith("Honey Nut Cheerios went from 12 oz to 10.8 oz")
@@ -123,7 +127,12 @@ def test_agent_stops_after_the_tool_round_limit(db: Session) -> None:
     loop_turn = SimpleNamespace(content=None, tool_calls=[_tool_call("get_tracking_stats", {})])
     final = SimpleNamespace(content="Done.", tool_calls=None)
     llm = ScriptedLlm([loop_turn] * settings.ask_max_tool_rounds + [final])
-    result = answer_question(db, cast(LlmClient, llm), "Loop please", settings=settings)
+    result = answer_question(
+        cast(LlmClient, llm),
+        "Loop please",
+        settings=settings,
+        session_factory=lambda: nullcontext(db),
+    )
 
     assert result.answer == "Done."
     assert len(result.tool_calls) == settings.ask_max_tool_rounds

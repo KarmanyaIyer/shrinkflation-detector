@@ -145,9 +145,15 @@ class LlmClient:
     def strong_model(self) -> str:
         return self.settings.llm_model_strong
 
-    def _check_budget(self) -> None:
+    def close(self) -> None:
+        self._client.close()
+
+    def _check_budget(self, *, fresh: bool = False) -> None:
         now = datetime.now(UTC)
-        if self._budget_checked_at is None or now - self._budget_checked_at > timedelta(seconds=60):
+        stale = self._budget_checked_at is None or now - self._budget_checked_at > timedelta(
+            seconds=60
+        )
+        if fresh or stale:
             spent = self._spent_today()
             self._budget_ok = spent < Decimal(str(self.settings.llm_daily_cost_cap_usd))
             self._budget_checked_at = now
@@ -170,7 +176,9 @@ class LlmClient:
         pipeline_run_id: int | None = None,
     ) -> ChatResult:
         """One traced, recorded, retried chat completion. Thinking mode stays off."""
-        self._check_budget()
+        # Public agent traffic checks the spend on every call; the pipeline, whose call rate
+        # is bounded, accepts the 60 second cache.
+        self._check_budget(fresh=purpose == "agent")
         model = model or self.fast_model
         record = LlmCallRecord(
             purpose=purpose, model=model, status="error", pipeline_run_id=pipeline_run_id

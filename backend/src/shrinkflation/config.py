@@ -27,13 +27,15 @@ class Settings(BaseSettings):
     llm_daily_cost_cap_usd: float = 1.00
 
     ask_questions_per_visitor_per_day: int = 10
-    ask_max_question_chars: int = 400
     ask_max_tool_rounds: int = 4
 
     cors_origins: list[str] = Field(
         default_factory=lambda: ["http://localhost:5173", "https://karmanyaiyer.com"]
     )
     visitor_hash_salt: str = "change-me"
+    # Number of proxies in front of the app that append to X-Forwarded-For (1 on Azure
+    # Container Apps). At 0 the header is ignored and the socket peer address is used.
+    trust_proxy_hops: int = 0
 
     otel_exporter_otlp_endpoint: str = ""
     otel_service_name: str = "shrinkflation-detector"

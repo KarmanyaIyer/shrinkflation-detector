@@ -27,8 +27,13 @@ _SEPARATOR = re.compile(r"/|\d\s*[–-]\s*\d")
 _UNIT_ONLY = re.compile(rf"^\s*(?P<u>{_UNIT})\s*$")
 
 
+_THOUSANDS = re.compile(r"(?<=\d),(?=\d{3}(?:\D|$))")
+
+
 def _to_decimal(text: str) -> Decimal | None:
-    text = text.strip().replace(",", ".")
+    # Commas on US labels are thousands separators ("1,000 ct"). A comma used any other way
+    # is left in place, fails Decimal, and sends the label to the model instead.
+    text = _THOUSANDS.sub("", text.strip())
     try:
         if "/" in text:
             whole, _, frac = text.rpartition(" ")

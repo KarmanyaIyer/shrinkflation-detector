@@ -3,6 +3,8 @@
 import json
 import logging
 import time
+from collections.abc import Callable
+from contextlib import AbstractContextManager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, cast
@@ -14,8 +16,11 @@ from sqlalchemy.orm import Session
 from shrinkflation.agent.tools import run_tool, tool_definitions
 from shrinkflation.config import Settings, get_settings
 from shrinkflation.db.models import PipelineRun, Product
+from shrinkflation.db.session import session_scope
 from shrinkflation.llm.client import LlmCallRecord, LlmClient
 from shrinkflation.observability import current_trace_ids, get_tracer
+
+SessionFactory = Callable[[], AbstractContextManager[Session]]
 
 log = logging.getLogger(__name__)
 
@@ -81,18 +86,22 @@ def _context(session: Session, settings: Settings) -> dict[str, str]:
 
 
 def answer_question(
-    session: Session,
     llm: LlmClient,
     question: str,
     *,
     settings: Settings | None = None,
+    session_factory: SessionFactory = session_scope,
 ) -> AgentAnswer:
+    # Sessions are opened only around database work, never across a model call, so a slow
+    # model response does not hold a pooled connection.
     settings = settings or get_settings()
     started = time.perf_counter()
     tracer = get_tracer()
     tools = cast(list[ChatCompletionToolParam], tool_definitions())
+    with session_factory() as context_session:
+        system_prompt = SYSTEM_PROMPT.format(**_context(context_session, settings))
     messages: list[ChatCompletionMessageParam] = [
-        {"role": "system", "content": SYSTEM_PROMPT.format(**_context(session, settings))},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": question.strip()},
     ]
     result = AgentAnswer(answer="", model=llm.fast_model)
@@ -150,8 +159,11 @@ def answer_question(
                         arguments = {}
                 except json.JSONDecodeError:
                     arguments = {}
-                with tracer.start_as_current_span(f"tool.{call.function.name}"):
-                    output = run_tool(session, call.function.name, arguments)
+                with (
+                    tracer.start_as_current_span(f"tool.{call.function.name}"),
+                    session_factory() as tool_session,
+                ):
+                    output = run_tool(tool_session, call.function.name, arguments)
                 ms = int((time.perf_counter() - tool_started) * 1000)
                 result.tool_calls.append(
                     ToolTrace(call.function.name, arguments, ms, ok="error" not in output)

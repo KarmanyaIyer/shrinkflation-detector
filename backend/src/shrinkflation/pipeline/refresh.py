@@ -28,8 +28,19 @@ def run_refresh(*, kroger: KrogerClient | None = None, llm: LlmClient | None = N
     location_id = settings.kroger_location_id
     if not location_id:
         raise RuntimeError("KROGER_LOCATION_ID is not set")
+    owns_kroger, owns_llm = kroger is None, llm is None
     kroger = kroger or KrogerClient(settings)
     llm = llm or LlmClient(settings)
+    try:
+        return _refresh(kroger, llm, location_id)
+    finally:
+        if owns_kroger:
+            kroger.close()
+        if owns_llm:
+            llm.close()
+
+
+def _refresh(kroger: KrogerClient, llm: LlmClient, location_id: str) -> int:
     tracer = get_tracer()
 
     with session_scope() as session:

@@ -164,3 +164,98 @@ def test_catalog_lists_products_with_current_state(client: TestClient) -> None:
 
     assert client.get("/api/catalog?q=x").status_code == 422
     assert client.get("/api/catalog?category=Nothing").json()["total"] == 0
+
+
+def _scope_request(forwarded: str | None, client_host: str = "10.0.0.9"):
+    from starlette.requests import Request
+
+    headers = [(b"x-forwarded-for", forwarded.encode())] if forwarded else []
+    return Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/",
+            "headers": headers,
+            "client": (client_host, 1234),
+        }
+    )
+
+
+def test_client_ip_ignores_forwarded_headers_without_trusted_proxies(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    from shrinkflation.api import limits
+
+    monkeypatch.setattr(limits, "get_settings", lambda: SimpleNamespace(trust_proxy_hops=0))
+    assert limits.client_ip(_scope_request("1.2.3.4")) == "10.0.0.9"
+
+
+def test_client_ip_reads_the_entry_appended_by_the_trusted_proxy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    from shrinkflation.api import limits
+
+    monkeypatch.setattr(limits, "get_settings", lambda: SimpleNamespace(trust_proxy_hops=1))
+    assert limits.client_ip(_scope_request("6.6.6.6, 1.2.3.4")) == "1.2.3.4"
+    assert limits.client_ip(_scope_request("1.2.3.4")) == "1.2.3.4"
+    assert limits.client_ip(_scope_request(None)) == "10.0.0.9"
+
+
+def test_ask_budget_counts_atomically_per_visitor_and_day(db: Session) -> None:
+    from shrinkflation.agent.routes import _consume_question
+
+    key = "a" * 32
+    assert [_consume_question(key) for _ in range(3)] == [1, 2, 3]
+    assert _consume_question("b" * 32) == 1
+
+
+def test_ask_failures_are_logged_and_budget_errors_refunded(
+    client: TestClient, db: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from sqlalchemy import select
+
+    from shrinkflation.agent import routes
+    from shrinkflation.db.models import AskLog, VisitorBudget
+    from shrinkflation.llm.client import LlmBudgetExceeded
+
+    limiter.reset()
+
+    class ExplodingLlm:
+        fast_model = "test"
+
+        def chat(self, **kwargs: object) -> object:
+            raise RuntimeError("boom")
+
+    monkeypatch.setattr(routes, "get_llm", lambda: ExplodingLlm())
+    response = client.post("/api/ask", json={"question": "Did Cheerios shrink?"})
+    assert response.status_code == 502
+
+    entry = db.execute(select(AskLog)).scalars().one()
+    assert entry.status == "error"
+    assert entry.question == "Did Cheerios shrink?"
+    budget = db.execute(select(VisitorBudget)).scalars().one()
+    assert budget.questions_used == 1
+
+    class CappedLlm:
+        fast_model = "test"
+
+        def chat(self, **kwargs: object) -> object:
+            raise LlmBudgetExceeded("cap")
+
+    monkeypatch.setattr(routes, "get_llm", lambda: CappedLlm())
+    response = client.post("/api/ask", json={"question": "Did Cheerios shrink?"})
+    assert response.status_code == 503
+
+    db.expire_all()
+    statuses = db.execute(select(AskLog.status).order_by(AskLog.id)).scalars().all()
+    assert statuses == ["error", "budget"]
+    budget = db.execute(select(VisitorBudget)).scalars().one()
+    assert budget.questions_used == 1
+
+    remaining = client.get("/api/ask/budget").json()["questions_remaining"]
+    assert remaining == 9
+    limiter.reset()

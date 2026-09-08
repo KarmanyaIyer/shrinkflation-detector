@@ -85,6 +85,8 @@ var pipelineEnv = concat(
 var apiEnv = concat(pipelineEnv, [
   { name: 'CORS_ORIGINS', value: corsOrigins }
   { name: 'VISITOR_HASH_SALT', secretRef: 'visitor-hash-salt' }
+  // The Container Apps ingress appends the real client address to X-Forwarded-For.
+  { name: 'TRUST_PROXY_HOPS', value: '1' }
 ])
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {

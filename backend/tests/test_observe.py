@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 
 from shrinkflation.db.models import Change, PipelineRun, Product, Snapshot
 from shrinkflation.pipeline.refresh import run_refresh
-from tests.conftest import DAY1, DAY2, DAY3, new_product, observe, reading
+from shrinkflation.sizes.maintenance import _demote_affected_changes
+from tests.conftest import DAY1, DAY2, DAY3, new_product, observe, reading, seed_catalog
 
 
 def test_repeat_observation_extends_the_snapshot(db: Session) -> None:
@@ -155,3 +156,18 @@ def test_status_report_summarizes_the_database(db: Session) -> None:
     lines = report.lines()
     assert lines[0] == "products: 1 active of 1"
     assert any("shrink=1" in line for line in lines)
+
+
+def test_reparse_demotes_published_changes_touching_a_revised_parse(db: Session) -> None:
+    seed_catalog(db)
+    parse_id = db.execute(
+        select(Snapshot.size_parse_id).where(Snapshot.size_text == "10.8 oz")
+    ).scalar_one()
+    assert parse_id is not None
+
+    assert _demote_affected_changes([parse_id]) == 1
+    db.expire_all()
+    change = db.execute(select(Change)).scalars().one()
+    assert change.status == "needs_review"
+    assert change.note is not None and "parser update" in change.note
+    assert _demote_affected_changes([parse_id]) == 0

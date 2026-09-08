@@ -111,7 +111,7 @@ def _evidence(before: SnapshotView, after: SnapshotView) -> dict[str, Any]:
             "base_unit": view.base_unit,
             "price_regular": _opt_str(view.price_regular),
             "unit_price": _opt_str(unit_price.quantize(Decimal("0.000001")))
-            if unit_price
+            if unit_price is not None
             else None,
             "parse_method": view.parse_method,
             "parse_confidence": view.confidence,
