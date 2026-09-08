@@ -1,3 +1,27 @@
+# Local development: `docker compose up -d postgres jaeger`, then run the API with uv (see README).
+# The `app` profile runs the packaged backend image instead:
+#   docker compose --profile app build
+#   docker compose --profile app run --rm migrate
+#   docker compose --profile app up -d api        # http://localhost:8001/api/health
+#   docker compose --profile app run --rm pipeline # calls the Kroger and DeepSeek APIs
+
+x-app: &app
+  image: shrinkflation-backend:local
+  build:
+    context: ./backend
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    DATABASE_URL: postgresql+psycopg://shrink:shrink@postgres:5432/shrink
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+  depends_on:
+    postgres:
+      condition: service_healthy
+    jaeger:
+      condition: service_started
+  profiles: ["app"]
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -22,33 +46,20 @@ services:
       - "4317:4317"
       - "4318:4318"
 
+  # Uses the image's default command (uvicorn on 8000). Host port 8001 because the uv dev
+  # server normally holds 8000.
   api:
-    build:
-      context: ./backend
-    command: ["uvicorn", "shrinkflation.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql+psycopg://shrink:shrink@postgres:5432/shrink
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+    <<: *app
     ports:
-      - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    profiles: ["app"]
+      - "8001:8000"
+
+  migrate:
+    <<: *app
+    command: ["shrink", "migrate"]
 
   pipeline:
-    build:
-      context: ./backend
+    <<: *app
     command: ["shrink", "refresh"]
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql+psycopg://shrink:shrink@postgres:5432/shrink
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
-    depends_on:
-      postgres:
-        condition: service_healthy
-    profiles: ["app"]
 
 volumes:
   pgdata:
