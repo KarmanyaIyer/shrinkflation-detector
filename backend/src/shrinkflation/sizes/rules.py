@@ -9,7 +9,7 @@ import re
 from decimal import Decimal, InvalidOperation
 from fractions import Fraction
 
-from shrinkflation.sizes.schema import BASE_UNIT_FOR_KIND, ParsedSize
+from shrinkflation.sizes.schema import BASE_UNIT_FOR_KIND, ParsedSize, clean_decimal
 from shrinkflation.sizes.units import UNITS, canonical_unit, display_count_word
 
 _NUM = r"(?:\d+\s+\d+/\d+|\d+/\d+|\d+(?:[.,]\d+)?|\.\d+)"
@@ -21,10 +21,9 @@ _FRACTION = re.compile(rf"^\s*(?P<q>\d+/\d+|\d+\s+\d+/\d+)\s*(?P<u>{_UNIT})\s*\.
 # "12 x 12 fl oz": the multiplication sign makes the per-unit reading explicit.
 _MULTIPACK = re.compile(rf"^\s*(?P<n>\d+)\s*(?:x|X|×)\s*(?P<q>{_NUM})\s*(?P<u>{_UNIT})\s*\.?\s*$")
 # "6 ct / 18 oz", "8 pk - 12 fl oz", "5.3 oz., 4 pack": a count next to an amount, scope unstated.
-_AMBIGUOUS = re.compile(
-    rf"^\s*(?:\d+\s*{_PACK_WORD}?\s*(?:/|-|–)\s*{_NUM}\s*{_UNIT}"
-    rf"|{_NUM}\s*{_UNIT}\s*(?:,|/|-|–)?\s*\d+\s*{_PACK_WORD})\s*\.?\s*$"
-)
+_PACK_MARKER = re.compile(rf"(?:^|[\s\d]){_PACK_WORD}(?:$|[\s/.,-])", re.IGNORECASE)
+_NUMBER = re.compile(_NUM)
+_SEPARATOR = re.compile(r"/|\d\s*[–-]\s*\d")
 _UNIT_ONLY = re.compile(rf"^\s*(?P<u>{_UNIT})\s*$")
 
 
@@ -64,18 +63,26 @@ def _build(
         measure_kind=kind,
         quantity=(total * factor).quantize(Decimal("0.0001")),
         base_unit=BASE_UNIT_FOR_KIND[kind],
-        display_quantity=total.quantize(Decimal("0.0001")).normalize(),
+        display_quantity=clean_decimal(total),
         display_unit=display_count_word(unit_label) if canon in {"count", "dozen"} else canon,
         pack_count=pack_count,
-        unit_quantity=per_unit.quantize(Decimal("0.0001")).normalize() if pack_count else None,
+        unit_quantity=clean_decimal(per_unit) if pack_count else None,
         confidence=confidence,
         method="rule",
     )
 
 
 def is_ambiguous_multipack(size_text: str | None) -> bool:
-    """True for labels that pair a count with an amount without saying which one it applies to."""
-    return bool(size_text) and _AMBIGUOUS.match(size_text or "") is not None
+    """True for labels that pair a count with an amount without saying which one it applies to.
+
+    At least two numbers plus a pack word or a slash, excluding the explicit "12 x 12 fl oz" form.
+    """
+    if not size_text or _MULTIPACK.match(size_text):
+        return False
+    numbers = _NUMBER.findall(size_text)
+    return len(numbers) >= 2 and (
+        _PACK_MARKER.search(size_text) is not None or _SEPARATOR.search(size_text) is not None
+    )
 
 
 def parse_with_rules(size_text: str | None) -> ParsedSize | None:

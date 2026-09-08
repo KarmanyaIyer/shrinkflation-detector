@@ -6,12 +6,9 @@ from collections.abc import Awaitable, Callable
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware
-from starlette.responses import JSONResponse
 
 from shrinkflation import __version__
-from shrinkflation.api.limits import limiter
+from shrinkflation.api.limits import RateLimitMiddleware, limiter
 from shrinkflation.api.routes import router as public_router
 from shrinkflation.config import get_settings
 from shrinkflation.observability import setup_tracing
@@ -27,11 +24,6 @@ SECURITY_HEADERS = {
 }
 
 
-def _rate_limited(request: Request, exc: Exception) -> Response:
-    detail = getattr(exc, "detail", "rate limit exceeded")
-    return JSONResponse(status_code=429, content={"detail": f"Too many requests: {detail}"})
-
-
 def create_app() -> FastAPI:
     settings = get_settings()
     setup_tracing()
@@ -44,9 +36,9 @@ def create_app() -> FastAPI:
         openapi_url="/api/openapi.json",
         redoc_url=None,
     )
-    app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limited)
-    app.add_middleware(SlowAPIMiddleware)
+    # Middleware added later wraps the earlier ones, so CORS sits outside the rate limiter and
+    # 429 responses still carry CORS headers.
+    app.add_middleware(RateLimitMiddleware, limiter=limiter)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

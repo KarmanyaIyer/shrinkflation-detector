@@ -12,7 +12,7 @@ from shrinkflation.db.models import SizeParse
 from shrinkflation.db.session import session_scope
 from shrinkflation.llm.client import LlmClient
 from shrinkflation.observability import setup_tracing, shutdown_tracing
-from shrinkflation.sizes.rules import parse_with_rules
+from shrinkflation.sizes.rules import is_ambiguous_multipack, parse_with_rules
 from shrinkflation.sizes.service import assign_parse, parse_size
 
 log = logging.getLogger(__name__)
@@ -30,7 +30,8 @@ def needs_reparse(row: SizeParse) -> bool:
     if row.measure_kind == "unknown":
         return True
     if row.method != "rule":
-        return False
+        strong = get_settings().llm_model_strong
+        return is_ambiguous_multipack(row.size_text) and row.model != strong
     fresh = parse_with_rules(row.size_text)
     if fresh is None:
         return True

@@ -76,3 +76,11 @@ class ParsedSize(BaseModel):
     @property
     def comparable(self) -> bool:
         return self.measure_kind is not MeasureKind.UNKNOWN and self.quantity is not None
+
+
+def clean_decimal(value: Decimal) -> Decimal:
+    """Round to four places and drop trailing zeros without switching to exponent notation."""
+    rounded = value.quantize(Decimal("0.0001"))
+    if rounded == rounded.to_integral_value():
+        return rounded.quantize(Decimal(1))
+    return rounded.normalize()

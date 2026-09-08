@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from shrinkflation.agent.service import answer_question
-from shrinkflation.api.limits import limiter, visitor_key
+from shrinkflation.api.limits import visitor_key
 from shrinkflation.config import get_settings
 from shrinkflation.db.models import AskLog, VisitorBudget
 from shrinkflation.db.session import get_db
@@ -76,7 +76,6 @@ def ask_budget(request: Request, db: DbSession) -> BudgetOut:
 
 
 @router.post("/ask", response_model=AskResponse)
-@limiter.limit("10/minute")
 def ask(request: Request, payload: AskRequest, db: DbSession) -> AskResponse:
     settings = get_settings()
     key = visitor_key(request)

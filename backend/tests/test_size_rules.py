@@ -83,6 +83,8 @@ def test_unparseable_left_to_llm(text: str) -> None:
         "1 pk / 120 ct",
         "3 pk / 6 ct",
         "40 pk / .8 oz",
+        "4 sticks / 16 oz / 2 pk",
+        "12 oz cans 12 pk 24 fl oz",
     ],
 )
 def test_ambiguous_multipacks_left_to_llm(text: str) -> None:
@@ -90,6 +92,8 @@ def test_ambiguous_multipacks_left_to_llm(text: str) -> None:
     assert is_ambiguous_multipack(text)
 
 
-@pytest.mark.parametrize("text", ["12 x 12 fl oz", "16 oz", "6 ct", ""])
+@pytest.mark.parametrize(
+    "text", ["12 x 12 fl oz", "16 oz", "6 ct", "", "10.8 oz (306g)", "net wt 1 lb 11 oz. (765g)"]
+)
 def test_not_ambiguous(text: str) -> None:
     assert not is_ambiguous_multipack(text)
