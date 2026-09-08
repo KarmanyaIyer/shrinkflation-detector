@@ -1,0 +1,124 @@
+name: Deploy
+
+# Runs after CI succeeds on main, or by hand with a chosen image tag (for example to roll
+# back to an earlier sha-<7 hex> tag). The production environment can require reviewers.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Image tag to deploy (latest or sha-<7 hex>)
+        type: string
+        default: latest
+        required: true
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.fqdn.outputs.url }}
+    env:
+      IMAGE: ghcr.io/karmanyaiyer/shrinkflation-detector
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      API_NAME: ${{ vars.ACA_API_NAME }}
+      JOB_NAME: ${{ vars.ACA_JOB_NAME }}
+      MIGRATE_JOB_NAME: ${{ vars.ACA_MIGRATE_JOB_NAME }}
+    steps:
+      - name: Resolve image tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.image_tag }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            tag="$INPUT_TAG"
+          else
+            tag="sha-${HEAD_SHA:0:7}"
+          fi
+          if ! printf '%s' "$tag" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$'; then
+            echo "invalid image tag: $tag" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Check repository variables
+        run: |
+          for name in RESOURCE_GROUP API_NAME JOB_NAME MIGRATE_JOB_NAME; do
+            if [ -z "${!name}" ]; then
+              echo "repository variable behind $name is not set (see infra/README.md)" >&2
+              exit 1
+            fi
+          done
+
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Migrations run before the API switches images so new code never meets an old schema.
+      - name: Run database migrations
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          az containerapp job update --name "$MIGRATE_JOB_NAME" --resource-group "$RESOURCE_GROUP" \
+            --image "$IMAGE:$TAG" --output none
+          execution=$(az containerapp job start --name "$MIGRATE_JOB_NAME" --resource-group "$RESOURCE_GROUP" \
+            --query name --output tsv)
+          echo "execution $execution"
+          for _ in $(seq 1 60); do
+            status=$(az containerapp job execution show --name "$MIGRATE_JOB_NAME" \
+              --resource-group "$RESOURCE_GROUP" --job-execution-name "$execution" \
+              --query properties.status --output tsv)
+            case "$status" in
+              Succeeded) echo "migrations applied"; exit 0 ;;
+              Failed|Stopped|Degraded) echo "migration execution ended with status $status" >&2; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "timed out after 10 minutes waiting for the migration job" >&2
+          exit 1
+
+      - name: Update API image
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          az containerapp update --name "$API_NAME" --resource-group "$RESOURCE_GROUP" \
+            --image "$IMAGE:$TAG" --output none
+
+      - name: Update refresh job image
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          az containerapp job update --name "$JOB_NAME" --resource-group "$RESOURCE_GROUP" \
+            --image "$IMAGE:$TAG" --output none
+
+      - name: Check API health
+        id: fqdn
+        run: |
+          fqdn=$(az containerapp show --name "$API_NAME" --resource-group "$RESOURCE_GROUP" \
+            --query properties.configuration.ingress.fqdn --output tsv)
+          echo "url=https://$fqdn" >> "$GITHUB_OUTPUT"
+          for _ in $(seq 1 18); do
+            if curl -fsS --max-time 20 "https://$fqdn/api/health"; then
+              echo
+              echo "healthy: https://$fqdn"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "API did not answer /api/health within 3 minutes" >&2
+          exit 1
