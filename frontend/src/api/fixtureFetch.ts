@@ -19,15 +19,23 @@ function answer(question: string) {
   return fx.askResponse;
 }
 
-function searchProducts(q: string) {
+function listCatalog(params: URLSearchParams) {
+  const q = params.get("q") ?? "";
+  if (q && q.length < 2) throw new ApiError(422, "String should have at least 2 characters");
+  const category = params.get("category");
+  const limit = Number(params.get("limit") ?? 50);
+  const offset = Number(params.get("offset") ?? 0);
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
-  const items = fx.allProducts.filter((p) =>
-    words.every(
-      (word) =>
-        p.description.toLowerCase().includes(word) || (p.brand ?? "").toLowerCase().includes(word),
-    ),
+  const matching = fx.catalogItems.filter(
+    (item) =>
+      (!category || item.product.category === category) &&
+      words.every(
+        (word) =>
+          item.product.description.toLowerCase().includes(word) ||
+          (item.product.brand ?? "").toLowerCase().includes(word),
+      ),
   );
-  return { items };
+  return { items: matching.slice(offset, offset + limit), total: matching.length, limit, offset };
 }
 
 function listChanges(params: URLSearchParams) {
@@ -61,10 +69,8 @@ export async function fixtureRequest<T>(path: string, init: RequestInit): Promis
     body = fx.categories;
   } else if (route === "/changes") {
     body = listChanges(params);
-  } else if (route === "/products") {
-    const q = params.get("q") ?? "";
-    if (q.length < 2) throw new ApiError(422, "String should have at least 2 characters");
-    body = searchProducts(q);
+  } else if (route === "/catalog") {
+    body = listCatalog(params);
   } else if (route.startsWith("/products/")) {
     const id = decodeURIComponent(route.slice("/products/".length));
     const detail = fx.details[id];

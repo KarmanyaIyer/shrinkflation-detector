@@ -10,8 +10,7 @@ vi.mock("../api/client", () => ({
   PAGE_SIZE: 30,
   getChanges: vi.fn(),
   getCategories: vi.fn(),
-  searchProducts: vi.fn(),
-  getProduct: vi.fn(),
+  getCatalog: vi.fn(),
 }));
 
 import { getCategories, getChanges } from "../api/client";

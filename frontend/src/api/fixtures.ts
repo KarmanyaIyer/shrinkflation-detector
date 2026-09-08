@@ -3,6 +3,7 @@
 import type {
   AskResponse,
   BudgetOut,
+  CatalogItem,
   CategoryCount,
   ChangeList,
   ChangeOut,
@@ -321,6 +322,19 @@ export const details: Record<string, ProductDetail> = {
 };
 
 export const allProducts: ProductSummary[] = Object.values(products);
+
+// The catalog view of every fixture product, ordered by description like the API.
+export const catalogItems: CatalogItem[] = allProducts
+  .map((summary) => {
+    const detail = details[summary.id]!;
+    return {
+      product: summary,
+      current: detail.current ?? null,
+      first_seen_at: detail.first_seen_at,
+      changes: detail.changes.length,
+    };
+  })
+  .sort((a, b) => a.product.description.localeCompare(b.product.description));
 
 export const budget: BudgetOut = { questions_per_day: 10, questions_remaining: 8 };
 

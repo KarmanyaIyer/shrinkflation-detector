@@ -633,6 +633,10 @@ textarea.input {
   width: 132px;
 }
 
+.products col.c-chg {
+  width: 96px;
+}
+
 .products col.c-since {
   width: 140px;
 }

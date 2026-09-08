@@ -25,7 +25,11 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Automatic runs are skipped, not failed, until the Azure repository variables exist, so the
+    # repo stays green before the infrastructure is set up. Manual dispatch still fails loudly.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && vars.AZURE_RESOURCE_GROUP != '')
     runs-on: ubuntu-latest
     environment:
       name: production

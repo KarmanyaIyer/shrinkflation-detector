@@ -3,11 +3,11 @@ import type {
   AskRequest,
   AskResponse,
   BudgetOut,
+  CatalogList,
   CategoryCount,
   ChangeList,
   FeedKind,
   ProductDetail,
-  ProductSearchResult,
   Stats,
 } from "./types";
 
@@ -38,9 +38,21 @@ export function getChanges(params: ChangesParams, signal?: AbortSignal): Promise
   return request<ChangeList>(`/changes?${query.toString()}`, { signal });
 }
 
-export function searchProducts(q: string, signal?: AbortSignal): Promise<ProductSearchResult> {
-  const query = new URLSearchParams({ q });
-  return request<ProductSearchResult>(`/products?${query.toString()}`, { signal });
+export interface CatalogParams {
+  q?: string | null;
+  category?: string | null;
+  limit?: number;
+  offset?: number;
+}
+
+export function getCatalog(params: CatalogParams, signal?: AbortSignal): Promise<CatalogList> {
+  const query = new URLSearchParams({
+    limit: String(params.limit ?? PAGE_SIZE),
+    offset: String(params.offset ?? 0),
+  });
+  if (params.q) query.set("q", params.q);
+  if (params.category) query.set("category", params.category);
+  return request<CatalogList>(`/catalog?${query.toString()}`, { signal });
 }
 
 export function getProduct(id: string, signal?: AbortSignal): Promise<ProductDetail> {

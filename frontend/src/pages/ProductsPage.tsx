@@ -15,18 +15,15 @@ export function ProductsPage() {
     <>
       <h1>{category || "Products"}</h1>
       {category ? (
-        <>
-          <p className="product-meta">
-            {match
-              ? `${pluralize(match.products, "tracked product")} · ${pluralize(match.changes, "change")} recorded`
-              : " "}
-          </p>
-          <p className="note page-note">Search within all tracked products.</p>
-        </>
+        <p className="product-meta">
+          {match
+            ? `${pluralize(match.products, "tracked product")} · ${pluralize(match.changes, "change")} recorded`
+            : " "}
+        </p>
       ) : (
         <p className="note page-note">Search by name or brand, or open a category.</p>
       )}
-      <TrackedProducts categories={categories} autoFocus={Boolean(category)} />
+      <TrackedProducts categories={categories} category={category || undefined} />
     </>
   );
 }

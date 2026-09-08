@@ -106,6 +106,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Catalog
+         * @description Tracked products with their current state, filtered by search words or category.
+         */
+        get: operations["catalog_api_catalog_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ask/budget": {
         parameters: {
             query?: never;
@@ -172,6 +192,29 @@ export interface components {
             questions_per_day: number;
             /** Questions Remaining */
             questions_remaining: number;
+        };
+        /** CatalogItem */
+        CatalogItem: {
+            product: components["schemas"]["ProductSummary"];
+            current: components["schemas"]["SnapshotOut"] | null;
+            /**
+             * First Seen At
+             * Format: date-time
+             */
+            first_seen_at: string;
+            /** Changes */
+            changes: number;
+        };
+        /** CatalogList */
+        CatalogList: {
+            /** Items */
+            items: components["schemas"]["CatalogItem"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
         };
         /** CategoryCount */
         CategoryCount: {
@@ -571,6 +614,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CategoryCount"][];
+                };
+            };
+        };
+    };
+    catalog_api_catalog_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                category?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
