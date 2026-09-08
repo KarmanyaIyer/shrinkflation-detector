@@ -15,7 +15,7 @@ def main(verbose: bool = typer.Option(False, "--verbose", "-v", help="Debug logg
         level=logging.DEBUG if verbose else logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
-    for noisy in ("httpx", "httpcore", "openai", "urllib3"):
+    for noisy in ("httpx", "httpx2", "httpcore", "openai", "urllib3"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
@@ -33,6 +33,16 @@ def build_basket(target: int = typer.Option(1200, help="Number of products to tr
     from shrinkflation.pipeline.basket import run_build_basket
 
     run_build_basket(target=target)
+
+
+@app.command()
+def reparse(
+    everything: bool = typer.Option(False, "--all", help="Re-run every cached parse"),
+) -> None:
+    """Re-run size parsing for cached parses after a parser change."""
+    from shrinkflation.sizes.maintenance import run_reparse
+
+    run_reparse(everything=everything)
 
 
 @app.command()

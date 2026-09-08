@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytest
 
 from shrinkflation.sizes import MeasureKind, parse_with_rules
+from shrinkflation.sizes.rules import is_ambiguous_multipack
 
 
 @pytest.mark.parametrize(
@@ -22,6 +23,10 @@ from shrinkflation.sizes import MeasureKind, parse_with_rules
         ("1 dozen", MeasureKind.COUNT, Decimal("12.0000"), "dozen"),
         ("each", MeasureKind.COUNT, Decimal("1.0000"), "each"),
         ("500 g", MeasureKind.WEIGHT, Decimal("500.0000"), "g"),
+        ("30 fo", MeasureKind.VOLUME, Decimal("887.2059"), "fl oz"),
+        ("8 rl", MeasureKind.COUNT, Decimal("8.0000"), "rolls"),
+        ("2 lbr", MeasureKind.WEIGHT, Decimal("907.1847"), "lb"),
+        (".45 oz", MeasureKind.WEIGHT, Decimal("12.7573"), "oz"),
     ],
 )
 def test_simple_sizes(text: str, kind: MeasureKind, quantity: Decimal, display: str) -> None:
@@ -38,9 +43,8 @@ def test_simple_sizes(text: str, kind: MeasureKind, quantity: Decimal, display: 
     ("text", "pack", "total_ml"),
     [
         ("12 x 12 fl oz", 12, Decimal("4258.5883")),
-        ("6 - 16.9 fl oz", 6, Decimal("2998.7559")),
-        ("24 ct / 16.9 fl oz", 24, Decimal("11995.0236")),
-        ("8 pk / 12 fl oz", 8, Decimal("2839.0588")),
+        ("6 X 16.9 fl oz", 6, Decimal("2998.7559")),
+        ("4 × 8 fl oz", 4, Decimal("946.3529")),
     ],
 )
 def test_multipacks(text: str, pack: int, total_ml: Decimal) -> None:
@@ -66,3 +70,26 @@ def test_multipacks(text: str, pack: int, total_ml: Decimal) -> None:
 )
 def test_unparseable_left_to_llm(text: str) -> None:
     assert parse_with_rules(text) is None
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "6 - 16.9 fl oz",
+        "24 ct / 16.9 fl oz",
+        "8 pk / 12 fl oz",
+        "6 ct / 18 oz",
+        "5.3 oz., 4 pack",
+        "1 pk / 120 ct",
+        "3 pk / 6 ct",
+        "40 pk / .8 oz",
+    ],
+)
+def test_ambiguous_multipacks_left_to_llm(text: str) -> None:
+    assert parse_with_rules(text) is None
+    assert is_ambiguous_multipack(text)
+
+
+@pytest.mark.parametrize("text", ["12 x 12 fl oz", "16 oz", "6 ct", ""])
+def test_not_ambiguous(text: str) -> None:
+    assert not is_ambiguous_multipack(text)

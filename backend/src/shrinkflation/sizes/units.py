@@ -35,6 +35,7 @@ ALIASES: dict[str, str] = {
     "onz": "oz",
     "lb": "lb",
     "lbs": "lb",
+    "lbr": "lb",
     "pound": "lb",
     "pounds": "lb",
     "g": "g",
@@ -46,6 +47,7 @@ ALIASES: dict[str, str] = {
     "kilograms": "kg",
     "mg": "mg",
     "fl oz": "fl oz",
+    "fo": "fl oz",
     "floz": "fl oz",
     "fl. oz": "fl oz",
     "fl. oz.": "fl oz",
@@ -89,6 +91,8 @@ ALIASES: dict[str, str] = {
     "pieces": "count",
     "roll": "count",
     "rolls": "count",
+    "rl": "count",
+    "rls": "count",
     "sheet": "count",
     "sheets": "count",
     "bag": "count",
@@ -163,3 +167,19 @@ def canonical_unit(label: str) -> str | None:
         if alias.replace(".", "").replace(" ", "") == compact:
             return canon
     return None
+
+
+# Count words as they should read on the site when the label uses an abbreviation.
+DISPLAY_WORDS: dict[str, str] = {
+    "rl": "rolls",
+    "rls": "rolls",
+    "ea": "each",
+    "cnt": "ct",
+    "pc": "pieces",
+    "pcs": "pieces",
+}
+
+
+def display_count_word(label: str) -> str:
+    key = " ".join(label.lower().split()).strip(" .")
+    return DISPLAY_WORDS.get(key, key)
