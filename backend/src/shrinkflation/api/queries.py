@@ -129,7 +129,7 @@ def list_catalog(
         .correlate(Product)
         .scalar_subquery()
     )
-    conditions: list[ColumnElement[bool]] = [Product.active]
+    conditions: list[ColumnElement[bool]] = [Product.active.is_(True)]
     if category:
         conditions.append(Product.category == category)
     for word in (q or "").split():
