@@ -46,6 +46,17 @@ def reparse(
 
 
 @app.command()
+def status() -> None:
+    """Print tracked product counts, recent runs, and model spend."""
+    from shrinkflation.db.session import session_scope
+    from shrinkflation.pipeline.status import build_status
+
+    with session_scope() as session:
+        for line in build_status(session).lines():
+            typer.echo(line)
+
+
+@app.command()
 def migrate() -> None:
     """Apply database migrations."""
     from alembic import command

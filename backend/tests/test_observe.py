@@ -136,3 +136,22 @@ def test_refresh_records_changes_and_deactivates_missing_products(db: Session) -
     change = db.execute(select(Change)).scalar_one()
     assert change.product_id == "2000000000001"
     assert change.kind == "shrink"
+
+
+def test_status_report_summarizes_the_database(db: Session) -> None:
+    from shrinkflation.pipeline.status import build_status
+
+    product = new_product(db, "3000000000001", "Status Cereal", "Cereal and breakfast")
+    observe(db, product, "12 oz", "4.29", DAY1)
+    observe(db, product, "10.8 oz", "4.29", DAY2)
+    db.flush()
+
+    report = build_status(db)
+    assert report.products_active == 1
+    assert report.snapshots == 2
+    assert report.changes_by_status == {"published": 1}
+    assert report.changes_by_kind == {"shrink": 1}
+    assert report.llm_calls_today == 0
+    lines = report.lines()
+    assert lines[0] == "products: 1 active of 1"
+    assert any("shrink=1" in line for line in lines)
