@@ -119,3 +119,17 @@ class Health(ApiModel):
     database: str
     last_run_finished_at: datetime | None = None
     detail: dict[str, Any] = Field(default_factory=dict)
+
+
+class CatalogItem(ApiModel):
+    product: ProductSummary
+    current: SnapshotOut | None
+    first_seen_at: datetime
+    changes: int
+
+
+class CatalogList(ApiModel):
+    items: list[CatalogItem]
+    total: int
+    limit: int
+    offset: int

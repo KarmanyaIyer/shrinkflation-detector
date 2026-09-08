@@ -4,6 +4,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from shrinkflation.api.schemas import ChangeOut, ProductSummary, SnapshotOut, UnitPrice
 from shrinkflation.db.models import Change, Product, Snapshot
+from shrinkflation.sizes.schema import clean_decimal
 
 # Base unit -> (label, amount of base unit in one label unit)
 FRIENDLY_UNITS: dict[str, tuple[str, Decimal]] = {
@@ -30,7 +31,9 @@ def snapshot_out(snapshot: Snapshot) -> SnapshotOut:
     return SnapshotOut(
         id=snapshot.id,
         size_text=snapshot.size_text,
-        display_quantity=parse.display_quantity if parse else None,
+        display_quantity=clean_decimal(parse.display_quantity)
+        if parse and parse.display_quantity is not None
+        else None,
         display_unit=parse.display_unit if parse else None,
         quantity=parse.quantity if parse else None,
         base_unit=parse.base_unit if parse else None,

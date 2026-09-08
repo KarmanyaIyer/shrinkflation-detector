@@ -139,3 +139,28 @@ def test_ask_validation_and_budget(client: TestClient) -> None:
     assert client.post("/api/ask", json={"question": "x" * 401}).status_code == 422
     budget = client.get("/api/ask/budget").json()
     assert budget == {"questions_per_day": 10, "questions_remaining": 10}
+
+
+def test_catalog_lists_products_with_current_state(client: TestClient) -> None:
+    everything = client.get("/api/catalog").json()
+    assert everything["total"] == 2
+    assert [item["product"]["id"] for item in everything["items"]] == [
+        "0001600012479",
+        "0001111041700",
+    ]
+
+    dairy = client.get("/api/catalog?category=Dairy and eggs").json()
+    assert dairy["total"] == 1
+    item = dairy["items"][0]
+    assert item["current"]["size_text"] == "1 gal"
+    assert item["current"]["observations"] == 2
+    assert item["changes"] == 0
+    assert item["first_seen_at"].startswith("2026-09-01")
+
+    cereal = client.get("/api/catalog?q=honey cheerios").json()
+    assert cereal["total"] == 1
+    assert cereal["items"][0]["current"]["size_text"] == "10.8 oz"
+    assert cereal["items"][0]["changes"] == 1
+
+    assert client.get("/api/catalog?q=x").status_code == 422
+    assert client.get("/api/catalog?category=Nothing").json()["total"] == 0

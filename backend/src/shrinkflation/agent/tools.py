@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from shrinkflation.api import queries
 from shrinkflation.api.presenters import unit_price
 from shrinkflation.db.models import Change, Product, Snapshot
+from shrinkflation.sizes.schema import clean_decimal
 
 
 class ToolArgs(BaseModel):
@@ -51,7 +52,7 @@ def _snapshot(snapshot: Snapshot) -> dict[str, Any]:
     )
     return {
         "size_text": snapshot.size_text,
-        "normalized_size": f"{parse.display_quantity.normalize()} {parse.display_unit}"
+        "normalized_size": f"{clean_decimal(parse.display_quantity)} {parse.display_unit}"
         if parse and parse.display_quantity and parse.display_unit
         else None,
         "regular_price": _money(snapshot.price_regular),

@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 from shrinkflation.api import queries
 from shrinkflation.api.presenters import change_out, product_summary, snapshot_out
 from shrinkflation.api.schemas import (
+    CatalogItem,
+    CatalogList,
     CategoryCount,
     ChangeList,
     Health,
@@ -150,3 +152,31 @@ def categories(db: DbSession, response: Response) -> list[CategoryCount]:
         CategoryCount(category=category, products=products_count, changes=changes_count)
         for category, products_count, changes_count in queries.category_counts(db)
     ]
+
+
+@router.get("/catalog", response_model=CatalogList)
+def catalog(
+    db: DbSession,
+    response: Response,
+    q: Annotated[str | None, Query(min_length=2, max_length=80)] = None,
+    category: Annotated[str | None, Query(max_length=80)] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    offset: Annotated[int, Query(ge=0, le=10_000)] = 0,
+) -> CatalogList:
+    """Tracked products with their current state, filtered by search words or category."""
+    _cache(response)
+    rows, total = queries.list_catalog(db, q=q, category=category, limit=limit, offset=offset)
+    return CatalogList(
+        items=[
+            CatalogItem(
+                product=product_summary(product),
+                current=snapshot_out(snapshot) if snapshot else None,
+                first_seen_at=product.first_seen_at,
+                changes=count,
+            )
+            for product, snapshot, count in rows
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )

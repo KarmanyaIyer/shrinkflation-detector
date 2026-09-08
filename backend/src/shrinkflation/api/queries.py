@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from shrinkflation.db.models import Change, PipelineRun, Product, Snapshot
@@ -104,3 +104,46 @@ def last_run(session: Session, kind: str | None = None) -> PipelineRun | None:
     return session.execute(
         query.order_by(PipelineRun.started_at.desc()).limit(1)
     ).scalar_one_or_none()
+
+
+def list_catalog(
+    session: Session,
+    *,
+    q: str | None,
+    category: str | None,
+    limit: int,
+    offset: int,
+) -> tuple[list[tuple[Product, Snapshot | None, int]], int]:
+    """Tracked products with their latest snapshot and published change count."""
+    latest_id = (
+        select(Snapshot.id)
+        .where(Snapshot.product_id == Product.id)
+        .order_by(Snapshot.last_seen_at.desc(), Snapshot.id.desc())
+        .limit(1)
+        .correlate(Product)
+        .scalar_subquery()
+    )
+    change_count = (
+        select(func.count())
+        .where(Change.product_id == Product.id, Change.status == "published")
+        .correlate(Product)
+        .scalar_subquery()
+    )
+    conditions: list[ColumnElement[bool]] = [Product.active]
+    if category:
+        conditions.append(Product.category == category)
+    for word in (q or "").split():
+        conditions.append(
+            or_(Product.description.ilike(f"%{word}%"), Product.brand.ilike(f"%{word}%"))
+        )
+    total = session.execute(select(func.count()).where(*conditions)).scalar_one()
+    rows = session.execute(
+        select(Product, Snapshot, change_count)
+        .outerjoin(Snapshot, Snapshot.id == latest_id)
+        .options(selectinload(Snapshot.size_parse))
+        .where(*conditions)
+        .order_by(Product.description, Product.id)
+        .limit(limit)
+        .offset(offset)
+    ).all()
+    return [(product, snapshot, count) for product, snapshot, count in rows], total
