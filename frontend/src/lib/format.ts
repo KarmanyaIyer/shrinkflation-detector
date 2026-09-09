@@ -91,10 +91,12 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
   year: "numeric",
-  timeZone: "UTC",
+  timeZone: "America/New_York",
 });
 
-// "Sep 7, 2026", always in UTC so the day does not shift with the viewer's timezone.
+// "Sep 7, 2026" in the tracked store's timezone (Newport, KY is Eastern), so observation days
+// match the store's business day and do not shift with the viewer's timezone. A refresh run at
+// 00:30 UTC is still "yesterday evening" at the store, not the next day.
 export function formatDate(iso: string | null | undefined): string | null {
   if (!iso) return null;
   const date = new Date(iso);

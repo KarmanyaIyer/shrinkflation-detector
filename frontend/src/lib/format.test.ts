@@ -68,9 +68,10 @@ describe("formatPercent", () => {
 });
 
 describe("formatDate", () => {
-  it("formats in UTC so the day does not shift", () => {
+  it("formats in the store's Eastern timezone so the day matches the store's business day", () => {
     expect(formatDate("2026-09-07T22:54:30.883952Z")).toBe("Sep 7, 2026");
-    expect(formatDate("2026-08-14T00:10:00Z")).toBe("Aug 14, 2026");
+    // Just past UTC midnight is still the previous evening in Kentucky.
+    expect(formatDate("2026-08-14T00:10:00Z")).toBe("Aug 13, 2026");
     expect(formatDate("2026-01-01T23:59:59Z")).toBe("Jan 1, 2026");
     expect(formatDate(null)).toBeNull();
     expect(formatDate("not a date")).toBeNull();
