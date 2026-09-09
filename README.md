@@ -3,6 +3,8 @@
 Tracks package size and price for 1,000+ grocery products at one Kroger store and publishes
 the ones that quietly shrank, with before and after evidence.
 
+Live at [karmanyaiyer.com/projects/shrinkflation](https://karmanyaiyer.com/projects/shrinkflation/).
+
 ## How it works
 
 - A daily job reads every tracked product from the Kroger Public API and stores a snapshot only
