@@ -174,7 +174,10 @@ def get_tracking_stats(session: Session, args: TrackingStatsArgs) -> dict[str, A
         "tracking_since": since.date().isoformat() if since else None,
         "last_refresh": run.finished_at.isoformat() if run and run.finished_at else None,
         "published_changes_by_kind": kinds,
-        "categories": [c for c, _, _ in queries.category_counts(session)],
+        "categories": [
+            {"name": category, "products": products, "published_changes": changes}
+            for category, products, changes in queries.category_counts(session)
+        ],
     }
 
 
@@ -201,7 +204,8 @@ TOOLS: dict[str, tuple[type[ToolArgs], ToolFn, str]] = {
     "get_tracking_stats": (
         TrackingStatsArgs,
         get_tracking_stats,
-        "How many products are tracked, since when, the last refresh time, and category names.",
+        "How many products are tracked, since when, the last refresh time, and per-category "
+        "product and change counts.",
     ),
 }
 

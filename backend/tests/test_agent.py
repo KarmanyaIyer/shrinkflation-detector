@@ -48,6 +48,9 @@ def test_search_and_history_tools(db: Session) -> None:
     stats = run_tool(db, "get_tracking_stats", {})
     assert stats["products_tracked"] == 2
     assert stats["published_changes_by_kind"] == {"shrink": 1}
+    cereal = next(c for c in stats["categories"] if c["name"] == "Cereal and breakfast")
+    assert cereal["products"] == 1
+    assert cereal["published_changes"] == 1
 
 
 def test_tool_argument_validation(db: Session) -> None:
