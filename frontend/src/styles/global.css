@@ -208,6 +208,11 @@ code {
   color: var(--ink-2);
 }
 
+.site-footer-links {
+  display: flex;
+  gap: 20px;
+}
+
 /* Sections */
 
 .section {

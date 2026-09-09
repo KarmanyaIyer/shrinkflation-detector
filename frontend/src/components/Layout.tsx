@@ -77,9 +77,12 @@ export function Layout({ stats }: { stats: AsyncState<Stats> }) {
       <footer className="site-footer">
         <div className="wrap">
           <span>Source: Kroger Public API. Independent project, not affiliated with Kroger.</span>
-          <a href={GITHUB_URL} rel="noopener">
-            GitHub
-          </a>
+          <span className="site-footer-links">
+            <a href={GITHUB_URL} rel="noopener">
+              GitHub
+            </a>
+            <a href="https://karmanyaiyer.com/">karmanyaiyer.com</a>
+          </span>
         </div>
       </footer>
     </div>
