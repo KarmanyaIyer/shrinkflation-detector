@@ -1,0 +1,28 @@
+name: Health check
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Three attempts with pauses so a scale-to-zero cold start does not page anyone.
+      - name: Check /api/health
+        run: |
+          url="https://shrink-api.orangemoss-1e2011d7.centralus.azurecontainerapps.io/api/health"
+          for attempt in 1 2 3; do
+            body=$(curl -sS --max-time 60 "$url" || true)
+            if printf '%s' "$body" | grep -q '"status":"ok"'; then
+              echo "healthy: $body"
+              exit 0
+            fi
+            echo "attempt $attempt unhealthy: $body"
+            sleep 30
+          done
+          exit 1

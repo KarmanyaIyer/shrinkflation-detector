@@ -42,4 +42,4 @@ COPY --from=builder /app/alembic.ini /app/alembic.ini
 
 USER app
 EXPOSE 8000
-CMD ["uvicorn", "shrinkflation.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "shrinkflation.api.app:app", "--host", "0.0.0.0", "--port", "8000", "--no-server-header"]

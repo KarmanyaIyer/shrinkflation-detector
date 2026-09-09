@@ -1,5 +1,9 @@
 # Shrinkflation Detector
 
+[![CI](https://github.com/KarmanyaIyer/shrinkflation-detector/actions/workflows/ci.yml/badge.svg)](https://github.com/KarmanyaIyer/shrinkflation-detector/actions/workflows/ci.yml)
+[![Deploy](https://github.com/KarmanyaIyer/shrinkflation-detector/actions/workflows/deploy.yml/badge.svg)](https://github.com/KarmanyaIyer/shrinkflation-detector/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-141414.svg)](LICENSE)
+
 Tracks package size and price for 1,000+ grocery products at one Kroger store and publishes
 the ones that quietly shrank, with before and after evidence.
 

@@ -110,6 +110,7 @@ def test_stats_and_categories(client: TestClient) -> None:
 def test_security_headers(client: TestClient) -> None:
     response = client.get("/api/stats")
     assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["strict-transport-security"] == "max-age=31536000"
     assert response.headers["x-ratelimit-limit"] == "120"
     assert response.headers["x-ratelimit-remaining"].isdigit()
 
