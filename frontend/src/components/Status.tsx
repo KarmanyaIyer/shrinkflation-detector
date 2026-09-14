@@ -11,9 +11,10 @@ export function SkeletonLines({ lines = 3, className = "" }: { lines?: number; c
   );
 }
 
-export function SkeletonRows({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) {
+// `tall` reserves the height of a changes row, which carries three lines per cell.
+export function SkeletonRows({ rows = 5, cols = 4, tall = false }: { rows?: number; cols?: number; tall?: boolean }) {
   return (
-    <div className="sk sk-rows" aria-hidden="true">
+    <div className={tall ? "sk sk-rows sk-rows-tall" : "sk sk-rows"} aria-hidden="true">
       {Array.from({ length: rows }, (_, r) => (
         <div key={r} className="sk-row" style={{ gridTemplateColumns: `minmax(0, 2fr) repeat(${cols - 1}, minmax(0, 1fr))` }}>
           {Array.from({ length: cols }, (_, c) => (

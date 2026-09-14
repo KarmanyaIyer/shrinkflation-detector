@@ -2,7 +2,9 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as fx from "../api/fixtures";
+import type { ChangeList, FeedKind } from "../api/types";
 import { MINUS } from "../lib/format";
+import { FEED_KIND_MEMBERS } from "../lib/kinds";
 import { HomePage } from "../pages/HomePage";
 
 vi.mock("../api/client", () => ({
@@ -34,11 +36,26 @@ function renderHome(path = "/") {
   );
 }
 
+// The count in the changes section, as opposed to the same words on a category card.
+async function findChangeCount(text: string) {
+  const section = await screen.findByRole("region", { name: "What changed" });
+  return within(section).findByText(text);
+}
+
+// Answers like the API: only the changes of the requested kind.
+function changesFor(kind: FeedKind): ChangeList {
+  const members = FEED_KIND_MEMBERS[kind];
+  const items = fx.changes.filter((change) => members.includes(change.kind));
+  return { items, total: items.length, limit: 30, offset: 0 };
+}
+
 beforeEach(() => {
   vi.mocked(getStats).mockReset().mockResolvedValue(fx.stats);
   vi.mocked(getCategories).mockReset().mockResolvedValue(fx.categories);
   vi.mocked(getField).mockReset().mockResolvedValue(fx.field);
-  vi.mocked(getChanges).mockReset().mockResolvedValue(fx.changeList);
+  vi.mocked(getChanges)
+    .mockReset()
+    .mockImplementation((params) => Promise.resolve(changesFor(params.kind)));
   vi.mocked(getCatalog).mockReset();
 });
 
@@ -56,7 +73,7 @@ describe("HomePage with published changes", () => {
 
   it("opens on size decreases with four fixed columns and plain before/after lines", async () => {
     renderHome();
-    expect(await screen.findByText("8 changes")).toBeInTheDocument();
+    expect(await findChangeCount("2 changes")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Shrank/, pressed: true })).toBeInTheDocument();
     expect(vi.mocked(getChanges).mock.calls[0]?.[0]).toMatchObject({ kind: "shrink", offset: 0 });
 
@@ -64,7 +81,7 @@ describe("HomePage with published changes", () => {
       expect(screen.getByRole("columnheader", { name })).toBeInTheDocument();
     }
     const rows = screen.getAllByRole("row").filter((row) => row.classList.contains("link-row"));
-    expect(rows).toHaveLength(fx.changes.length);
+    expect(rows).toHaveLength(2);
 
     const cheerios = rows.find(
       (row) =>
@@ -92,10 +109,13 @@ describe("HomePage with published changes", () => {
 
   it("names the kind only on the All tab and colors cheaper per unit as better", async () => {
     renderHome();
-    await screen.findByText("8 changes");
+    await findChangeCount("2 changes");
     fireEvent.click(screen.getByRole("button", { name: /All/ }));
     expect(await screen.findByRole("button", { name: /All/, pressed: true })).toBeInTheDocument();
     expect(vi.mocked(getChanges).mock.calls.at(-1)?.[0]).toMatchObject({ kind: "all" });
+    expect(await findChangeCount("8 changes")).toBeInTheDocument();
+    const rows = screen.getAllByRole("row").filter((row) => row.classList.contains("link-row"));
+    expect(rows).toHaveLength(fx.changes.length);
     expect(screen.getAllByText("Price up").length).toBeGreaterThan(0);
     expect(screen.getByText("Shrank, cheaper per unit")).toHaveClass("kind", "better");
     for (const cheaper of screen.getAllByText(`${MINUS}14.3%`)) expect(cheaper).toHaveClass("better");
@@ -107,8 +127,21 @@ describe("HomePage with published changes", () => {
     renderHome("/?kind=price_increase");
     expect(await screen.findByRole("button", { name: /Price up/, pressed: true })).toBeInTheDocument();
     expect(vi.mocked(getChanges).mock.calls[0]?.[0]).toMatchObject({ kind: "price_increase" });
+    expect(await findChangeCount("3 changes")).toBeInTheDocument();
     fireEvent.change(screen.getByRole("combobox", { name: "Category" }), { target: { value: "Snacks" } });
     expect(vi.mocked(getChanges).mock.calls.at(-1)?.[0]).toMatchObject({ kind: "price_increase", category: "Snacks" });
+  });
+
+  it("still loads changes when the stats request fails", async () => {
+    vi.mocked(getStats).mockRejectedValue(new Error("stats down"));
+    renderHome();
+    expect(
+      await screen.findByText(
+        "Sizes and prices of every tracked product at one Cincinnati-area Kroger, checked every morning.",
+      ),
+    ).toBeInTheDocument();
+    expect(await findChangeCount("2 changes")).toBeInTheDocument();
+    expect(vi.mocked(getChanges).mock.calls[0]?.[0]).toMatchObject({ kind: "shrink" });
   });
 
   it("lists categories as links and searches the catalog", async () => {

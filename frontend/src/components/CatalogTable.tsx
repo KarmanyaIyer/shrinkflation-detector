@@ -32,7 +32,7 @@ export function CatalogTable({ items }: { items: CatalogItem[] }) {
             </td>
             <td className="mono-line" data-label="Per unit">
               {formatUnitPrice(item.current?.unit_price?.value, item.current?.unit_price?.unit) ?? (
-                <span className="same">size not parsed</span>
+                <span className="same">{item.current?.quantity ? "no price" : "size not parsed"}</span>
               )}
             </td>
           </LinkRow>

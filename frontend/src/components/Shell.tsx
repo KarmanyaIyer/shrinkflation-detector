@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation, useNavigationType } from "react-router";
 
 export const GITHUB_URL = "https://github.com/KarmanyaIyer/shrinkflation-detector";
 export const SITE_URL = "https://karmanyaiyer.com/";
@@ -28,11 +28,14 @@ const NAV = [
 
 export function Shell() {
   const location = useLocation();
+  const navigationType = useNavigationType();
 
-  // Page changes start at the top; hash changes are handled by the home page.
+  // A new page starts at the top. Back and forward keep the browser's restored position, and
+  // hash links are handled by the home page.
   useEffect(() => {
-    if (!location.hash) window.scrollTo(0, 0);
-  }, [location.pathname, location.hash]);
+    if (navigationType === "POP" || location.hash) return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [location.pathname, location.hash, navigationType]);
 
   return (
     <>

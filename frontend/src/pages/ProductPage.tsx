@@ -84,11 +84,13 @@ function HistoryTable({ snapshots }: { snapshots: SnapshotOut[] }) {
               {formatMoney(s.price_regular) ?? <span className="same">no price</span>}
             </td>
             <td className="mono-line" data-label="Per unit">
-              {formatUnitPrice(s.unit_price?.value, s.unit_price?.unit) ?? <span className="same">size not parsed</span>}
+              {formatUnitPrice(s.unit_price?.value, s.unit_price?.unit) ?? (
+                <span className="same">{s.quantity ? "no price" : "size not parsed"}</span>
+              )}
             </td>
             <td className="mono-line" data-label="Seen">
               {formatDateRange(s.first_seen_at, s.last_seen_at)}
-              <span className="same"> {pluralize(daysObserved(s.first_seen_at, s.last_seen_at), "day")}</span>
+              <span className="same nowrap"> {pluralize(daysObserved(s.first_seen_at, s.last_seen_at), "day")}</span>
             </td>
           </tr>
         ))}
@@ -141,7 +143,10 @@ function Detail({ detail }: { detail: ProductDetail }) {
         {detail.changes.length > 0 ? (
           <ChangesTable items={detail.changes} showKind />
         ) : (
-          <Empty title="Nothing has changed yet." note="One state observed so far." />
+          <Empty
+            title="Nothing has changed yet."
+            note={detail.snapshots.length === 1 ? "One state observed so far." : undefined}
+          />
         )}
       </section>
     </>

@@ -109,7 +109,7 @@ export function AskPanel({
           {pending ? "Asking" : "Ask"}
         </button>
       </form>
-      <div className="chips" aria-label="Example questions">
+      <div className="chips" role="group" aria-label="Example questions">
         {EXAMPLE_QUESTIONS.map((text) => (
           <button key={text} type="button" className="chip" onClick={() => useExample(text)} disabled={pending}>
             {text}
@@ -118,7 +118,8 @@ export function AskPanel({
       </div>
 
       {state.status === "pending" ? (
-        <div className="answer" role="status" aria-label="Working on the answer">
+        <div className="answer" role="status">
+          <span className="sr-only">Working on the answer</span>
           <SkeletonLines lines={3} className="answer-sk" />
         </div>
       ) : null}
@@ -136,7 +137,7 @@ export function AskPanel({
 
 function Answer({ response }: { response: AskResponse }) {
   return (
-    <div className="answer">
+    <div className="answer" aria-live="polite">
       <p className="answer-text">{response.answer}</p>
       {response.tool_calls.length > 0 ? (
         <ol className="trace" aria-label="Tool calls">

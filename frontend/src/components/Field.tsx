@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import type { FieldProduct } from "../api/types";
 import { formatInt, formatMoney } from "../lib/format";
-import { kindLabel } from "../lib/kinds";
+import { kindLabel, kindTone } from "../lib/kinds";
 import { FieldRenderer } from "./fieldRenderer";
 
 interface Tip {
@@ -10,6 +10,9 @@ interface Tip {
   x: number;
   y: number;
 }
+
+// Matches the tooltip's max-width in the stylesheet.
+const TIP_WIDTH = 240;
 
 const LEGEND = [
   { className: "lg-shrink", label: "shrank" },
@@ -92,6 +95,7 @@ export function Field({
   }, [highlight, products]);
 
   const count = products ? formatInt(products.length) : null;
+  const wrapWidth = wrapRef.current?.clientWidth ?? 0;
 
   return (
     <div className="field" ref={wrapRef}>
@@ -105,7 +109,7 @@ export function Field({
           ))}
         </ul>
       </div>
-      <div className="field-canvas" style={{ minHeight: products ? height : 300 }}>
+      <div className="field-canvas" style={{ minHeight: products ? height : undefined }}>
         {products ? (
           <canvas
             ref={canvasRef}
@@ -119,16 +123,18 @@ export function Field({
           <div
             className="field-tip"
             style={{
-              left: tip.x,
+              // Slides left near the right edge and sits above the cursor near the bottom, so
+              // the box is never squeezed against the card.
+              left: Math.max(0, Math.min(tip.x, wrapWidth - TIP_WIDTH)),
               top: tip.y,
-              transform: tip.x > (wrapRef.current?.clientWidth ?? 0) * 0.6 ? "translate(-100%, 14px)" : "translate(0, 14px)",
+              transform: tip.y > height - 96 ? "translate(0, calc(-100% - 12px))" : "translate(0, 14px)",
             }}
           >
             <div className="tip-name">{tip.product.name}</div>
             <div className="tip-meta">
               {[tip.product.size, formatMoney(tip.product.price)].filter(Boolean).join(", ") || tip.product.category}
               {tip.product.change ? (
-                <span className={`tip-kind ${tip.product.change === "shrink" || tip.product.change === "price_increase" ? "worse" : "better"}`}>
+                <span className={`tip-kind ${kindTone(tip.product.change)}`}>
                   {kindLabel(tip.product.change)}
                 </span>
               ) : null}

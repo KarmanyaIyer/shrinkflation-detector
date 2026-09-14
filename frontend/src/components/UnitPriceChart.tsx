@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type MouseEvent, type TouchEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type TouchEvent } from "react";
 import type { SnapshotOut } from "../api/types";
 import { formatDate, formatMoney, formatUnitPrice, toNumber } from "../lib/format";
 
@@ -10,7 +10,7 @@ interface Segment {
   snapshot: SnapshotOut;
 }
 
-const W = 720;
+const DEFAULT_W = 720;
 const H = 200;
 const TOP = 14;
 const BOTTOM = 32;
@@ -28,7 +28,11 @@ function buildSegments(snapshots: SnapshotOut[]): Segment[] {
     if (y === null || !unit || Number.isNaN(x0) || Number.isNaN(x1)) continue;
     segments.push({ x0, x1: Math.max(x0, x1), y, unit, snapshot });
   }
-  return segments.sort((a, b) => a.x0 - b.x0);
+  segments.sort((a, b) => a.x0 - b.x0);
+  // A relabel from fluid ounces to count would put two units on one axis; only the current
+  // unit's states are drawn.
+  const unit = segments[segments.length - 1]?.unit;
+  return segments.filter((segment) => segment.unit === unit);
 }
 
 function dateOf(ms: number): string {
@@ -40,8 +44,27 @@ function dateOf(ms: number): string {
 export function UnitPriceChart({ snapshots }: { snapshots: SnapshotOut[] }) {
   const segments = useMemo(() => buildSegments(snapshots), [snapshots]);
   const [hover, setHover] = useState<{ index: number; x: number } | null>(null);
+  const [W, setW] = useState(DEFAULT_W);
   const svgRef = useRef<SVGSVGElement>(null);
-  if (segments.length < 2) return null;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const drawable = segments.length >= 2;
+
+  // Drawn at the container's own width, so an 11px label is 11px on a phone as well.
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return undefined;
+    const measure = () => {
+      const width = Math.floor(wrap.getBoundingClientRect().width);
+      if (width >= 200) setW(width);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(measure);
+    observer.observe(wrap);
+    return () => observer.disconnect();
+  }, [drawable]);
+
+  if (!drawable) return null;
 
   const firstSeg = segments[0]!;
   const lastSeg = segments[segments.length - 1]!;
@@ -118,7 +141,7 @@ export function UnitPriceChart({ snapshots }: { snapshots: SnapshotOut[] }) {
     `to ${formatUnitPrice(lastSeg.y, unit)} on ${dateOf(lastSeg.x1)}.`;
 
   return (
-    <div className="chart">
+    <div className="chart" ref={wrapRef}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}

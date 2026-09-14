@@ -67,7 +67,7 @@ function UnitCell({ change }: { change: ChangeOut }) {
   if (!to) {
     return (
       <td className="td-unit" data-label="Per unit">
-        <span className="same">size not parsed</span>
+        <span className="same">{change.after?.quantity ? "no price" : "size not parsed"}</span>
       </td>
     );
   }

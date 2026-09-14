@@ -13,8 +13,8 @@ const COLORS = {
   grow: "#2f7d4f",
   price_decrease: "#55a078",
   ink: "#141414",
-  label: "#6f6f6a",
-  count: "#9a9a96",
+  label: "#4c4c47",
+  count: "#6f6f6a",
 };
 
 const LABEL_FONT = "400 10.5px 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
@@ -56,6 +56,7 @@ export class FieldRenderer {
   private dpr = 1;
   private mouse: { x: number; y: number } | null = null;
   private hovered = -1;
+  private pointerType = "mouse";
   private bornAt = 0;
   private scanning = false;
   private scanStart = 0;
@@ -98,6 +99,9 @@ export class FieldRenderer {
     });
     this.width = width;
     this.dpr = Math.min(3, window.devicePixelRatio || 1);
+    // Dot order depends on the width, so a hover index from the old layout is meaningless.
+    this.mouse = null;
+    this.setHovered(-1, 0, 0);
     const height = Math.ceil(this.layout.height);
     this.canvas.width = Math.round(width * this.dpr);
     this.canvas.height = Math.round(height * this.dpr);
@@ -134,31 +138,42 @@ export class FieldRenderer {
 
   private readonly onPointerMove = (event: PointerEvent) => {
     if (event.pointerType === "touch") return;
-    this.setMouse(event);
+    this.pointerType = "mouse";
+    this.locate(event.clientX, event.clientY);
   };
 
   private readonly onPointerLeave = () => {
+    // Touch screens fire pointerleave right after every tap, before the click arrives, so a
+    // tapped square keeps its tooltip until the next tap lands somewhere else.
+    if (this.pointerType === "touch") return;
     this.mouse = null;
     this.setHovered(-1, 0, 0);
     this.requestFrame();
   };
 
   private readonly onPointerDown = (event: PointerEvent) => {
-    // A tap shows the tooltip instead of navigating, since squares are small on touch screens.
-    if (event.pointerType === "touch") this.setMouse(event);
+    this.pointerType = event.pointerType;
   };
 
   private readonly onClick = (event: MouseEvent) => {
-    if (this.hovered >= 0 && this.layout) {
+    if (!this.layout) return;
+    if (this.pointerType === "touch") {
+      // Squares are small under a finger: the first tap names the product, a second tap on the
+      // same square opens it. Scrolling never produces a click, so nothing pops up mid-scroll.
+      const before = this.hovered;
+      this.locate(event.clientX, event.clientY);
+      if (this.hovered < 0 || this.hovered !== before) return;
+    }
+    if (this.hovered >= 0) {
       event.preventDefault();
       this.callbacks.onSelect(this.layout.order[this.hovered]!);
     }
   };
 
-  private setMouse(event: PointerEvent): void {
+  private locate(clientX: number, clientY: number): void {
     const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     this.mouse = { x, y };
     if (this.layout) {
       const dot = nearestDot(this.layout, x, y, Math.max(7, this.layout.pitch * 0.75));

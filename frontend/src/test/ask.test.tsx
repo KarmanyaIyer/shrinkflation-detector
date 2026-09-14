@@ -33,7 +33,7 @@ describe("AskPanel", () => {
 
     expect(vi.mocked(ask)).toHaveBeenCalledWith("Did Cheerios shrink?", expect.any(AbortSignal));
     expect(onPending).toHaveBeenCalledWith(true);
-    expect(screen.getByRole("status", { name: "Working on the answer" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Working on the answer");
 
     expect(await screen.findByText(/went from 12 oz to 10\.8 oz/)).toBeInTheDocument();
     const trace = screen.getByRole("list", { name: "Tool calls" });
@@ -46,7 +46,6 @@ describe("AskPanel", () => {
     expect(screen.getByText("trace 5f1c0f8f9d0a")).toBeInTheDocument();
     expect(onPending).toHaveBeenLastCalledWith(false);
     expect(onAnswer).toHaveBeenCalledWith(["0001600012479", "0001600012495"]);
-    expect(screen.queryByText(/questions left/)).not.toBeInTheDocument();
   });
 
   it("asks an example question on click", async () => {

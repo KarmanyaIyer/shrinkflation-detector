@@ -194,15 +194,29 @@ export function pluralize(count: number, singular: string, plural = `${singular}
   return `${formatInt(count)} ${count === 1 ? singular : plural}`;
 }
 
-// Calendar days from the first to the last observation, inclusive.
+const dayKeyFormat = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: STORE_TIMEZONE,
+});
+
+// The calendar day of an instant at the store, counted in days so two can be subtracted.
+function storeDay(iso: string): number | null {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  const parts = dayKeyFormat.formatToParts(date);
+  const pick = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value ?? "");
+  return Date.UTC(pick("year"), pick("month") - 1, pick("day")) / 86_400_000;
+}
+
+// Calendar days at the store from the first to the last observation, inclusive.
 export function daysObserved(firstIso: string, lastIso: string): number {
-  const first = new Date(firstIso);
-  const last = new Date(lastIso);
-  if (Number.isNaN(first.getTime()) || Number.isNaN(last.getTime())) return 1;
-  const firstDay = Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), first.getUTCDate());
-  const lastDay = Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), last.getUTCDate());
-  if (lastDay < firstDay) return 1;
-  return (lastDay - firstDay) / 86_400_000 + 1;
+  const first = storeDay(firstIso);
+  const last = storeDay(lastIso);
+  if (first === null || last === null || last < first) return 1;
+  return last - first + 1;
 }
 
 // Relative change in percent between two decimal values, or null when not computable.

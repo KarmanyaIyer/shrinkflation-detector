@@ -72,17 +72,21 @@ describe("ProductPage", () => {
     expect(screen.getByText("1 state")).toBeInTheDocument();
   });
 
-  it("labels model parses with their confidence and shows a promo price when present", async () => {
+  it("labels model parses with their confidence", async () => {
     vi.mocked(getProduct).mockResolvedValue(fx.details[fx.products.milk.id]!);
     renderProduct(fx.products.milk.id);
     expect(await screen.findByText("parsed by language model, confidence 0.85")).toBeInTheDocument();
     expect(screen.getByText("64 fl oz")).toBeInTheDocument();
     expect(screen.queryByText("Promo price")).not.toBeInTheDocument();
+  });
 
+  it("shows a promo price when present", async () => {
     vi.mocked(getProduct).mockResolvedValue(fx.details[fx.products.oreo.id]!);
     renderProduct(fx.products.oreo.id);
     expect(await screen.findByText("Promo price")).toBeInTheDocument();
-    expect(screen.getByText("$3.99")).toBeInTheDocument();
+    const facts = screen.getByRole("heading", { name: "Now" }).closest("section")!;
+    expect(within(facts).getByText("$3.99")).toBeInTheDocument();
+    expect(within(facts).getByText("$4.99")).toBeInTheDocument();
   });
 
   it("says when a product id is unknown", async () => {

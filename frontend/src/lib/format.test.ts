@@ -123,11 +123,14 @@ describe("counts and spans", () => {
     expect(pluralize(0, "product")).toBe("0 products");
     expect(pluralize(2, "match", "matches")).toBe("2 matches");
   });
-  it("counts observed calendar days inclusively", () => {
+  it("counts observed calendar days at the store inclusively", () => {
     expect(daysObserved("2026-08-02T22:54:00Z", "2026-08-02T22:54:00Z")).toBe(1);
     expect(daysObserved("2026-08-02T22:54:00Z", "2026-08-13T22:56:00Z")).toBe(12);
     expect(daysObserved("2026-08-13T22:56:00Z", "2026-08-02T22:54:00Z")).toBe(1);
     expect(daysObserved("2026-07-06T22:54:30Z", "2026-07-27T12:00:00Z")).toBe(22);
+    // 00:30 UTC is still the previous evening at the store, so this spans Sep 1 to Sep 4.
+    expect(daysObserved("2026-09-02T00:30:00Z", "2026-09-04T06:00:00Z")).toBe(4);
+    expect(daysObserved("not a date", "2026-09-04T06:00:00Z")).toBe(1);
   });
   it("computes percent change", () => {
     expect(percentChange("0.3575", "0.3972")).toBeCloseTo(11.1, 1);

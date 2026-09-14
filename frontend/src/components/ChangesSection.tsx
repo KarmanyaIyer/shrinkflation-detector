@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { PAGE_SIZE, getChanges } from "../api/client";
 import { FEED_KINDS, isFeedKind, type CategoryCount, type ChangeOut, type FeedKind, type Stats } from "../api/types";
@@ -46,6 +46,9 @@ export function ChangesSection({
   const [category, setCategory] = useState<string | null>(params.get("category"));
   const [extra, setExtra] = useState<ChangeOut[]>([]);
   const [more, setMore] = useState<"idle" | "loading" | "error">("idle");
+  // Which tab and category the extra pages belong to, so a page that arrives after the user
+  // switched tabs is dropped instead of appended under the wrong list.
+  const listKey = useRef("");
 
   useEffect(() => {
     if (ready && kind === null) setKind(defaultKind(params.get("kind"), stats.data));
@@ -59,19 +62,22 @@ export function ChangesSection({
   );
 
   useEffect(() => {
+    listKey.current = `${activeKind}|${category ?? ""}`;
     setExtra([]);
     setMore("idle");
   }, [activeKind, category]);
 
   async function loadMore() {
     if (first.status !== "ok") return;
+    const key = listKey.current;
     setMore("loading");
     try {
       const page = await getChanges({ kind: activeKind, category, offset: first.data.items.length + extra.length });
+      if (listKey.current !== key) return;
       setExtra((current) => [...current, ...page.items]);
       setMore("idle");
     } catch {
-      setMore("error");
+      if (listKey.current === key) setMore("error");
     }
   }
 
@@ -132,7 +138,7 @@ export function ChangesSection({
       {first.status === "error" ? (
         <LoadError what="changes" error={first.error} retry={first.reload} />
       ) : first.status === "loading" ? (
-        <SkeletonRows rows={5} cols={4} />
+        <SkeletonRows rows={4} cols={4} tall />
       ) : items.length === 0 ? (
         <Empty title={`${EMPTY_TITLES[activeKind].replace(/\.$/, "")}${category ? ` in ${category}` : ""}.`} note={emptyNote} />
       ) : (

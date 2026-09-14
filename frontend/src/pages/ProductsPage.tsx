@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router";
 import { PAGE_SIZE, getCatalog } from "../api/client";
 import type { CatalogItem } from "../api/types";
@@ -17,8 +17,10 @@ export function ProductsPage() {
   });
   const [extra, setExtra] = useState<CatalogItem[]>([]);
   const [more, setMore] = useState<"idle" | "loading" | "error">("idle");
+  const listKey = useRef<string | null>(null);
 
   useEffect(() => {
+    listKey.current = category;
     setExtra([]);
     setMore("idle");
   }, [category]);
@@ -27,13 +29,15 @@ export function ProductsPage() {
 
   async function loadMore() {
     if (first.status !== "ok") return;
+    const key = listKey.current;
     setMore("loading");
     try {
       const page = await getCatalog({ category, limit: PAGE_SIZE, offset: first.data.items.length + extra.length });
+      if (listKey.current !== key) return;
       setExtra((current) => [...current, ...page.items]);
       setMore("idle");
     } catch {
-      setMore("error");
+      if (listKey.current === key) setMore("error");
     }
   }
 
