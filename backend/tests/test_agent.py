@@ -6,7 +6,7 @@ from typing import Any, cast
 from sqlalchemy.orm import Session
 
 from shrinkflation.agent.service import answer_question
-from shrinkflation.agent.tools import run_tool, tool_definitions
+from shrinkflation.agent.tools import product_ids_in, run_tool, tool_definitions
 from shrinkflation.config import get_settings
 from shrinkflation.llm.client import LlmCallRecord, LlmClient
 from tests.conftest import seed_catalog
@@ -34,19 +34,23 @@ def test_search_and_history_tools(db: Session) -> None:
     assert found["matches"][0]["product_id"] == "0001600012479"
     assert found["matches"][0]["current"]["size_text"] == "10.8 oz"
     assert found["matches"][0]["published_changes"] == 1
+    assert product_ids_in("search_products", found) == ["0001600012479"]
 
     history = run_tool(db, "get_product_history", {"product_id": "0001600012479"})
     assert [s["size_text"] for s in history["states"]] == ["12 oz", "10.8 oz"]
     assert history["changes"][0]["kind"] == "shrink"
     assert history["changes"][0]["size_change_pct"] == -10.0
     assert history["changes"][0]["first_seen_after"] == "2026-09-03"
+    assert product_ids_in("get_product_history", history) == ["0001600012479"]
 
     recent = run_tool(db, "list_recent_changes", {"kind": "shrink", "limit": 5})
     assert recent["total_published"] == 1
     assert recent["changes"][0]["product"]["name"] == "General Mills Honey Nut Cheerios Cereal"
+    assert product_ids_in("list_recent_changes", recent) == ["0001600012479"]
 
     stats = run_tool(db, "get_tracking_stats", {})
     assert stats["products_tracked"] == 2
+    assert product_ids_in("get_tracking_stats", stats) == []
     assert stats["published_changes_by_kind"] == {"shrink": 1}
     cereal = next(c for c in stats["categories"] if c["name"] == "Cereal and breakfast")
     assert cereal["products"] == 1
@@ -114,6 +118,7 @@ def test_agent_runs_tools_then_answers(db: Session) -> None:
     assert result.answer.startswith("Honey Nut Cheerios went from 12 oz to 10.8 oz")
     assert [t.name for t in result.tool_calls] == ["search_products"]
     assert result.tool_calls[0].ok
+    assert result.tool_calls[0].product_ids == ["0001600012479"]
     assert result.total_tokens == 30
     assert llm.calls[0]["tool_choice"] == "required"
     assert llm.calls[1]["tool_choice"] == "auto"

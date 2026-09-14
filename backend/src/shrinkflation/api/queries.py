@@ -106,6 +106,38 @@ def last_run(session: Session, kind: str | None = None) -> PipelineRun | None:
     ).scalar_one_or_none()
 
 
+def field_products(session: Session) -> list[tuple[Product, Snapshot | None, str | None]]:
+    """Every active product with its latest snapshot and the kind of its latest published
+    change. One flat pass, ordered by category then name, for the product map."""
+    latest_id = (
+        select(Snapshot.id)
+        .where(Snapshot.product_id == Product.id)
+        .order_by(Snapshot.last_seen_at.desc(), Snapshot.id.desc())
+        .limit(1)
+        .correlate(Product)
+        .scalar_subquery()
+    )
+    latest_change = (
+        select(Change.kind)
+        .where(
+            Change.product_id == Product.id,
+            Change.status == "published",
+            Change.kind.in_(FEED_KINDS["all"]),
+        )
+        .order_by(Change.detected_at.desc(), Change.id.desc())
+        .limit(1)
+        .correlate(Product)
+        .scalar_subquery()
+    )
+    rows = session.execute(
+        select(Product, Snapshot, latest_change)
+        .outerjoin(Snapshot, Snapshot.id == latest_id)
+        .where(Product.active.is_(True))
+        .order_by(Product.category, Product.description, Product.id)
+    ).all()
+    return [(product, snapshot, kind) for product, snapshot, kind in rows]
+
+
 def list_catalog(
     session: Session,
     *,

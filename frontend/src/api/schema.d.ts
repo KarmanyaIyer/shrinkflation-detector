@@ -106,6 +106,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/field": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Field
+         * @description Every tracked product with its current size, price, and latest published change, in one
+         *     response. The site draws one square per product from it.
+         */
+        get: operations["field_api_field_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/catalog": {
         parameters: {
             query?: never;
@@ -265,6 +286,34 @@ export interface components {
             /** Note */
             note?: string | null;
         };
+        /** FieldOut */
+        FieldOut: {
+            /** Products */
+            products: components["schemas"]["FieldProduct"][];
+        };
+        /**
+         * FieldProduct
+         * @description One tracked product, flattened for the product map on the site.
+         */
+        FieldProduct: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Brand */
+            brand?: string | null;
+            /** Category */
+            category: string;
+            /** Size */
+            size?: string | null;
+            /** Price */
+            price?: string | null;
+            /**
+             * Change
+             * @description Kind of the latest published change, or null
+             */
+            change?: string | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -404,6 +453,8 @@ export interface components {
             grow_count: number;
             /** Price Increase Count */
             price_increase_count: number;
+            /** Price Decrease Count */
+            price_decrease_count: number;
             /** Llm Calls */
             llm_calls: number;
             /** Llm Cost Usd */
@@ -426,6 +477,8 @@ export interface components {
             ms: number;
             /** Ok */
             ok: boolean;
+            /** Product Ids */
+            product_ids?: string[];
         };
         /** UnitPrice */
         UnitPrice: {
@@ -614,6 +667,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CategoryCount"][];
+                };
+            };
+        };
+    };
+    field_api_field_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FieldOut"];
                 };
             };
         };

@@ -13,7 +13,7 @@ from openai.types.chat import ChatCompletionMessageParam, ChatCompletionToolPara
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from shrinkflation.agent.tools import run_tool, tool_definitions
+from shrinkflation.agent.tools import product_ids_in, run_tool, tool_definitions
 from shrinkflation.config import Settings, get_settings
 from shrinkflation.db.models import PipelineRun, Product
 from shrinkflation.db.session import session_scope
@@ -48,6 +48,7 @@ class ToolTrace:
     arguments: dict[str, Any]
     ms: int
     ok: bool
+    product_ids: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -166,7 +167,13 @@ def answer_question(
                     output = run_tool(tool_session, call.function.name, arguments)
                 ms = int((time.perf_counter() - tool_started) * 1000)
                 result.tool_calls.append(
-                    ToolTrace(call.function.name, arguments, ms, ok="error" not in output)
+                    ToolTrace(
+                        call.function.name,
+                        arguments,
+                        ms,
+                        ok="error" not in output,
+                        product_ids=product_ids_in(call.function.name, output),
+                    )
                 )
                 messages.append(
                     {

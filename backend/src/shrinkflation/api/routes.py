@@ -14,6 +14,8 @@ from shrinkflation.api.schemas import (
     CatalogList,
     CategoryCount,
     ChangeList,
+    FieldOut,
+    FieldProduct,
     Health,
     LastRun,
     ProductDetail,
@@ -80,6 +82,7 @@ def stats(db: DbSession, response: Response) -> Stats:
         shrink_count=kind_counts.get("shrink", 0),
         grow_count=kind_counts.get("grow", 0),
         price_increase_count=kind_counts.get("price_increase", 0),
+        price_decrease_count=kind_counts.get("price_decrease", 0),
         llm_calls=llm_calls,
         llm_cost_usd=llm_cost,
         tracking_since=tracking_since,
@@ -152,6 +155,27 @@ def categories(db: DbSession, response: Response) -> list[CategoryCount]:
         CategoryCount(category=category, products=products_count, changes=changes_count)
         for category, products_count, changes_count in queries.category_counts(db)
     ]
+
+
+@router.get("/field", response_model=FieldOut)
+def field(db: DbSession, response: Response) -> FieldOut:
+    """Every tracked product with its current size, price, and latest published change, in one
+    response. The site draws one square per product from it."""
+    _cache(response)
+    return FieldOut(
+        products=[
+            FieldProduct(
+                id=product.id,
+                name=product.description,
+                brand=product.brand,
+                category=product.category,
+                size=snapshot.size_text if snapshot else None,
+                price=snapshot.price_regular if snapshot else None,
+                change=kind,
+            )
+            for product, snapshot, kind in queries.field_products(db)
+        ]
+    )
 
 
 @router.get("/catalog", response_model=CatalogList)

@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from shrinkflation import __version__
@@ -38,7 +39,9 @@ def create_app() -> FastAPI:
         redoc_url=None,
     )
     # Middleware added later wraps the earlier ones, so CORS sits outside the rate limiter and
-    # 429 responses still carry CORS headers.
+    # 429 responses still carry CORS headers. Gzip sits innermost: the product map is about
+    # 140 KB of JSON that compresses roughly five to one.
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(RateLimitMiddleware, limiter=limiter)
     app.add_middleware(
         CORSMiddleware,

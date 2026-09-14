@@ -107,6 +107,7 @@ class Stats(ApiModel):
     shrink_count: int
     grow_count: int
     price_increase_count: int
+    price_decrease_count: int
     llm_calls: int
     llm_cost_usd: Decimal
     tracking_since: datetime | None = None
@@ -133,3 +134,21 @@ class CatalogList(ApiModel):
     total: int
     limit: int
     offset: int
+
+
+class FieldProduct(ApiModel):
+    """One tracked product, flattened for the product map on the site."""
+
+    id: str
+    name: str
+    brand: str | None = None
+    category: str
+    size: str | None = None
+    price: Decimal | None = None
+    change: str | None = Field(
+        default=None, description="Kind of the latest published change, or null"
+    )
+
+
+class FieldOut(ApiModel):
+    products: list[FieldProduct]

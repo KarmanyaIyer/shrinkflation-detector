@@ -32,6 +32,7 @@ class ToolCallOut(BaseModel):
     arguments: dict[str, Any]
     ms: int
     ok: bool
+    product_ids: list[str] = Field(default_factory=list)
 
 
 class AskResponse(BaseModel):
@@ -102,7 +103,13 @@ def _finish_log(
             if result is not None:
                 entry.answer = result.answer
                 entry.tool_calls = [
-                    {"name": t.name, "arguments": t.arguments, "ms": t.ms, "ok": t.ok}
+                    {
+                        "name": t.name,
+                        "arguments": t.arguments,
+                        "ms": t.ms,
+                        "ok": t.ok,
+                        "product_ids": t.product_ids,
+                    }
                     for t in result.tool_calls
                 ]
                 entry.model = result.model
@@ -168,7 +175,9 @@ def ask(request: Request, payload: AskRequest) -> AskResponse:
     return AskResponse(
         answer=result.answer,
         tool_calls=[
-            ToolCallOut(name=t.name, arguments=t.arguments, ms=t.ms, ok=t.ok)
+            ToolCallOut(
+                name=t.name, arguments=t.arguments, ms=t.ms, ok=t.ok, product_ids=t.product_ids
+            )
             for t in result.tool_calls
         ],
         model=result.model,

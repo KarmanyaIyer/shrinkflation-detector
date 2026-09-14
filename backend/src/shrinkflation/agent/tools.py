@@ -224,6 +224,19 @@ def tool_definitions() -> list[dict[str, Any]]:
     return definitions
 
 
+def product_ids_in(name: str, output: dict[str, Any]) -> list[str]:
+    """Ids of the products a tool result mentions, in order and without repeats, so the site
+    can point at them after an answer."""
+    ids: list[str] = []
+    if name == "search_products":
+        ids = [match["product_id"] for match in output.get("matches", [])]
+    elif name == "get_product_history":
+        ids = [output["product_id"]] if output.get("product_id") else []
+    elif name == "list_recent_changes":
+        ids = [change["product"]["product_id"] for change in output.get("changes", [])]
+    return list(dict.fromkeys(ids))
+
+
 def run_tool(session: Session, name: str, raw_arguments: dict[str, Any]) -> dict[str, Any]:
     entry = TOOLS.get(name)
     if entry is None:

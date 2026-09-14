@@ -97,6 +97,7 @@ def test_stats_and_categories(client: TestClient) -> None:
     assert stats["snapshots"] == 3
     assert stats["changes_published"] == 1
     assert stats["shrink_count"] == 1
+    assert stats["price_decrease_count"] == 0
     assert stats["location_label"] == "a test store"
     assert stats["tracking_since"].startswith("2026-09-01")
 
@@ -105,6 +106,31 @@ def test_stats_and_categories(client: TestClient) -> None:
         {"category": "Cereal and breakfast", "products": 1, "changes": 1},
         {"category": "Dairy and eggs", "products": 1, "changes": 0},
     ]
+
+
+def test_field_lists_every_product_with_its_state(client: TestClient) -> None:
+    response = client.get("/api/field")
+    assert response.status_code == 200
+    assert "max-age=300" in response.headers["cache-control"]
+    products = response.json()["products"]
+    assert [p["id"] for p in products] == ["0001600012479", "0001111041700"]
+    cereal, milk = products
+    assert cereal["name"] == "General Mills Honey Nut Cheerios Cereal"
+    assert cereal["brand"] == "Cheerios"
+    assert cereal["category"] == "Cereal and breakfast"
+    assert cereal["size"] == "10.8 oz"
+    assert cereal["price"] == "4.29"
+    assert cereal["change"] == "shrink"
+    assert milk["size"] == "1 gal"
+    assert milk["change"] is None
+
+
+def test_large_responses_are_gzipped(client: TestClient) -> None:
+    response = client.get("/api/openapi.json", headers={"Accept-Encoding": "gzip"})
+    assert response.status_code == 200
+    assert response.headers["content-encoding"] == "gzip"
+    small = client.get("/api/stats", headers={"Accept-Encoding": "gzip"})
+    assert "content-encoding" not in small.headers
 
 
 def test_security_headers(client: TestClient) -> None:
