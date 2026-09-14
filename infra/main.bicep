@@ -33,7 +33,7 @@ param krogerClientSecret string
 param krogerLocationId string
 
 @description('How the site describes the tracked store.')
-param krogerLocationLabel string = 'one Kroger store'
+param krogerLocationLabel string = 'one Cincinnati-area Kroger'
 
 @description('Allowed CORS origins as a JSON array string, which is how pydantic-settings parses list fields. Example: ["https://karmanyaiyer.com"]')
 param corsOrigins string = '["https://karmanyaiyer.com"]'
@@ -184,7 +184,9 @@ resource api 'Microsoft.App/containerApps@2026-01-01' = {
         }
       ]
       scale: {
-        minReplicas: 0
+        // One replica stays warm. Scaling from zero took about 30 s per first request
+        // (measured 2026-09-13) and an idle replica of this size costs about $5 a month.
+        minReplicas: 1
         maxReplicas: 1
         rules: [
           {
