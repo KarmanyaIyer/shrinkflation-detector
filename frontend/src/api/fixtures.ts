@@ -2,11 +2,12 @@
 // VITE_USE_FIXTURES=1, so the populated site can be checked without changing the database.
 import type {
   AskResponse,
-  BudgetOut,
   CatalogItem,
   CategoryCount,
   ChangeList,
   ChangeOut,
+  FieldOut,
+  FieldProduct,
   ProductDetail,
   ProductSummary,
   SnapshotOut,
@@ -191,6 +192,7 @@ export const stats: Stats = {
   shrink_count: 2,
   grow_count: 1,
   price_increase_count: 3,
+  price_decrease_count: 1,
   llm_calls: 68,
   llm_cost_usd: "0.005625",
   tracking_since: TRACKING_SINCE,
@@ -206,7 +208,7 @@ export const stats: Stats = {
     api_calls: 26,
     errors: 0,
   },
-  location_label: "a Kroger Marketplace store in Newport, Kentucky (Cincinnati area)",
+  location_label: "one Cincinnati-area Kroger",
 };
 
 // Day-one shape: products tracked, nothing published yet, no refresh run so far.
@@ -217,6 +219,7 @@ export const dayOneStats: Stats = {
   shrink_count: 0,
   grow_count: 0,
   price_increase_count: 0,
+  price_decrease_count: 0,
   tracking_since: "2026-09-07T22:54:30.883952Z",
   last_run: {
     id: 1,
@@ -336,16 +339,69 @@ export const catalogItems: CatalogItem[] = allProducts
   })
   .sort((a, b) => a.product.description.localeCompare(b.product.description));
 
-export const budget: BudgetOut = { questions_per_day: 10, questions_remaining: 8 };
+// Every tracked product as the product map sees it. The fixture products above keep their real
+// state; the rest of each category is filled with unchanged placeholders up to the category
+// counts, so the map has the real shape (1,242 squares in 13 blocks).
+const PLACEHOLDER_SIZES = ["12 oz", "16 oz", "8.5 oz", "24 fl oz", "1 lb", "6 ct", "32 oz", "10.5 oz"];
+
+function fieldProducts(): FieldProduct[] {
+  const real = new Map<string, FieldProduct[]>();
+  for (const summary of allProducts) {
+    const detail = details[summary.id]!;
+    const entry: FieldProduct = {
+      id: summary.id,
+      name: summary.description,
+      brand: summary.brand,
+      category: summary.category,
+      size: detail.current?.size_text ?? null,
+      price: detail.current?.price_regular ?? null,
+      change: detail.changes[0]?.kind ?? null,
+    };
+    const list = real.get(summary.category);
+    if (list) list.push(entry);
+    else real.set(summary.category, [entry]);
+  }
+  const out: FieldProduct[] = [];
+  categories.forEach((entry, categoryIndex) => {
+    const known = real.get(entry.category) ?? [];
+    out.push(...known);
+    for (let i = known.length; i < entry.products; i += 1) {
+      out.push({
+        id: `9${String(categoryIndex).padStart(2, "0")}${String(i).padStart(10, "0")}`,
+        name: `${entry.category} item ${i + 1}`,
+        brand: null,
+        category: entry.category,
+        size: PLACEHOLDER_SIZES[i % PLACEHOLDER_SIZES.length]!,
+        price: (1.99 + ((i * 37) % 900) / 100).toFixed(2),
+        change: null,
+      });
+    }
+  });
+  return out;
+}
+
+export const field: FieldOut = { products: fieldProducts() };
 
 export const askResponse: AskResponse = {
   answer:
     "Yes. General Mills Honey Nut Cheerios Cereal went from 12 oz to 10.8 oz at the same regular price of $4.29. The 12 oz package was last seen on Aug 13, 2026 and the 10.8 oz package has been seen since Aug 14, 2026. The unit price rose from $0.358/oz to $0.397/oz, an increase of 11.1%.",
   tool_calls: [
-    { name: "search_products", arguments: { query: "Honey Nut Cheerios" }, ms: 84, ok: true },
-    { name: "get_product_history", arguments: { product_id: "0001600012479" }, ms: 61, ok: true },
+    {
+      name: "search_products",
+      arguments: { query: "Honey Nut Cheerios" },
+      ms: 84,
+      ok: true,
+      product_ids: ["0001600012479", "0001600012495"],
+    },
+    {
+      name: "get_product_history",
+      arguments: { product_id: "0001600012479" },
+      ms: 61,
+      ok: true,
+      product_ids: ["0001600012479"],
+    },
   ],
-  model: "deepseek-v4-flash",
+  model: "deepseek-flash",
   total_tokens: 2431,
   latency_ms: 3120,
   questions_remaining: 7,

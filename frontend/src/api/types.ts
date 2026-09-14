@@ -21,6 +21,8 @@ export type AskResponse = Schemas["AskResponse"];
 export type ToolCallOut = Schemas["ToolCallOut"];
 export type BudgetOut = Schemas["BudgetOut"];
 export type Health = Schemas["Health"];
+export type FieldOut = Schemas["FieldOut"];
+export type FieldProduct = Schemas["FieldProduct"];
 
 export type ChangesQuery = NonNullable<paths["/api/changes"]["get"]["parameters"]["query"]>;
 

@@ -13,6 +13,14 @@ export function kindLabel(kind: string): string {
   return KIND_LABELS[kind] ?? kind.replaceAll("_", " ");
 }
 
+// What the change means for the shopper. A shrink that also got cheaper per unit counts as
+// better, since the unit price fell.
+export function kindTone(kind: string): "worse" | "better" | "" {
+  if (kind === "shrink" || kind === "price_increase") return "worse";
+  if (kind === "grow" || kind === "price_decrease" || kind === "shrink_price_cut") return "better";
+  return "";
+}
+
 export const FILTER_LABELS: Record<FeedKind, string> = {
   shrink: "Shrank",
   grow: "Grew",
@@ -21,13 +29,12 @@ export const FILTER_LABELS: Record<FeedKind, string> = {
   all: "All",
 };
 
-// Nouns for "No {noun} recorded yet."
-export const EMPTY_NOUNS: Record<FeedKind, string> = {
-  shrink: "size decreases",
-  grow: "size increases",
-  price_increase: "price increases",
-  price_decrease: "price decreases",
-  all: "changes",
+export const EMPTY_TITLES: Record<FeedKind, string> = {
+  shrink: "Nothing has shrunk yet.",
+  grow: "Nothing has grown yet.",
+  price_increase: "No price increases yet.",
+  price_decrease: "No price cuts yet.",
+  all: "No changes yet.",
 };
 
 // Mirrors FEED_KINDS in the backend queries module. Used by the fixture server.

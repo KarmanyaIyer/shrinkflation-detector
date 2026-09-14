@@ -160,8 +160,8 @@ export function UnitPriceChart({ snapshots }: { snapshots: SnapshotOut[] }) {
         <rect className="hit" x={LEFT} y={TOP} width={plotW} height={plotH} />
       </svg>
       <p className="chart-note">
-        <b>{formatUnitPrice(active.y, unit)}</b> · {active.snapshot.size_text} at{" "}
-        {formatMoney(active.snapshot.price_regular) ?? "no price"} · {range}
+        <b>{formatUnitPrice(active.y, unit)}</b>, {active.snapshot.size_text} at{" "}
+        {formatMoney(active.snapshot.price_regular) ?? "no price"}, {range}
       </p>
     </div>
   );

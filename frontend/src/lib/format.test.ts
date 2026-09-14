@@ -4,10 +4,14 @@ import {
   daysObserved,
   deltaClass,
   formatDate,
+  formatDateRange,
+  formatDateShort,
+  formatDuration,
   formatInt,
   formatMoney,
   formatPercent,
   formatQuantity,
+  formatUnitAmount,
   formatUnitPrice,
   percentChange,
   pluralize,
@@ -53,6 +57,7 @@ describe("formatUnitPrice", () => {
     expect(formatUnitPrice("1.5", "each")).toBe("$1.500/each");
     expect(formatUnitPrice(null, "oz")).toBeNull();
     expect(formatUnitPrice("0.3", null)).toBeNull();
+    expect(formatUnitAmount("0.3575")).toBe("$0.358");
   });
 });
 
@@ -67,14 +72,31 @@ describe("formatPercent", () => {
   });
 });
 
-describe("formatDate", () => {
+describe("dates", () => {
   it("formats in the store's Eastern timezone so the day matches the store's business day", () => {
     expect(formatDate("2026-09-07T22:54:30.883952Z")).toBe("Sep 7, 2026");
-    // Just past UTC midnight is still the previous evening in Kentucky.
+    // Just past UTC midnight is still the previous evening at the store.
     expect(formatDate("2026-08-14T00:10:00Z")).toBe("Aug 13, 2026");
     expect(formatDate("2026-01-01T23:59:59Z")).toBe("Jan 1, 2026");
     expect(formatDate(null)).toBeNull();
     expect(formatDate("not a date")).toBeNull();
+    expect(formatDateShort("2026-09-07T22:54:30Z")).toBe("Sep 7");
+  });
+
+  it("writes a span as short as it can be read", () => {
+    expect(formatDateRange("2026-08-20T06:00:00Z", "2026-08-24T06:00:00Z")).toBe("Aug 20 → 24");
+    expect(formatDateRange("2026-08-31T06:00:00Z", "2026-09-01T06:00:00Z")).toBe("Aug 31 → Sep 1");
+    expect(formatDateRange("2026-08-20T06:00:00Z", "2026-08-20T06:00:00Z")).toBe("Aug 20");
+    expect(formatDateRange("2025-12-30T06:00:00Z", "2026-01-02T06:00:00Z")).toBe("Dec 30, 2025 → Jan 2");
+    expect(formatDateRange("2025-08-20T06:00:00Z", "2025-08-24T06:00:00Z")).toBe("Aug 20 → 24, 2025");
+    expect(formatDateRange("2026-08-20T06:00:00Z", null)).toBe("Aug 20");
+    expect(formatDateRange(null, null)).toBeNull();
+  });
+
+  it("formats durations", () => {
+    expect(formatDuration(84)).toBe("84 ms");
+    expect(formatDuration(3120)).toBe("3.1 s");
+    expect(formatDuration(null)).toBe("");
   });
 });
 
@@ -99,11 +121,13 @@ describe("counts and spans", () => {
     expect(pluralize(1, "change")).toBe("1 change");
     expect(pluralize(14, "change")).toBe("14 changes");
     expect(pluralize(0, "product")).toBe("0 products");
+    expect(pluralize(2, "match", "matches")).toBe("2 matches");
   });
   it("counts observed calendar days inclusively", () => {
     expect(daysObserved("2026-08-02T22:54:00Z", "2026-08-02T22:54:00Z")).toBe(1);
     expect(daysObserved("2026-08-02T22:54:00Z", "2026-08-13T22:56:00Z")).toBe(12);
     expect(daysObserved("2026-08-13T22:56:00Z", "2026-08-02T22:54:00Z")).toBe(1);
+    expect(daysObserved("2026-07-06T22:54:30Z", "2026-07-27T12:00:00Z")).toBe(22);
   });
   it("computes percent change", () => {
     expect(percentChange("0.3575", "0.3972")).toBeCloseTo(11.1, 1);
@@ -114,15 +138,11 @@ describe("counts and spans", () => {
 
 describe("deltaClass", () => {
   it("colors by what the change means for the shopper", () => {
-    expect(deltaClass("-10.00", true)).toBe("delta-down");
-    expect(deltaClass("5.00", true)).toBe("delta-up");
-    expect(deltaClass("11.11", false)).toBe("delta-down");
-    expect(deltaClass("-14.30", false)).toBe("delta-up");
+    expect(deltaClass("-10.00", true)).toBe("worse");
+    expect(deltaClass("5.00", true)).toBe("better");
+    expect(deltaClass("11.11", false)).toBe("worse");
+    expect(deltaClass("-14.30", false)).toBe("better");
     expect(deltaClass("0.00", false)).toBe("");
     expect(deltaClass(null, false)).toBe("");
   });
-});
-
-it("counts calendar days even when times of day differ", () => {
-  expect(daysObserved("2026-07-06T22:54:30Z", "2026-07-27T12:00:00Z")).toBe(22);
 });

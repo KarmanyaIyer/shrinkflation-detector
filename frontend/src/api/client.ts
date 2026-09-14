@@ -2,11 +2,11 @@ import { request } from "./http";
 import type {
   AskRequest,
   AskResponse,
-  BudgetOut,
   CatalogList,
   CategoryCount,
   ChangeList,
   FeedKind,
+  FieldOut,
   ProductDetail,
   Stats,
 } from "./types";
@@ -26,6 +26,10 @@ export function getStats(signal?: AbortSignal): Promise<Stats> {
 
 export function getCategories(signal?: AbortSignal): Promise<CategoryCount[]> {
   return request<CategoryCount[]>("/categories", { signal });
+}
+
+export function getField(signal?: AbortSignal): Promise<FieldOut> {
+  return request<FieldOut>("/field", { signal });
 }
 
 export function getChanges(params: ChangesParams, signal?: AbortSignal): Promise<ChangeList> {
@@ -57,10 +61,6 @@ export function getCatalog(params: CatalogParams, signal?: AbortSignal): Promise
 
 export function getProduct(id: string, signal?: AbortSignal): Promise<ProductDetail> {
   return request<ProductDetail>(`/products/${encodeURIComponent(id)}`, { signal });
-}
-
-export function getAskBudget(signal?: AbortSignal): Promise<BudgetOut> {
-  return request<BudgetOut>("/ask/budget", { signal });
 }
 
 export function ask(question: string, signal?: AbortSignal): Promise<AskResponse> {

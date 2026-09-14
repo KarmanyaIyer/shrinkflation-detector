@@ -18,9 +18,9 @@ export function productSubline(product: ProductSummary): string {
 }
 
 // First cell of a product row: thumbnail, name linking to the product page, brand and category.
-export function ProductCell({ product, extra }: { product: ProductSummary; extra?: string }) {
+export function ProductCell({ product }: { product: ProductSummary }) {
   return (
-    <td className="product-td" data-label="Product">
+    <td className="td-product" data-label="Product">
       <div className="product-cell">
         <ProductThumb src={product.image_url} />
         <div className="product-text">
@@ -28,7 +28,6 @@ export function ProductCell({ product, extra }: { product: ProductSummary; extra
             {product.description}
           </Link>
           <div className="product-sub">{productSubline(product)}</div>
-          {extra ? <div className="product-kind">{extra}</div> : null}
         </div>
       </div>
     </td>

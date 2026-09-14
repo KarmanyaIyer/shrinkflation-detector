@@ -5,6 +5,11 @@
 export const MINUS = "−";
 export const ARROW = "→";
 
+// The tracked store's timezone (Newport, KY is Eastern). Observation days are shown in it so
+// they match the store's business day and do not shift with the viewer's timezone. A refresh
+// run at 00:30 UTC is still "yesterday evening" at the store, not the next day.
+const STORE_TIMEZONE = "America/New_York";
+
 type Numeric = string | number | null | undefined;
 
 export function toNumber(value: Numeric): number | null {
@@ -70,12 +75,20 @@ export function formatMoney(value: Numeric): string | null {
   return `${negative ? MINUS : ""}$${group(intPart)}.${frac}`;
 }
 
-// "$0.397/oz", with four decimals when the price is under one cent per unit.
-export function formatUnitPrice(value: Numeric, unit: string | null | undefined): string | null {
+// "$0.397" with four decimals when the price is under one cent per unit. The unit is shown
+// once by the caller.
+export function formatUnitAmount(value: Numeric): string | null {
   const n = toNumber(value);
-  if (n === null || !unit) return null;
+  if (n === null) return null;
   const digits = Math.abs(n) < 0.01 ? 4 : 3;
-  return `$${roundDecimal(value as string | number, digits)}/${unit}`;
+  return `$${roundDecimal(value as string | number, digits)}`;
+}
+
+// "$0.397/oz", or null when either part is missing.
+export function formatUnitPrice(value: Numeric, unit: string | null | undefined): string | null {
+  const amount = formatUnitAmount(value);
+  if (amount === null || !unit) return null;
+  return `${amount}/${unit}`;
 }
 
 // Signed with one decimal: "-10.0%" (real minus sign), "+11.1%", "0.0%".
@@ -91,17 +104,73 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
   year: "numeric",
-  timeZone: "America/New_York",
+  timeZone: STORE_TIMEZONE,
 });
 
-// "Sep 7, 2026" in the tracked store's timezone (Newport, KY is Eastern), so observation days
-// match the store's business day and do not shift with the viewer's timezone. A refresh run at
-// 00:30 UTC is still "yesterday evening" at the store, not the next day.
-export function formatDate(iso: string | null | undefined): string | null {
+interface DateParts {
+  month: string;
+  day: string;
+  year: string;
+}
+
+function dateParts(iso: string | null | undefined): DateParts | null {
   if (!iso) return null;
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
-  return dateFormat.format(date);
+  const parts = dateFormat.formatToParts(date);
+  const pick = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? "";
+  return { month: pick("month"), day: pick("day"), year: pick("year") };
+}
+
+// "Sep 7, 2026" in the store's timezone.
+export function formatDate(iso: string | null | undefined): string | null {
+  const parts = dateParts(iso);
+  return parts ? `${parts.month} ${parts.day}, ${parts.year}` : null;
+}
+
+// "Sep 7", for places where the year is shown elsewhere or is the current one.
+export function formatDateShort(iso: string | null | undefined): string | null {
+  const parts = dateParts(iso);
+  return parts ? `${parts.month} ${parts.day}` : null;
+}
+
+function currentYear(): string {
+  return dateParts(new Date().toISOString())?.year ?? "";
+}
+
+// The span between two observation days, as short as it can be read without ambiguity:
+// "Aug 20 → 24", "Aug 31 → Sep 1", and "Dec 30 → Jan 2, 2027" when a year is not the
+// current one. A single date is returned when only one side is known.
+export function formatDateRange(
+  fromIso: string | null | undefined,
+  toIso: string | null | undefined,
+): string | null {
+  const from = dateParts(fromIso);
+  const to = dateParts(toIso);
+  const year = currentYear();
+  const withYear = (parts: DateParts) =>
+    parts.year === year ? `${parts.month} ${parts.day}` : `${parts.month} ${parts.day}, ${parts.year}`;
+  if (from && !to) return withYear(from);
+  if (to && !from) return withYear(to);
+  if (!from || !to) return null;
+  if (from.year === to.year) {
+    const suffix = from.year === year ? "" : `, ${from.year}`;
+    if (from.month === to.month) {
+      const days = from.day === to.day ? from.day : `${from.day} ${ARROW} ${to.day}`;
+      return `${from.month} ${days}${suffix}`;
+    }
+    return `${from.month} ${from.day} ${ARROW} ${to.month} ${to.day}${suffix}`;
+  }
+  return `${withYear(from)} ${ARROW} ${withYear(to)}`;
+}
+
+// "84 ms" below a second, "3.1 s" above.
+export function formatDuration(ms: Numeric): string {
+  const n = toNumber(ms);
+  if (n === null) return "";
+  if (n < 1000) return `${formatInt(n)} ms`;
+  return `${roundDecimal(n / 1000, 1)} s`;
 }
 
 // Strip trailing zeros from a decimal string: "10.8000" to "10.8", "12.0000" to "12".
@@ -150,5 +219,5 @@ export function deltaClass(value: Numeric, moreIsBetter: boolean): string {
   const n = toNumber(value);
   if (n === null || Math.abs(n) < 0.05) return "";
   const better = n > 0 ? moreIsBetter : !moreIsBetter;
-  return better ? "delta-up" : "delta-down";
+  return better ? "better" : "worse";
 }

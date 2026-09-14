@@ -2,13 +2,15 @@ import { Link, useParams } from "react-router";
 import { getProduct } from "../api/client";
 import { ApiError } from "../api/http";
 import type { ProductDetail, SnapshotOut } from "../api/types";
-import { ChangesLedger } from "../components/ChangesLedger";
+import { ChangesTable } from "../components/ChangesTable";
 import { ProductThumb, productSubline } from "../components/ProductCell";
-import { Loading, LoadError } from "../components/Status";
+import { Empty, LoadError, SkeletonLines, SkeletonRows } from "../components/Status";
 import { UnitPriceChart } from "../components/UnitPriceChart";
 import {
   daysObserved,
   formatDate,
+  formatDateRange,
+  formatDateShort,
   formatInt,
   formatMoney,
   formatQuantity,
@@ -29,71 +31,64 @@ export function parseLabel(snapshot: SnapshotOut): string {
 }
 
 function CurrentState({ current }: { current: SnapshotOut }) {
-  const facts: { label: string; value: string; sans?: boolean }[] = [
+  const facts: { label: string; value: string }[] = [
     { label: "Size", value: current.size_text },
-    { label: "Normalized", value: formatQuantity(current.display_quantity, current.display_unit) ?? "not parsed" },
+    { label: "Parsed as", value: formatQuantity(current.display_quantity, current.display_unit) ?? "not parsed" },
     { label: "Regular price", value: formatMoney(current.price_regular) ?? "not listed" },
   ];
   if (current.price_promo) {
     facts.push({ label: "Promo price", value: formatMoney(current.price_promo) ?? "" });
   }
   facts.push(
-    { label: "Unit price", value: formatUnitPrice(current.unit_price?.value, current.unit_price?.unit) ?? "not available" },
-    { label: "Parse", value: parseLabel(current), sans: true },
+    { label: "Per unit", value: formatUnitPrice(current.unit_price?.value, current.unit_price?.unit) ?? "not available" },
+    { label: "Parse", value: parseLabel(current) },
     { label: "Seen since", value: formatDate(current.first_seen_at) ?? "" },
-    { label: "Observations", value: formatInt(current.observations) },
+    { label: "Checks", value: formatInt(current.observations) },
   );
   return (
     <dl className="facts">
       {facts.map((fact) => (
         <div className="fact" key={fact.label}>
-          <dt className="label">{fact.label}</dt>
-          <dd className={fact.sans ? "fact-value sans" : "fact-value"}>{fact.value}</dd>
+          <dt>{fact.label}</dt>
+          <dd>{fact.value}</dd>
         </div>
       ))}
     </dl>
   );
 }
 
-function HistoryLedger({ snapshots }: { snapshots: SnapshotOut[] }) {
+function HistoryTable({ snapshots }: { snapshots: SnapshotOut[] }) {
   return (
-    <table className="ledger history stacked-sm">
+    <table className="tbl tbl-history">
+      <colgroup>
+        <col className="col-size" />
+        <col className="col-price" />
+        <col className="col-unit" />
+        <col className="col-seen" />
+      </colgroup>
       <thead>
         <tr>
           <th scope="col">Size</th>
-          <th scope="col" className="num">
-            Regular price
-          </th>
-          <th scope="col" className="num">
-            Unit price
-          </th>
-          <th scope="col">Seen from</th>
-          <th scope="col">Seen through</th>
-          <th scope="col" className="num">
-            Days observed
-          </th>
+          <th scope="col">Price</th>
+          <th scope="col">Per unit</th>
+          <th scope="col">Seen</th>
         </tr>
       </thead>
       <tbody>
         {snapshots.map((s) => (
           <tr key={s.id}>
-            <td className="mono-cell" data-label="Size">
+            <td className="mono-line" data-label="Size">
               {s.size_text}
             </td>
-            <td className="num" data-label="Regular price">
-              {formatMoney(s.price_regular) ?? "no price"}
+            <td className="mono-line" data-label="Price">
+              {formatMoney(s.price_regular) ?? <span className="same">no price</span>}
             </td>
-            <td className="num" data-label="Unit price">
-              {formatUnitPrice(s.unit_price?.value, s.unit_price?.unit) ?? "not available"}
+            <td className="mono-line" data-label="Per unit">
+              {formatUnitPrice(s.unit_price?.value, s.unit_price?.unit) ?? <span className="same">size not parsed</span>}
             </td>
-            <td className="mono-cell" data-label="Seen from">
-              {formatDate(s.first_seen_at)}
-            </td>
-            <td className="mono-cell" data-label="Seen through">
-              {formatDate(s.last_seen_at)}
-            </td>
-            <td className="num" data-label="Days observed">
-              {formatInt(daysObserved(s.first_seen_at, s.last_seen_at))}
+            <td className="mono-line" data-label="Seen">
+              {formatDateRange(s.first_seen_at, s.last_seen_at)}
+              <span className="same"> {pluralize(daysObserved(s.first_seen_at, s.last_seen_at), "day")}</span>
             </td>
           </tr>
         ))}
@@ -111,51 +106,42 @@ function Detail({ detail }: { detail: ProductDetail }) {
         <ProductThumb src={product.image_url} large />
         <div>
           <h1>{product.description}</h1>
-          <div className="product-sub">{productSubline(product)}</div>
-          <div className="product-meta">
-            Kroger product id {product.id} · UPC {detail.upc ?? "not listed"} · tracked since{" "}
-            {formatDate(detail.first_seen_at)}
-          </div>
+          <p className="product-sub">{productSubline(product)}</p>
+          <p className="product-meta">
+            Kroger id {product.id}
+            {detail.upc && detail.upc !== product.id ? `, UPC ${detail.upc}` : ""}, tracked since{" "}
+            {formatDateShort(detail.first_seen_at)}, last checked {formatDateShort(detail.last_seen_at)}
+          </p>
         </div>
       </div>
 
-      <section className="section" aria-labelledby="current">
-        <div className="section-head">
-          <h2 id="current">Current state</h2>
-          <span className="count">last checked {formatDate(detail.last_seen_at)}</span>
-        </div>
-        {current ? <CurrentState current={current} /> : <p className="note">No state recorded yet.</p>}
+      <section className="subsection" aria-labelledby="current">
+        <h2 id="current">Now</h2>
+        {current ? <CurrentState current={current} /> : <Empty title="No state recorded yet." />}
       </section>
 
-      <section className="section" aria-labelledby="history">
+      <section className="subsection" aria-labelledby="history">
         <div className="section-head">
           <h2 id="history">History</h2>
-          <span className="count">{pluralize(detail.snapshots.length, "state")}</span>
+          <span className="section-count">{pluralize(detail.snapshots.length, "state")}</span>
         </div>
-        {detail.snapshots.length > 0 ? (
-          <HistoryLedger snapshots={detail.snapshots} />
-        ) : (
-          <p className="note">No snapshots recorded yet.</p>
-        )}
-        <div className="subsection">
-          <span className="label">Unit price over time</span>
-          {priced >= 2 ? (
+        {detail.snapshots.length > 0 ? <HistoryTable snapshots={detail.snapshots} /> : <Empty title="No states recorded yet." />}
+        {priced >= 2 ? (
+          <div className="chart-wrap">
             <UnitPriceChart snapshots={detail.snapshots} />
-          ) : (
-            <p className="note chart-empty">Only one state observed so far.</p>
-          )}
-        </div>
+          </div>
+        ) : null}
       </section>
 
-      <section className="section" aria-labelledby="changes">
+      <section className="subsection" aria-labelledby="changes">
         <div className="section-head">
           <h2 id="changes">Changes</h2>
-          <span className="count">{pluralize(detail.changes.length, "change")}</span>
+          <span className="section-count">{pluralize(detail.changes.length, "change")}</span>
         </div>
         {detail.changes.length > 0 ? (
-          <ChangesLedger items={detail.changes} first="kind" />
+          <ChangesTable items={detail.changes} showKind />
         ) : (
-          <p className="note">No changes recorded yet.</p>
+          <Empty title="Nothing has changed yet." note="One state observed so far." />
         )}
       </section>
     </>
@@ -167,19 +153,30 @@ export function ProductPage() {
   const state = useApi((signal) => getProduct(id, signal), [id]);
   usePageTitle(state.data?.product.description ?? "Product");
 
-  if (state.status === "loading") return <Loading what="product" />;
-  if (state.status === "error") {
-    if (state.error instanceof ApiError && state.error.status === 404) {
-      return (
+  return (
+    <div className="page wrap">
+      <p className="crumb">
+        <Link to="/#changes">All changes</Link>
+      </p>
+      {state.status === "loading" ? (
         <>
-          <h1>Product not found.</h1>
-          <p className="note page-note">
-            No tracked product has the id {id}. <Link to="/">Back to the feed</Link>
-          </p>
+          <SkeletonLines lines={2} className="title-sk" />
+          <SkeletonRows rows={3} cols={4} />
         </>
-      );
-    }
-    return <LoadError what="product" error={state.error} retry={state.reload} />;
-  }
-  return <Detail detail={state.data} />;
+      ) : state.status === "error" ? (
+        state.error instanceof ApiError && state.error.status === 404 ? (
+          <>
+            <h1>Product not found.</h1>
+            <p className="note">
+              No tracked product has the id {id}. <Link to="/">Back to the start</Link>
+            </p>
+          </>
+        ) : (
+          <LoadError what="product" error={state.error} retry={state.reload} />
+        )
+      ) : (
+        <Detail detail={state.data} />
+      )}
+    </div>
+  );
 }

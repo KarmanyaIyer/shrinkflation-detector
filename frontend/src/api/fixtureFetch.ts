@@ -52,21 +52,22 @@ function listChanges(params: URLSearchParams) {
 }
 
 export async function fixtureRequest<T>(path: string, init: RequestInit): Promise<T> {
-  await delay(150);
+  await delay(path === "/field" ? 600 : 150);
   const url = new URL(path, "http://fixtures.invalid");
   const route = url.pathname;
   const params = url.searchParams;
   let body: unknown;
 
   if (route === "/ask" && init.method === "POST") {
+    await delay(1800);
     const payload = JSON.parse(String(init.body ?? "{}")) as { question?: string };
     body = answer(payload.question ?? "");
-  } else if (route === "/ask/budget") {
-    body = fx.budget;
   } else if (route === "/stats") {
     body = fx.stats;
   } else if (route === "/categories") {
     body = fx.categories;
+  } else if (route === "/field") {
+    body = fx.field;
   } else if (route === "/changes") {
     body = listChanges(params);
   } else if (route === "/catalog") {
