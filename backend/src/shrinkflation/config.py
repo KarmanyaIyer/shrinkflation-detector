@@ -22,7 +22,9 @@ class Settings(BaseSettings):
 
     deepseek_api_key: str = ""
     deepseek_base_url: str = "https://api.deepseek.com"
-    llm_model_fast: str = "deepseek-v4-flash"
+    # deepseek-flash is DeepSeek V4.1 Flash (2026-09-10). The older deepseek-v4-flash name is
+    # only a temporary alias for it now.
+    llm_model_fast: str = "deepseek-flash"
     llm_model_strong: str = "deepseek-v4-pro"
     llm_daily_cost_cap_usd: float = 1.00
 

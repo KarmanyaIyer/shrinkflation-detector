@@ -21,9 +21,11 @@ Design choices and the reasons behind them, for anyone reading the code.
    implied item size is closest to that estimate and lowers confidence when both readings are
    plausible. A count next to a pack count ("4 pk / 120 ct") is always per pack.
 
-5. **Two models.** `deepseek-v4-flash` for plain transcription and `deepseek-v4-pro` for ambiguous
-   multipacks, which need product knowledge. Both are open weight (MIT). Measured cost for the
-   1,242 product basket, including one full reparse, was about $0.08.
+5. **Two models.** `deepseek-flash` (DeepSeek V4.1 Flash) for plain transcription and
+   `deepseek-v4-pro` for ambiguous multipacks, which need product knowledge. Both are open
+   weight (MIT). Measured cost for the 1,242 product basket, including one full reparse, was
+   about $0.08 on V4 Flash; V4.1 Flash is priced lower. The `deepseek-v4-flash` name was
+   retired on 2026-09-10 and only survives as a temporary alias, so the default moved.
 
 6. **Conservative publishing.** A change is published only when both readings are comparable,
    both parses have confidence of at least 0.7, and the size moved by more than 0.5% and not more

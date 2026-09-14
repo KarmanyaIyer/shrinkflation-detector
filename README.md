@@ -14,9 +14,9 @@ Live at [karmanyaiyer.com/projects/shrinkflation](https://karmanyaiyer.com/proje
 - A daily job reads every tracked product from the Kroger Public API and stores a snapshot only
   when the size text, price, or description changes. Unchanged products extend the last snapshot.
 - Size text such as `12 x 12 fl oz` or `1/2 gal` is normalized to a base quantity. Deterministic
-  rules handle most labels. The rest go to DeepSeek V4 Flash (open weights, MIT) in JSON mode,
-  validated against a Pydantic schema, with one repair retry and escalation to V4 Pro when the
-  parse is low confidence. Parses are cached by label text.
+  rules handle most labels. The rest go to DeepSeek V4.1 Flash (open weights, MIT) in JSON
+  mode, validated against a Pydantic schema, with one repair retry and escalation to V4 Pro when
+  the parse is low confidence. Parses are cached by label text.
 - Consecutive snapshots are compared and classified: shrink, grow, price increase, price
   decrease, relabel. Small differences below a noise threshold are ignored, and implausible or
   low confidence transitions go to a review queue instead of the public feed.
