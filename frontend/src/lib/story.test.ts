@@ -49,7 +49,8 @@ describe("story copy from the captured data", () => {
   });
 
   it("dates the last run in the store timezone", () => {
-    expect(s.freshness).toBe("Last checked Sep 23 at 7:07 a.m. Eastern. That check found 27 size or price changes.");
+    // The run classified 27 changes; 26 of them were published (one went to review).
+    expect(s.freshness).toBe("Last checked Sep 23 at 7:07 a.m. Eastern. That check found 27 size or price changes and published 26.");
     expect(s.period).toBe("Sep 7 to 23, 2026");
     expect(s.source).toBe("Source: Kroger public product API, one Cincinnati-area Kroger, Sep 7 to 23, 2026.");
   });
@@ -198,6 +199,11 @@ describe("story copy in other states", () => {
     expect(stale.freshness).toBe("Data last updated Sep 23 at 7:07 a.m. Eastern.");
     const none = story({ stats: { ...fx.stats, last_run: null, tracking_since: null } });
     expect(none.freshness).toBe("No check has run yet.");
+    // Changes the run classified but did not publish are not called found changes.
+    const held = story({ changes: fx.changes.filter((c) => !c.detected_at.startsWith("2026-09-23")) });
+    expect(held.freshness).toBe("Last checked Sep 23 at 7:07 a.m. Eastern. That check flagged 27 changes, none of which passed the publish rule.");
+    const all = story({ stats: { ...fx.stats, last_run: { ...fx.stats.last_run!, changes_found: 26 } } });
+    expect(all.freshness).toBe("Last checked Sep 23 at 7:07 a.m. Eastern. That check found 26 size or price changes.");
     expect(none.period).toBe("");
   });
 

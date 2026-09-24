@@ -277,7 +277,9 @@ function dekFor(counts: StoryCounts, priceMoves: ChangeOut[]): string {
   return `${lead}${tail}`;
 }
 
-function freshnessFor(stats: Stats, now: Date): string {
+// run.changes_found counts every change the check classified, including ones held for review or
+// hidden as noise, so the line also says how many of them were published.
+function freshnessFor(stats: Stats, changes: ChangeOut[], now: Date): string {
   const run = stats.last_run;
   if (!run) return "No check has run yet.";
   const at = run.finished_at ?? run.started_at;
@@ -290,10 +292,17 @@ function freshnessFor(stats: Stats, now: Date): string {
   }
   const age = now.getTime() - new Date(at).getTime();
   if (age > HOURS_36) return `Data last updated ${when}.`;
-  const found =
-    run.changes_found === 0
-      ? "That check found no size or price changes."
-      : `That check found ${countNoun(run.changes_found, "size or price change")}.`;
+  const start = new Date(run.started_at).getTime();
+  const end = new Date(at).getTime();
+  const published = changes.filter((change) => {
+    const t = new Date(change.detected_at).getTime();
+    return t >= start && t <= end;
+  }).length;
+  let found: string;
+  if (run.changes_found === 0) found = "That check found no size or price changes.";
+  else if (published >= run.changes_found) found = `That check found ${countNoun(published, "size or price change")}.`;
+  else if (published === 0) found = `That check flagged ${countNoun(run.changes_found, "change")}, none of which passed the publish rule.`;
+  else found = `That check found ${countNoun(run.changes_found, "size or price change")} and published ${published}.`;
   return `Last checked ${when}. ${found}`;
 }
 
@@ -550,7 +559,7 @@ export function buildStory(input: StoryInput): Story {
     headline: headlineFor(counts),
     dek: dekFor(counts, priceMoves),
     lede,
-    freshness: freshnessFor(stats, now),
+    freshness: freshnessFor(stats, changes, now),
     period,
     source: `Source: Kroger public product API, ${stats.location_label}${period ? `, ${period}` : ""}.`,
     steps,
