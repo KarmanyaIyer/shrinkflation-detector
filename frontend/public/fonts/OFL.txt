@@ -1,12 +1,18 @@
 Fonts in this directory and their copyright holders:
 
-Archivo-Variable-latin.woff2
-Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo)
+Newsreader-latin.woff2, Newsreader-Italic-latin.woff2
+  Copyright 2020 The Newsreader Project Authors (http://github.com/productiontype/Newsreader)
 
-JetBrainsMono-Regular.woff2, JetBrainsMono-Medium.woff2
-Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
+PublicSans-latin.woff2, PublicSans-Italic-latin.woff2
+  Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans),
+  a modified version of Libre Franklin (https://github.com/impallari/Libre-Franklin)
 
-Both fonts are licensed under the SIL Open Font License, Version 1.1, copied below.
+Both are licensed under the SIL Open Font License, Version 1.1, reproduced below.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
 
 -----------------------------------------------------------
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
@@ -21,7 +27,7 @@ with others.
 
 The OFL allows the licensed fonts to be used, studied, modified and
 redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded,
+fonts, including any derivative works, can be bundled, embedded, 
 redistributed and/or sold with any software provided that any reserved
 names are not used by derivative works. The fonts and derivatives,
 however, cannot be released under any other type of license. The
