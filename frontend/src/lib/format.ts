@@ -3,12 +3,11 @@
 // instead of through a binary float.
 
 export const MINUS = "−";
-export const ARROW = "→";
 
-// The tracked store's timezone (Newport, KY is Eastern). Observation days are shown in it so
-// they match the store's business day and do not shift with the viewer's timezone. A refresh
-// run at 00:30 UTC is still "yesterday evening" at the store, not the next day.
-const STORE_TIMEZONE = "America/New_York";
+// The tracked store's timezone. Observation days are shown in it so they match the store's
+// business day and do not shift with the viewer's timezone. A refresh run at 00:30 UTC is
+// still "yesterday evening" at the store, not the next day.
+export const STORE_TIMEZONE = "America/New_York";
 
 type Numeric = string | number | null | undefined;
 
@@ -91,11 +90,17 @@ export function formatUnitPrice(value: Numeric, unit: string | null | undefined)
   return `${amount}/${unit}`;
 }
 
+// The unit as it reads after "per": "per oz", "per item" for counts.
+export function unitWord(unit: string | null | undefined): string {
+  if (!unit) return "unit";
+  return unit === "each" ? "item" : unit;
+}
+
 // Signed with one decimal: "-10.0%" (real minus sign), "+11.1%", "0.0%".
-export function formatPercent(value: Numeric): string | null {
+export function formatPercent(value: Numeric, digits = 1): string | null {
   if (toNumber(value) === null) return null;
-  const rounded = roundDecimal(value as string | number, 1);
-  if (rounded === "0.0" || rounded === "-0.0") return "0.0%";
+  const rounded = roundDecimal(value as string | number, digits);
+  if (/^-?0(\.0+)?$/.test(rounded)) return digits > 0 ? `0.${"0".repeat(digits)}%` : "0%";
   if (rounded.startsWith("-")) return `${MINUS}${rounded.slice(1)}%`;
   return `+${rounded}%`;
 }
@@ -104,6 +109,13 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
   year: "numeric",
+  timeZone: STORE_TIMEZONE,
+});
+
+const timeFormat = new Intl.DateTimeFormat("en-US", {
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
   timeZone: STORE_TIMEZONE,
 });
 
@@ -135,12 +147,20 @@ export function formatDateShort(iso: string | null | undefined): string | null {
   return parts ? `${parts.month} ${parts.day}` : null;
 }
 
+// "7:07 a.m." in the store's timezone.
+export function formatTime(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return timeFormat.format(date).replace(/\s?(AM|PM)$/, (_, m: string) => (m === "AM" ? " a.m." : " p.m."));
+}
+
 function currentYear(): string {
   return dateParts(new Date().toISOString())?.year ?? "";
 }
 
 // The span between two observation days, as short as it can be read without ambiguity:
-// "Aug 20 → 24", "Aug 31 → Sep 1", and "Dec 30 → Jan 2, 2027" when a year is not the
+// "Aug 20 to 24", "Aug 31 to Sep 1", and "Dec 30 to Jan 2, 2027" when a year is not the
 // current one. A single date is returned when only one side is known.
 export function formatDateRange(
   fromIso: string | null | undefined,
@@ -157,12 +177,12 @@ export function formatDateRange(
   if (from.year === to.year) {
     const suffix = from.year === year ? "" : `, ${from.year}`;
     if (from.month === to.month) {
-      const days = from.day === to.day ? from.day : `${from.day} ${ARROW} ${to.day}`;
+      const days = from.day === to.day ? from.day : `${from.day} to ${to.day}`;
       return `${from.month} ${days}${suffix}`;
     }
-    return `${from.month} ${from.day} ${ARROW} ${to.month} ${to.day}${suffix}`;
+    return `${from.month} ${from.day} to ${to.month} ${to.day}${suffix}`;
   }
-  return `${withYear(from)} ${ARROW} ${withYear(to)}`;
+  return `${withYear(from)} to ${withYear(to)}`;
 }
 
 // "84 ms" below a second, "3.1 s" above.
@@ -171,6 +191,19 @@ export function formatDuration(ms: Numeric): string {
   if (n === null) return "";
   if (n < 1000) return `${formatInt(n)} ms`;
   return `${roundDecimal(n / 1000, 1)} s`;
+}
+
+// "6 minutes 41 seconds", "41 seconds", "1 minute".
+export function formatSpan(ms: Numeric): string {
+  const n = toNumber(ms);
+  if (n === null || n < 0) return "";
+  const total = Math.round(n / 1000);
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  const parts: string[] = [];
+  if (minutes) parts.push(pluralize(minutes, "minute"));
+  if (seconds || !minutes) parts.push(pluralize(seconds, "second"));
+  return parts.join(" ");
 }
 
 // Strip trailing zeros from a decimal string: "10.8000" to "10.8", "12.0000" to "12".
@@ -194,6 +227,18 @@ export function pluralize(count: number, singular: string, plural = `${singular}
   return `${formatInt(count)} ${count === 1 ? singular : plural}`;
 }
 
+const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+
+// Numbers one to nine as words in running prose, digits with grouping above that.
+export function numberWord(n: number): string {
+  return n >= 0 && n < 10 && Number.isInteger(n) ? WORDS[n]! : formatInt(n);
+}
+
+// "three products", "12 products", "one product".
+export function countNoun(count: number, singular: string, plural = `${singular}s`): string {
+  return `${numberWord(count)} ${count === 1 ? singular : plural}`;
+}
+
 const dayKeyFormat = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   month: "2-digit",
@@ -202,7 +247,7 @@ const dayKeyFormat = new Intl.DateTimeFormat("en-US", {
 });
 
 // The calendar day of an instant at the store, counted in days so two can be subtracted.
-function storeDay(iso: string): number | null {
+export function storeDay(iso: string): number | null {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
   const parts = dayKeyFormat.formatToParts(date);
@@ -219,6 +264,14 @@ export function daysObserved(firstIso: string, lastIso: string): number {
   return last - first + 1;
 }
 
+// Store days elapsed from one instant to another: Sep 7 to Sep 23 is 16.
+export function daysBetween(fromIso: string, toIso: string): number {
+  const from = storeDay(fromIso);
+  const to = storeDay(toIso);
+  if (from === null || to === null || to < from) return 0;
+  return to - from;
+}
+
 // Relative change in percent between two decimal values, or null when not computable.
 export function percentChange(before: Numeric, after: Numeric): number | null {
   const a = toNumber(before);
@@ -227,11 +280,7 @@ export function percentChange(before: Numeric, after: Numeric): number | null {
   return ((b - a) / a) * 100;
 }
 
-// CSS class for a signed change, colored by what it means for the shopper.
-// Size: more is better. Price and unit price: less is better.
-export function deltaClass(value: Numeric, moreIsBetter: boolean): string {
-  const n = toNumber(value);
-  if (n === null || Math.abs(n) < 0.05) return "";
-  const better = n > 0 ? moreIsBetter : !moreIsBetter;
-  return better ? "better" : "worse";
+// Straight quotes around label text, so "12 oz" reads as a quotation of the listing.
+export function quoted(text: string): string {
+  return `“${text}”`;
 }

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   MINUS,
   daysObserved,
-  deltaClass,
   formatDate,
   formatDateRange,
   formatDateShort,
@@ -11,12 +10,19 @@ import {
   formatMoney,
   formatPercent,
   formatQuantity,
+  formatSpan,
+  formatTime,
   formatUnitAmount,
   formatUnitPrice,
+  countNoun,
+  daysBetween,
+  numberWord,
   percentChange,
   pluralize,
+  quoted,
   roundDecimal,
   trimDecimal,
+  unitWord,
 } from "./format";
 
 describe("roundDecimal", () => {
@@ -69,6 +75,8 @@ describe("formatPercent", () => {
     expect(formatPercent("-0.04")).toBe("0.0%");
     expect(formatPercent(3.25)).toBe("+3.3%");
     expect(formatPercent(null)).toBeNull();
+    expect(formatPercent("30", 0)).toBe("+30%");
+    expect(formatPercent("0", 0)).toBe("0%");
   });
 });
 
@@ -84,19 +92,29 @@ describe("dates", () => {
   });
 
   it("writes a span as short as it can be read", () => {
-    expect(formatDateRange("2026-08-20T06:00:00Z", "2026-08-24T06:00:00Z")).toBe("Aug 20 → 24");
-    expect(formatDateRange("2026-08-31T06:00:00Z", "2026-09-01T06:00:00Z")).toBe("Aug 31 → Sep 1");
+    expect(formatDateRange("2026-08-20T06:00:00Z", "2026-08-24T06:00:00Z")).toBe("Aug 20 to 24");
+    expect(formatDateRange("2026-08-31T06:00:00Z", "2026-09-01T06:00:00Z")).toBe("Aug 31 to Sep 1");
     expect(formatDateRange("2026-08-20T06:00:00Z", "2026-08-20T06:00:00Z")).toBe("Aug 20");
-    expect(formatDateRange("2025-12-30T06:00:00Z", "2026-01-02T06:00:00Z")).toBe("Dec 30, 2025 → Jan 2");
-    expect(formatDateRange("2025-08-20T06:00:00Z", "2025-08-24T06:00:00Z")).toBe("Aug 20 → 24, 2025");
+    expect(formatDateRange("2025-12-30T06:00:00Z", "2026-01-02T06:00:00Z")).toBe("Dec 30, 2025 to Jan 2");
+    expect(formatDateRange("2025-08-20T06:00:00Z", "2025-08-24T06:00:00Z")).toBe("Aug 20 to 24, 2025");
     expect(formatDateRange("2026-08-20T06:00:00Z", null)).toBe("Aug 20");
     expect(formatDateRange(null, null)).toBeNull();
   });
 
-  it("formats durations", () => {
+  it("formats durations and spans", () => {
     expect(formatDuration(84)).toBe("84 ms");
     expect(formatDuration(3120)).toBe("3.1 s");
     expect(formatDuration(null)).toBe("");
+    expect(formatSpan(401_000)).toBe("6 minutes 41 seconds");
+    expect(formatSpan(60_000)).toBe("1 minute");
+    expect(formatSpan(4_000)).toBe("4 seconds");
+  });
+
+  it("formats the time of day at the store", () => {
+    expect(formatTime("2026-09-23T11:07:00.964933Z")).toBe("7:07 a.m.");
+    expect(formatTime("2026-12-23T11:07:00Z")).toBe("6:07 a.m.");
+    expect(formatTime("2026-09-07T22:54:30Z")).toBe("6:54 p.m.");
+    expect(formatTime(null)).toBeNull();
   });
 });
 
@@ -132,20 +150,24 @@ describe("counts and spans", () => {
     expect(daysObserved("2026-09-02T00:30:00Z", "2026-09-04T06:00:00Z")).toBe(4);
     expect(daysObserved("not a date", "2026-09-04T06:00:00Z")).toBe(1);
   });
+  it("counts elapsed store days", () => {
+    expect(daysBetween("2026-09-07T22:54:30Z", "2026-09-23T11:07:00Z")).toBe(16);
+    expect(daysBetween("2026-09-07T22:54:30Z", "2026-09-07T23:54:30Z")).toBe(0);
+    expect(daysBetween("2026-09-08T00:30:00Z", "2026-09-08T12:00:00Z")).toBe(1);
+  });
+  it("writes small numbers as words", () => {
+    expect(numberWord(3)).toBe("three");
+    expect(numberWord(10)).toBe("10");
+    expect(numberWord(1242)).toBe("1,242");
+    expect(countNoun(1, "price")).toBe("one price");
+    expect(countNoun(38, "price")).toBe("38 prices");
+    expect(unitWord("each")).toBe("item");
+    expect(unitWord("fl oz")).toBe("fl oz");
+    expect(quoted("12 oz")).toBe("\u201C12 oz\u201D");
+  });
   it("computes percent change", () => {
     expect(percentChange("0.3575", "0.3972")).toBeCloseTo(11.1, 1);
     expect(percentChange("0", "1")).toBeNull();
     expect(percentChange(null, "1")).toBeNull();
-  });
-});
-
-describe("deltaClass", () => {
-  it("colors by what the change means for the shopper", () => {
-    expect(deltaClass("-10.00", true)).toBe("worse");
-    expect(deltaClass("5.00", true)).toBe("better");
-    expect(deltaClass("11.11", false)).toBe("worse");
-    expect(deltaClass("-14.30", false)).toBe("better");
-    expect(deltaClass("0.00", false)).toBe("");
-    expect(deltaClass(null, false)).toBe("");
   });
 });
