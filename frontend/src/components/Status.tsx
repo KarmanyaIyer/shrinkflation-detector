@@ -1,49 +1,28 @@
-// Loading, error, and empty states. Loading states keep the shape of what they stand in for.
+import type { CSSProperties } from "react";
+import { ApiError } from "../api/http";
 
-export function SkeletonLines({ lines = 3, className = "" }: { lines?: number; className?: string }) {
-  const widths = [92, 76, 58, 84, 66];
-  return (
-    <div className={`sk ${className}`.trim()} aria-hidden="true">
-      {Array.from({ length: lines }, (_, i) => (
-        <span key={i} className="sk-line" style={{ width: `${widths[i % widths.length]}%` }} />
-      ))}
-    </div>
-  );
+// A grey line the shape of the text it stands in for.
+export function SkLine({ width, height = 14, style }: { width: number | string; height?: number; style?: CSSProperties }) {
+  return <span className="sk-line" style={{ width, height, ...style }} aria-hidden="true" />;
 }
 
-// `tall` reserves the height of a changes row, which carries three lines per cell.
-export function SkeletonRows({ rows = 5, cols = 4, tall = false }: { rows?: number; cols?: number; tall?: boolean }) {
-  return (
-    <div className={tall ? "sk sk-rows sk-rows-tall" : "sk sk-rows"} aria-hidden="true">
-      {Array.from({ length: rows }, (_, r) => (
-        <div key={r} className="sk-row" style={{ gridTemplateColumns: `minmax(0, 2fr) repeat(${cols - 1}, minmax(0, 1fr))` }}>
-          {Array.from({ length: cols }, (_, c) => (
-            <span key={c} className="sk-line" style={{ width: c === 0 ? "70%" : "60%" }} />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+export function describeLoadError(error: Error): string {
+  if (error instanceof ApiError) {
+    if (error.status === 0) return "The API did not respond. Check your connection and try again.";
+    if (error.status >= 500) return `The API returned an error (${error.status}). Try again in a minute.`;
+    if (error.status === 404) return "The API has no record at that address.";
+    return error.detail ?? error.message;
+  }
+  return error.message || "Something went wrong while loading.";
 }
 
-export function LoadError({ what, error, retry }: { what: string; error: Error; retry?: () => void }) {
+export function LoadError({ error, onRetry, id }: { error: Error; onRetry: () => void; id?: string }) {
   return (
-    <p className="status status-error" role="alert">
-      Could not load {what}. {error.message}
-      {retry ? (
-        <button type="button" className="btn-link" onClick={retry}>
-          Retry
-        </button>
-      ) : null}
-    </p>
-  );
-}
-
-export function Empty({ title, note }: { title: string; note?: string }) {
-  return (
-    <div className="empty">
-      <p className="empty-title">{title}</p>
-      {note ? <p className="empty-note">{note}</p> : null}
+    <div className="err" role="alert" id={id}>
+      <p>{describeLoadError(error)}</p>
+      <button type="button" className="more" onClick={onRetry}>
+        Retry
+      </button>
     </div>
   );
 }

@@ -1,0 +1,310 @@
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useLocation, useNavigate, useParams } from "react-router";
+import { getProduct } from "../api/client";
+import { ApiError } from "../api/http";
+import type { ChangeOut, ProductDetail, SnapshotOut } from "../api/types";
+import {
+  countNoun,
+  formatDate,
+  formatDateRange,
+  formatDateShort,
+  formatInt,
+  formatMoney,
+  formatPercent,
+  formatUnitAmount,
+  quoted,
+  toNumber,
+  unitWord,
+} from "../lib/format";
+import { direction, kindLabel } from "../lib/kinds";
+import { takeOpener, type DrawerState } from "../lib/drawerRoute";
+import { useApi, usePageTitle } from "../lib/useApi";
+import { displayName } from "../lib/text";
+import { SkLine, describeLoadError } from "./Status";
+import { StepChart } from "./StepChart";
+
+const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, summary, [tabindex]:not([tabindex="-1"])';
+
+function parseMethod(snapshot: SnapshotOut | null | undefined): string {
+  const method = snapshot?.parse_method;
+  if (!method) return "not parsed";
+  const confidence = snapshot?.parse_confidence;
+  const conf = confidence !== null && confidence !== undefined ? `, confidence ${confidence.toFixed(2)}` : "";
+  if (method === "rule") return "rules";
+  if (method === "cache") return `cached model reading${conf}`;
+  if (method.includes("llm") || method.includes("model")) return `model (${method})${conf}`;
+  return `${method}${conf}`;
+}
+
+// One sentence about the product, written from its records.
+export function summaryOf(detail: ProductDetail): string {
+  const since = formatDate(detail.first_seen_at) ?? "";
+  const checks = detail.snapshots.reduce((sum, s) => sum + s.observations, 0);
+  const changes = [...detail.changes].sort((a, b) => b.detected_at.localeCompare(a.detected_at));
+  const latest = changes[0];
+  if (!latest) {
+    return `Tracked since ${since}, with no size or price change across ${countNoun(checks, "check")}.`;
+  }
+  const pct = toNumber(latest.unit_price_change_pct) ?? toNumber(latest.price_change_pct);
+  const unit = latest.after?.unit_price?.unit ?? latest.before?.unit_price?.unit;
+  const before = latest.before;
+  const after = latest.after;
+  const sizePart =
+    before && after && before.size_text !== after.size_text ? `the size text went from ${quoted(before.size_text)} to ${quoted(after.size_text)}` : "";
+  const priceBefore = formatMoney(before?.price_regular);
+  const priceAfter = formatMoney(after?.price_regular);
+  const pricePart =
+    priceBefore && priceAfter && priceBefore !== priceAfter
+      ? `the shelf price went from ${priceBefore} to ${priceAfter}`
+      : priceAfter
+        ? `the shelf price stayed at ${priceAfter}`
+        : "";
+  const parts = [sizePart, pricePart].filter(Boolean).join(" and ");
+  const when = formatDateRange(latest.before_seen_at, latest.after_seen_at) ?? formatDateShort(latest.detected_at) ?? "";
+  const per = pct !== null ? `, ${formatPercent(pct)} per ${unitWord(unit)}` : "";
+  const count = changes.length === 1 ? "one change" : countNoun(changes.length, "change");
+  const lead = changes.length === 1 ? "One change since" : `${count.replace(/^./, (c) => c.toUpperCase())} since`;
+  return `${lead} ${since}. ${changes.length === 1 ? "Between" : "Most recently, between"} ${when}, ${parts}${per}.`;
+}
+
+function StatesTable({ snapshots }: { snapshots: SnapshotOut[] }) {
+  const rows = [...snapshots].sort((a, b) => b.first_seen_at.localeCompare(a.first_seen_at));
+  return (
+    <table className="dr-table">
+      <caption>Stored states, newest first</caption>
+      <thead>
+        <tr>
+          <th scope="col">Size text</th>
+          <th scope="col">Price</th>
+          <th scope="col" className="n">
+            Per unit
+          </th>
+          <th scope="col">Seen</th>
+          <th scope="col" className="n">
+            Checks
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((s) => (
+          <tr key={s.id}>
+            <td>
+              <b>{s.size_text || "no size text"}</b>
+              <span className="pm">{parseMethod(s)}</span>
+            </td>
+            <td data-l="Price">
+              {formatMoney(s.price_regular) ?? "no price"}
+              {s.price_promo ? <span className="pm">promo {formatMoney(s.price_promo)}</span> : null}
+            </td>
+            <td className="n" data-l="Per unit">
+              {s.unit_price ? `${formatUnitAmount(s.unit_price.value)}/${s.unit_price.unit}` : "not parsed"}
+            </td>
+            <td data-l="Seen">{formatDateRange(s.first_seen_at, s.last_seen_at)}</td>
+            <td className="n" data-l="Checks">
+              {formatInt(s.observations)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function Body({ detail }: { detail: ProductDetail }) {
+  const changes = [...detail.changes].sort((a, b) => b.detected_at.localeCompare(a.detected_at));
+  const latest: ChangeOut | undefined = changes[0];
+  const dir = latest ? direction(latest) : "flat";
+  const current = detail.current ?? detail.snapshots[detail.snapshots.length - 1];
+  const unit = current?.unit_price?.unit;
+  const [imageOk, setImageOk] = useState(true);
+  return (
+    <>
+      <div className="dr-body">
+        <div className="dr-top">
+          {detail.product.image_url && imageOk ? (
+            <img
+              className="dr-img"
+              src={detail.product.image_url}
+              alt=""
+              width={96}
+              height={96}
+              loading="lazy"
+              onError={() => setImageOk(false)}
+            />
+          ) : null}
+          <div>
+            <h2 className="dr-title" id="dr-title">
+              {displayName(detail.product.description)}
+            </h2>
+            <p className="dr-meta">
+              {detail.product.category}
+              {detail.product.brand ? (
+                <>
+                  <span className="sep">·</span>
+                  {detail.product.brand}
+                </>
+              ) : null}
+              {latest ? (
+                <>
+                  <span className="sep">·</span>
+                  <span className={`kind ${dir === "more" ? "m" : dir === "less" ? "l" : ""}`}>{kindLabel(latest.kind)}</span>
+                </>
+              ) : null}
+            </p>
+          </div>
+        </div>
+        <p className="dr-sum">{summaryOf(detail)}</p>
+        <figure className="dr-fig">
+          <figcaption>
+            {unit ? `Price per ${unitWord(unit)}` : "Price per unit"}, {formatDateRange(detail.first_seen_at, detail.last_seen_at)}
+          </figcaption>
+          <StepChart snapshots={detail.snapshots} changes={detail.changes} />
+        </figure>
+        <StatesTable snapshots={detail.snapshots} />
+        <dl className="dr-dl">
+          <dt>Kroger product id</dt>
+          <dd>{detail.upc ?? detail.product.id}</dd>
+          <dt>Category</dt>
+          <dd>{detail.product.category}</dd>
+          {detail.retailer_categories?.length ? (
+            <>
+              <dt>Kroger category</dt>
+              <dd>{detail.retailer_categories.join(", ")}</dd>
+            </>
+          ) : null}
+          <dt>First seen</dt>
+          <dd>{formatDate(detail.first_seen_at)}</dd>
+          <dt>Last seen</dt>
+          <dd>{formatDate(detail.last_seen_at)}</dd>
+          <dt>Size read by</dt>
+          <dd>{parseMethod(current)}</dd>
+          <dt>Still listed</dt>
+          <dd>{detail.active ? "Yes" : "No, dropped from the listing"}</dd>
+        </dl>
+      </div>
+    </>
+  );
+}
+
+export function ProductDrawer() {
+  const { id = "" } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = useApi((signal) => getProduct(id, signal), [id]);
+  const panel = useRef<HTMLDivElement>(null);
+  const opener = useRef<Element | null>(null);
+
+  const title = state.status === "ok" ? displayName(state.data.product.description) : state.status === "error" ? "Product" : null;
+  usePageTitle(title);
+
+  const close = useCallback(() => {
+    const from = (location.state as DrawerState | null)?.fromArticle;
+    if (from) void navigate(-1);
+    else void navigate("/", { replace: true });
+  }, [location.state, navigate]);
+
+  // Take the opener once, lock the page behind, focus the panel, and give focus back on close.
+  useLayoutEffect(() => {
+    opener.current = takeOpener();
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    document.body.classList.add("locked");
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
+    panel.current?.focus({ preventScroll: true });
+    return () => {
+      document.body.classList.remove("locked");
+      document.body.style.paddingRight = "";
+      const target = opener.current;
+      if (target instanceof HTMLElement && target.isConnected) target.focus({ preventScroll: true });
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [close]);
+
+  function trapTab(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Tab" || !panel.current) return;
+    const items = Array.from(panel.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.offsetParent !== null);
+    if (items.length === 0) {
+      event.preventDefault();
+      return;
+    }
+    const first = items[0]!;
+    const last = items[items.length - 1]!;
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || active === panel.current)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  const kicker =
+    state.status === "ok" ? "Product record" : state.status === "error" ? "Product" : "Loading";
+
+  return (
+    <>
+      <div className="scrim on" onClick={close} aria-hidden="true" />
+      <div
+        className="drawer on"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={state.status === "ok" ? "dr-title" : "dr-kicker"}
+        tabIndex={-1}
+        ref={panel}
+        onKeyDown={trapTab}
+      >
+        <div className="dr-bar">
+          <span className="dr-kicker" id="dr-kicker">
+            {kicker}
+          </span>
+          <button className="dr-close" type="button" onClick={close}>
+            Close
+            <svg viewBox="0 0 14 14" aria-hidden="true">
+              <path d="M2 2l10 10M12 2 2 12" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
+          </button>
+        </div>
+        {state.status === "loading" ? (
+          <div className="dr-body" aria-busy="true">
+            <p className="sr-only">Loading the product record</p>
+            <SkLine width="82%" height={26} />
+            <SkLine width="50%" height={26} />
+            <SkLine width={200} height={12} style={{ marginTop: 10 }} />
+            <SkLine width="100%" height={16} style={{ marginTop: 22 }} />
+            <SkLine width="94%" height={16} />
+            <SkLine width="40%" height={16} />
+            <SkLine width="100%" height={190} style={{ marginTop: 26 }} />
+            <SkLine width="100%" height={16} style={{ marginTop: 26 }} />
+            <SkLine width="100%" height={16} />
+            <SkLine width="100%" height={16} />
+          </div>
+        ) : null}
+        {state.status === "error" ? (
+          <div className="dr-body">
+            <p className="dr-sum" role="alert">
+              {state.error instanceof ApiError && state.error.status === 404
+                ? `No tracked product has the id ${id}.`
+                : describeLoadError(state.error)}
+            </p>
+            {!(state.error instanceof ApiError && state.error.status === 404) ? (
+              <button type="button" className="more" onClick={state.reload}>
+                Retry
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        {state.status === "ok" ? <Body detail={state.data} /> : null}
+      </div>
+    </>
+  );
+}

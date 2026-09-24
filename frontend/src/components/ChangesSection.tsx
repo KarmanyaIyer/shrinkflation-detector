@@ -1,159 +1,285 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { useSearchParams } from "react-router";
-import { PAGE_SIZE, getChanges } from "../api/client";
-import { FEED_KINDS, isFeedKind, type CategoryCount, type ChangeOut, type FeedKind, type Stats } from "../api/types";
-import { formatDateShort, formatInt } from "../lib/format";
-import { EMPTY_TITLES, FILTER_LABELS } from "../lib/kinds";
-import { useApi, type AsyncState } from "../lib/useApi";
-import { useReveal } from "../lib/useReveal";
-import { ChangesTable } from "./ChangesTable";
-import { Empty, LoadError, SkeletonRows } from "./Status";
+import type { CategoryCount, ChangeOut, FeedKind } from "../api/types";
+import { formatDateRange, formatMoney, formatPercent, formatUnitAmount, toNumber, unitWord } from "../lib/format";
+import { direction, FILTER_LABELS, FILTER_ORDER, kindLabel, SIZE_KINDS } from "../lib/kinds";
+import { rememberOpener, useOpenProduct } from "../lib/drawerRoute";
+import { displayName } from "../lib/text";
+import {
+  countByKind,
+  DEFAULT_STATE,
+  defaultDescending,
+  filterChanges,
+  parseTableState,
+  serializeTableState,
+  sortChanges,
+  type SortKey,
+  type TableState,
+} from "../lib/tableState";
+import { SkLine } from "./Status";
 
-function countFor(stats: Stats, kind: FeedKind): number {
-  switch (kind) {
-    case "shrink":
-      return stats.shrink_count;
-    case "grow":
-      return stats.grow_count;
-    case "price_increase":
-      return stats.price_increase_count;
-    case "price_decrease":
-      return stats.price_decrease_count;
-    default:
-      return stats.changes_published;
+export const PAGE_ROWS = 25;
+// Bars are drawn to this magnitude; anything past it is cut with an overflow mark.
+export const BAR_CAP = 30;
+
+function unitPct(change: ChangeOut): number | null {
+  return toNumber(change.unit_price_change_pct) ?? toNumber(change.price_change_pct);
+}
+
+function UnitCell({ change }: { change: ChangeOut }) {
+  const pct = unitPct(change);
+  const before = change.before?.unit_price;
+  const after = change.after?.unit_price;
+  const dir = direction(change);
+  if (pct === null) {
+    return <span className="same">No price per unit: the size text could not be parsed.</span>;
   }
-}
-
-// The tab to open on: the URL's kind if it names one, otherwise size decreases when any have
-// been published and everything otherwise, so the page never opens on an empty table.
-export function defaultKind(param: string | null, stats: Stats | undefined): FeedKind {
-  if (isFeedKind(param)) return param;
-  if (!stats || stats.shrink_count > 0) return "shrink";
-  return "all";
-}
-
-export function ChangesSection({
-  stats,
-  categories,
-}: {
-  stats: AsyncState<Stats>;
-  categories: AsyncState<CategoryCount[]>;
-}) {
-  const ref = useReveal<HTMLElement>();
-  const [params] = useSearchParams();
-  const ready = stats.status !== "loading";
-  const [kind, setKind] = useState<FeedKind | null>(null);
-  const [category, setCategory] = useState<string | null>(params.get("category"));
-  const [extra, setExtra] = useState<ChangeOut[]>([]);
-  const [more, setMore] = useState<"idle" | "loading" | "error">("idle");
-  // Which tab and category the extra pages belong to, so a page that arrives after the user
-  // switched tabs is dropped instead of appended under the wrong list.
-  const listKey = useRef("");
-
-  useEffect(() => {
-    if (ready && kind === null) setKind(defaultKind(params.get("kind"), stats.data));
-  }, [ready, kind, params, stats.data]);
-
-  const activeKind = kind ?? "shrink";
-  const first = useApi(
-    (signal) => getChanges({ kind: activeKind, category, offset: 0 }, signal),
-    [activeKind, category],
-    { enabled: kind !== null },
+  const size = Math.min(Math.abs(pct), BAR_CAP) / BAR_CAP;
+  const over = Math.abs(pct) > BAR_CAP;
+  const style = dir === "more" ? { left: "50%", width: `${size * 50}%` } : { right: "50%", width: `${size * 50}%` };
+  return (
+    <>
+      <span className="u-line">
+        <span className="u-pct">{formatPercent(pct)}</span>
+        <span className="ubar" aria-hidden="true">
+          <i className="ubar-z" />
+          <i className={`ubar-f ${dir === "more" ? "m" : "l"}${over ? " over" : ""}`} style={style} />
+        </span>
+      </span>
+      {before && after ? (
+        <span className="u-abs">
+          {formatUnitAmount(before.value)} to {formatUnitAmount(after.value)} per {unitWord(after.unit)}
+        </span>
+      ) : null}
+    </>
   );
+}
 
-  useEffect(() => {
-    listKey.current = `${activeKind}|${category ?? ""}`;
-    setExtra([]);
-    setMore("idle");
-  }, [activeKind, category]);
+function Row({ change, onOpen }: { change: ChangeOut; onOpen: (id: string, trigger: Element | null) => void }) {
+  const before = change.before;
+  const after = change.after;
+  const priceBefore = formatMoney(before?.price_regular);
+  const priceAfter = formatMoney(after?.price_regular);
+  const sizeChanged = SIZE_KINDS.has(change.kind);
+  const promo = formatMoney(after?.price_promo);
+  const when = formatDateRange(change.before_seen_at, change.after_seen_at) ?? formatDateRange(change.detected_at, null) ?? "";
+  const onClick = (event: MouseEvent<HTMLTableRowElement>) => {
+    if (window.getSelection()?.toString()) return;
+    rememberOpener(event.currentTarget.querySelector(".rowbtn"));
+    onOpen(change.product.id, event.currentTarget.querySelector(".rowbtn"));
+  };
+  return (
+    <tr onClick={onClick} data-kind={change.kind}>
+      <th scope="row" className="c-prod">
+        <button type="button" className="rowbtn">
+          {displayName(change.product.description)}
+        </button>
+        <span className="c-cat">
+          {change.product.category} · {kindLabel(change.kind)}
+        </span>
+      </th>
+      <td className="c-size" data-l="Package label">
+        {sizeChanged ? (
+          <>
+            <span className="chg">{after?.size_text ?? ""}</span>
+            <span className="same">was {before?.size_text ?? ""}</span>
+          </>
+        ) : (
+          <>
+            {after?.size_text ?? before?.size_text ?? ""}
+            <span className="same">unchanged</span>
+          </>
+        )}
+      </td>
+      <td className="c-price" data-l="Shelf price">
+        {priceBefore && priceAfter && priceBefore !== priceAfter ? (
+          <>
+            {priceBefore} to <b>{priceAfter}</b>
+          </>
+        ) : (
+          <>
+            <b>{priceAfter ?? priceBefore ?? "no price"}</b>
+            {priceAfter ? <span className="same">unchanged</span> : null}
+          </>
+        )}
+        {promo ? <span className="promo">promo {promo}</span> : null}
+      </td>
+      <td className="c-unit" data-l="Price per unit">
+        <UnitCell change={change} />
+      </td>
+      <td className="c-when" data-l="When">
+        {when}
+      </td>
+    </tr>
+  );
+}
 
-  async function loadMore() {
-    if (first.status !== "ok") return;
-    const key = listKey.current;
-    setMore("loading");
-    try {
-      const page = await getChanges({ kind: activeKind, category, offset: first.data.items.length + extra.length });
-      if (listKey.current !== key) return;
-      setExtra((current) => [...current, ...page.items]);
-      setMore("idle");
-    } catch {
-      if (listKey.current === key) setMore("error");
-    }
+function SortHeader({
+  label,
+  column,
+  state,
+  onSort,
+  children,
+}: {
+  label: string;
+  column: SortKey;
+  state: TableState;
+  onSort: (column: SortKey) => void;
+  children?: ReactNode;
+}) {
+  const active = state.sort === column;
+  return (
+    <th scope="col" aria-sort={active ? (state.descending ? "descending" : "ascending") : "none"}>
+      <button type="button" onClick={() => onSort(column)}>
+        {label}
+      </button>
+      {children}
+    </th>
+  );
+}
+
+export function ChangesSection({ changes, categories }: { changes: ChangeOut[] | null; categories: CategoryCount[] | null }) {
+  const [params, setParams] = useSearchParams();
+  const state = useMemo(() => parseTableState(params), [params]);
+  const [showAll, setShowAll] = useState(false);
+  const openProduct = useOpenProduct();
+
+  const stateKey = `${state.kind}|${state.category ?? ""}|${state.sort}|${state.descending}`;
+  useEffect(() => setShowAll(false), [stateKey]);
+
+  function update(next: Partial<TableState>) {
+    setParams(serializeTableState({ ...state, ...next }, params));
   }
 
-  const items = first.status === "ok" ? [...first.data.items, ...extra] : [];
-  const total = first.status === "ok" ? first.data.total : null;
-  const emptyNote =
-    stats.status === "ok" && stats.data.tracking_since
-      ? `Tracking started ${formatDateShort(stats.data.tracking_since)}. A change is published once a new size or price has been seen on a later check.`
-      : "A change is published once a new size or price has been seen on a later check.";
+  function onSort(column: SortKey) {
+    if (state.sort === column) update({ descending: !state.descending });
+    else update({ sort: column, descending: defaultDescending(column) });
+  }
+
+  const all = changes ?? [];
+  const byKind = useMemo(() => countByKind(filterChanges(all, { kind: "all", category: state.category })), [all, state.category]);
+  const rows = useMemo(() => sortChanges(filterChanges(all, state), state), [all, state]);
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const change of filterChanges(all, { kind: state.kind, category: null })) {
+      counts.set(change.product.category, (counts.get(change.product.category) ?? 0) + 1);
+    }
+    return counts;
+  }, [all, state.kind]);
+  const categoryNames = useMemo(() => {
+    const names = new Set<string>((categories ?? []).map((entry) => entry.category));
+    for (const change of all) names.add(change.product.category);
+    if (state.category) names.add(state.category);
+    return [...names].sort((a, b) => a.localeCompare(b));
+  }, [categories, all, state.category]);
+
+  const shown = showAll ? rows : rows.slice(0, PAGE_ROWS);
+  const loading = changes === null;
+  const filtered = state.kind !== "all" || state.category !== null;
+
+  const countLine = loading
+    ? null
+    : rows.length === 0
+      ? "No change matches these filters."
+      : `${rows.length === 1 ? "1 change" : `${rows.length} changes`}${state.category ? ` in ${state.category}` : ""}${
+          state.kind !== "all" ? `, ${FILTER_LABELS[state.kind].toLowerCase()}` : ""
+        }, ${state.sort === "when" ? (state.descending ? "newest first" : "oldest first") : state.sort === "unit" ? (state.descending ? "largest increase first" : "largest decrease first") : state.descending ? "Z to A" : "A to Z"}.`;
 
   return (
-    <section className="section wrap" id="changes" ref={ref} aria-labelledby="changes-title">
-      <div className="section-head">
-        <h2 id="changes-title">What changed</h2>
-        {total !== null ? (
-          <span className="section-count">
-            {formatInt(total)} {total === 1 ? "change" : "changes"}
-            {category ? ` in ${category}` : ""}
-          </span>
-        ) : null}
-      </div>
-
-      <div className="controls">
+    <section className="tool wide" id="changes" aria-labelledby="ch-h">
+      <h2 id="ch-h">Every change</h2>
+      <p className="tool-intro">
+        Every published size or price change, with the listing text and prices exactly as recorded. Filters and sort
+        are kept in the address, so a view can be linked.
+      </p>
+      <div className="ch-controls">
         <div className="seg" role="group" aria-label="Kind of change">
-          {FEED_KINDS.map((option) => (
+          {FILTER_ORDER.map((kind: FeedKind) => (
             <button
-              key={option}
+              key={kind}
               type="button"
-              aria-pressed={activeKind === option}
-              onClick={() => setKind(option)}
-              disabled={kind === null}
+              aria-pressed={state.kind === kind}
+              onClick={() => update({ kind })}
+              disabled={loading}
             >
-              {FILTER_LABELS[option]}
-              {stats.status === "ok" ? <span className="seg-n">{formatInt(countFor(stats.data, option))}</span> : null}
+              {FILTER_LABELS[kind]} <span>{loading ? "" : byKind[kind]}</span>
             </button>
           ))}
         </div>
-        <label className="select-wrap">
-          <span className="sr-only">Category</span>
-          <select
-            className="select"
-            value={category ?? ""}
-            onChange={(event) => setCategory(event.target.value || null)}
-            aria-label="Category"
-          >
+        <label className="cat-sel">
+          <span>Category</span>
+          <select value={state.category ?? ""} onChange={(event) => update({ category: event.target.value || null })} disabled={loading}>
             <option value="">All categories</option>
-            {categories.status === "ok"
-              ? categories.data.map((entry) => (
-                  <option key={entry.category} value={entry.category}>
-                    {entry.category}
-                  </option>
-                ))
-              : null}
+            {categoryNames.map((name) => (
+              <option key={name} value={name}>
+                {name} ({categoryCounts.get(name) ?? 0})
+              </option>
+            ))}
           </select>
         </label>
       </div>
-
-      {first.status === "error" ? (
-        <LoadError what="changes" error={first.error} retry={first.reload} />
-      ) : first.status === "loading" ? (
-        <SkeletonRows rows={4} cols={4} tall />
-      ) : items.length === 0 ? (
-        <Empty title={`${EMPTY_TITLES[activeKind].replace(/\.$/, "")}${category ? ` in ${category}` : ""}.`} note={emptyNote} />
-      ) : (
-        <>
-          <ChangesTable items={items} showKind={activeKind === "all"} />
-          {total !== null && items.length < total ? (
-            <div className="more">
-              <button type="button" className="btn btn-line" onClick={() => void loadMore()} disabled={more === "loading"}>
-                {more === "loading" ? "Loading" : `Show ${formatInt(Math.min(PAGE_SIZE, total - items.length))} more`}
-              </button>
-              {more === "error" ? <span className="status-error">Could not load more. Try again.</span> : null}
-            </div>
+      <p className="ch-count" aria-live="polite">
+        {countLine ?? <SkLine width={220} height={12} />}
+      </p>
+      <table className="ch-table">
+        <caption className="sr-only">Published changes</caption>
+        <thead>
+          <tr>
+            <SortHeader label="Product" column="product" state={state} onSort={onSort} />
+            <th scope="col">Package label</th>
+            <th scope="col">Shelf price</th>
+            <SortHeader label="Price per unit" column="unit" state={state} onSort={onSort} />
+            <SortHeader label="When" column="when" state={state} onSort={onSort}>
+              <sup>
+                <a href="#fn3" id="r3" aria-label="Note 3">
+                  3
+                </a>
+              </sup>
+            </SortHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {loading
+            ? [0, 1, 2, 3, 4].map((i) => (
+                <tr key={i} className="ch-sk" aria-hidden="true">
+                  <th scope="row" className="c-prod">
+                    <SkLine width="80%" height={15} />
+                    <SkLine width="40%" height={12} />
+                  </th>
+                  <td className="c-size">
+                    <SkLine width="60%" height={15} />
+                  </td>
+                  <td className="c-price">
+                    <SkLine width="70%" height={15} />
+                  </td>
+                  <td className="c-unit">
+                    <SkLine width="90%" height={15} />
+                  </td>
+                  <td className="c-when">
+                    <SkLine width={80} height={15} />
+                  </td>
+                </tr>
+              ))
+            : shown.map((change) => <Row key={change.id} change={change} onOpen={openProduct} />)}
+          {!loading && rows.length === 0 ? (
+            <tr className="ch-empty">
+              <td colSpan={5}>
+                No change matches these filters.{" "}
+                {filtered ? (
+                  <button type="button" className="pl" onClick={() => setParams(serializeTableState(DEFAULT_STATE, params))}>
+                    Show every change
+                  </button>
+                ) : null}
+              </td>
+            </tr>
           ) : null}
-        </>
-      )}
+        </tbody>
+      </table>
+      {!loading && rows.length > PAGE_ROWS && !showAll ? (
+        <button type="button" className="more" onClick={() => setShowAll(true)}>
+          Show all {rows.length}
+        </button>
+      ) : null}
     </section>
   );
 }

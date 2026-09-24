@@ -1,77 +1,71 @@
-import type { Stats } from "../api/types";
-import { formatInt, formatMoney } from "../lib/format";
-import type { AsyncState } from "../lib/useApi";
-import { useReveal } from "../lib/useReveal";
-import { GITHUB_URL } from "./Shell";
+import { formatInt, pluralize } from "../lib/format";
+import type { MethodFacts } from "../lib/story";
 
-export function MethodSection({ stats }: { stats: AsyncState<Stats> }) {
-  const ref = useReveal<HTMLElement>();
-  const store = stats.status === "ok" ? stats.data.location_label : "one Cincinnati-area Kroger";
+// Every claim here was checked against the backend code before it was written. Numbers come
+// from the stats endpoint; without them (API down) the steps still read correctly.
+export function MethodSection({ method }: { method: MethodFacts | null }) {
+  const m = method;
+  const run =
+    m?.runDate && m.runChecked !== null && m.runErrors !== null
+      ? m.runOk
+        ? ` The ${m.runDate} run checked ${formatInt(m.runChecked)} products in ${m.runSpan ?? "one pass"} with ${
+            m.runErrors === 0 ? "no errors" : pluralize(m.runErrors, "error")
+          }.`
+        : ` The ${m.runDate} run stopped after ${formatInt(m.runChecked)} of ${formatInt(m.products)} products with ${pluralize(
+            m.runErrors,
+            "error",
+          )}.`
+      : "";
   return (
-    <section className="section wrap" id="how" ref={ref} aria-labelledby="how-title">
-      <div className="section-head">
-        <h2 id="how-title">How it works</h2>
-      </div>
-
-      <div className="how">
-        <div className="step">
-          <h3>Observe</h3>
-          <p>
-            Every morning the Kroger public API is asked for the name, size text, and regular price of each tracked
-            product at {store}. A new state is stored only when one of those changed; otherwise the current state's
-            last-seen date moves forward.
-          </p>
-        </div>
-        <div className="step">
-          <h3>Parse</h3>
-          <p>
-            Size text like <code>12 x 12 fl oz</code> or <code>1/2 gal</code> is turned into a quantity. Rules handle
-            most labels. The rest go to DeepSeek V4.1 Flash in JSON mode, checked against a schema, with one repair
-            retry and escalation to V4 Pro when confidence is low. Parses are cached by label text.
-          </p>
-        </div>
-        <div className="step">
-          <h3>Publish</h3>
-          <p>
-            Consecutive states are compared and filed as a size decrease, size increase, price increase, or price
-            decrease. Per-unit price is the regular price over the parsed quantity. The dates on a change run from the
-            last day the old state was seen to the first day the new one was.
-          </p>
-        </div>
-        <div className="step">
-          <h3>Not counted</h3>
-          <p>
-            Items sold by weight. Promotional prices. Relabels where the quantity did not move, such as 16 oz to 1 lb.
-            Differences under 0.5%. Size changes above 80% and parses below 0.7 confidence wait in a review queue
-            instead of being published.
-          </p>
-        </div>
-        <div className="step">
-          <h3>Asking</h3>
-          <p>
-            The question box runs a tool-calling model with read-only tools over the same database: product search,
-            product history, recent changes, and stats. Arguments are validated before any query runs. Each visitor
-            gets 10 questions a day of up to 400 characters, and the model has a daily spend cap.
-          </p>
-        </div>
-        <div className="step">
-          <h3>Source</h3>
-          <p>
-            Python, FastAPI, and Postgres behind the API; React and TypeScript on this page; GitHub Actions deploys
-            to Azure Container Apps. Everything is at{" "}
-            <a href={GITHUB_URL} rel="noopener">
-              KarmanyaIyer/shrinkflation-detector
-            </a>
-            .
-            {stats.status === "ok" ? (
-              <>
-                {" "}
-                Model spend so far: {formatMoney(stats.data.llm_cost_usd)} over {formatInt(stats.data.llm_calls)} calls.
-              </>
-            ) : null}
-          </p>
-        </div>
-      </div>
-    </section>
+    <aside className="method" id="how" aria-labelledby="m-h">
+      <h2 id="m-h">How this works</h2>
+      <ol>
+        <li>
+          <strong>Collection.</strong> Every day at 11:00 UTC, which is 7 a.m. Eastern in summer and 6 a.m. in winter,
+          a job asks Kroger’s public product API for every tracked product
+          {m ? `: ${formatInt(m.products)} products in ${m.categories} categories${m.apiCalls !== null ? `, ${formatInt(m.apiCalls)} API calls` : ""}` : ""}.
+          {run}
+        </li>
+        <li>
+          <strong>Reading size text.</strong> Each listing’s size text, such as “12 oz”, “2 pk / 12 fl oz” or “192 ct”,
+          becomes a quantity and a unit. Plain text is parsed by rules. Anything else goes to DeepSeek V4.1 Flash, and
+          ambiguous multipacks go on to DeepSeek V4 Pro
+          {m ? `; ${formatInt(m.llmCalls)} model calls have cost ${m.llmCost} in total` : ""}. Every model reply must fit a
+          Pydantic schema before it is stored.
+        </li>
+        <li>
+          <strong>Price per unit.</strong> The regular shelf price divided by the parsed quantity, in the listing’s own
+          unit: per oz, per fl oz or per item. Promo prices are recorded but not used.
+        </li>
+        <li>
+          <strong>Storage.</strong> A new state is stored only when the size text or the price differs from the previous
+          check{m ? `. ${formatInt(m.states)} states hold the history of ${formatInt(m.products)} products` : ""}.
+        </li>
+        <li>
+          <strong>Publishing.</strong> A size change is published when both states parsed with a confidence of at least
+          0.7 and the size moved by more than 0.5% and at most 80%; larger jumps are held for review. A price change is
+          published when the regular price moved by at least 0.5%.
+          {m
+            ? ` ${formatInt(m.published)} so far: ${pluralize(m.priceUp, "price increase")}, ${pluralize(m.priceDown, "price cut")}, ${pluralize(
+                m.shrinks,
+                "size decrease",
+              )} and ${pluralize(m.grows, "size increase")}${
+                m.shrinkPriceCuts ? `, plus ${pluralize(m.shrinkPriceCuts, "size decrease")} that came with a lower price per unit` : ""
+              }.`
+            : ""}
+        </li>
+        <li>
+          <strong>The assistant.</strong> It can only call four read-only tools: <code>search_products</code>,{" "}
+          <code>get_product_history</code>, <code>list_recent_changes</code> and <code>get_tracking_stats</code>.
+          Arguments are validated with Pydantic, it must call a tool before it answers, and it gets at most four rounds of
+          calls per question. Each visitor gets 10 questions a day, and the whole site has a $1.00 daily model budget.
+          Every request is traced with OpenTelemetry.
+        </li>
+      </ol>
+      <p className="stack">
+        <span>Stack</span>Python 3.13, FastAPI, SQLAlchemy 2, Pydantic v2, Postgres 17 on Neon, React 19 and TypeScript,
+        Vite, Docker, GitHub Actions, Azure Container Apps, OpenTelemetry
+      </p>
+    </aside>
   );
 }

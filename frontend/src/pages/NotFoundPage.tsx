@@ -4,11 +4,14 @@ import { usePageTitle } from "../lib/useApi";
 export function NotFoundPage() {
   usePageTitle("Page not found");
   return (
-    <div className="page wrap">
-      <h1>Page not found.</h1>
-      <p className="note">
-        <Link to="/">Back to the start</Link>
-      </p>
-    </div>
+    <article>
+      <header className="head" id="top">
+        <p className="kicker">Not found</p>
+        <h1>There is no page at this address.</h1>
+        <p className="dek">
+          <Link to="/">Go to the article</Link>, or <Link to="/#search">find a product</Link>.
+        </p>
+      </header>
+    </article>
   );
 }

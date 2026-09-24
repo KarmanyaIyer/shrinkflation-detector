@@ -1,65 +1,79 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, Outlet, useLocation, useNavigationType } from "react-router";
 
 export const GITHUB_URL = "https://github.com/KarmanyaIyer/shrinkflation-detector";
-export const SITE_URL = "https://karmanyaiyer.com/";
+export const SITE_URL = "https://karmanyaiyer.com";
 
-function Arrow() {
+export function isDrawerPath(pathname: string): boolean {
+  return /^\/products\/[^/]+\/?$/.test(pathname);
+}
+
+function BackArrow() {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-      <path d="M9 5H1.5M4.5 2 1.5 5l3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M7 3 2 8l5 5M2 8h12" fill="none" stroke="currentColor" strokeWidth="1.6" />
     </svg>
   );
 }
 
-export function BackLink({ className = "back" }: { className?: string }) {
-  return (
-    <a className={className} href={SITE_URL}>
-      <Arrow /> KARMANYA IYER
-    </a>
-  );
-}
-
-const NAV = [
-  { to: "/#changes", label: "Changes" },
-  { to: "/#products", label: "Products" },
-  { to: "/#how", label: "How it works" },
-];
-
 export function Shell() {
   const location = useLocation();
   const navigationType = useNavigationType();
+  const previous = useRef(location.pathname);
 
-  // A new page starts at the top. Back and forward keep the browser's restored position, and
-  // hash links are handled by the home page.
+  // A new page starts at the top. Opening or closing the product drawer keeps the article
+  // where it was, Back and Forward keep the browser's restored position, and hash links are
+  // handled by the home page.
   useEffect(() => {
+    const from = previous.current;
+    previous.current = location.pathname;
     if (navigationType === "POP" || location.hash) return;
+    if (from === location.pathname) return;
+    if (isDrawerPath(from) || isDrawerPath(location.pathname)) return;
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname, location.hash, navigationType]);
 
   return (
     <>
-      <header className="topbar">
-        <BackLink />
-        <nav className="nav" aria-label="Sections">
-          {NAV.map((item) => (
-            <Link key={item.to} to={item.to}>
-              {item.label}
-            </Link>
-          ))}
-          <a href={GITHUB_URL} rel="noopener">
-            GitHub
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      <header className="mast">
+        <div className="mast-in">
+          <a className="back" href={SITE_URL}>
+            <BackArrow />
+            <span>Karmanya Iyer</span>
           </a>
-        </nav>
+          <Link className="mast-name" to="/">
+            Shrinkflation Detector
+          </Link>
+          <nav className="mast-links" aria-label="Sections">
+            <Link className="opt" to="/#ask">
+              Ask the data
+            </Link>
+            <Link className="opt" to="/#changes">
+              Every change
+            </Link>
+            <a href={GITHUB_URL} rel="noopener">
+              GitHub
+            </a>
+          </nav>
+        </div>
       </header>
-      <main>
+      <main id="main" tabIndex={-1}>
         <Outlet />
       </main>
-      <footer className="foot wrap">
-        <BackLink className="back-foot" />
-        <a className="foot-link" href={GITHUB_URL} rel="noopener">
-          Source on GitHub
-        </a>
+      <footer className="foot">
+        <div className="foot-in">
+          <a className="back" href={SITE_URL}>
+            <BackArrow />
+            <span>Karmanya Iyer</span>
+          </a>
+          <span className="foot-name">Shrinkflation Detector</span>
+          <a className="foot-gh" href={GITHUB_URL} rel="noopener">
+            Source on GitHub
+          </a>
+        </div>
       </footer>
     </>
   );
