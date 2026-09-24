@@ -1,0 +1,134 @@
+{
+ "product": {
+  "id": "0002100004024",
+  "description": "Philadelphia Original Cream Cheese Brick",
+  "brand": "Philadelphia",
+  "category": "Dairy and eggs",
+  "image_url": "https://www.kroger.com/product/images/medium/front/0002100004024"
+ },
+ "upc": "0002100004024",
+ "retailer_categories": [
+  "Dairy"
+ ],
+ "active": true,
+ "first_seen_at": "2026-09-07T22:54:30.883952Z",
+ "last_seen_at": "2026-09-23T11:00:21.031009Z",
+ "current": {
+  "id": 1335,
+  "size_text": "2 ct / 8 oz",
+  "display_quantity": "8",
+  "display_unit": "oz",
+  "quantity": "226.7962",
+  "base_unit": "g",
+  "price_regular": "5.49",
+  "price_promo": null,
+  "unit_price": {
+   "value": "0.6862",
+   "unit": "oz"
+  },
+  "first_seen_at": "2026-09-22T11:00:19.264974Z",
+  "last_seen_at": "2026-09-23T11:00:21.031009Z",
+  "observations": 2,
+  "parse_method": "llm",
+  "parse_confidence": 0.9
+ },
+ "snapshots": [
+  {
+   "id": 421,
+   "size_text": "2 ct / 8 oz each",
+   "display_quantity": "16",
+   "display_unit": "oz",
+   "quantity": "453.5924",
+   "base_unit": "g",
+   "price_regular": "5.49",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.3431",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-07T22:54:30.883952Z",
+   "last_seen_at": "2026-09-21T11:01:03.948404Z",
+   "observations": 16,
+   "parse_method": "llm",
+   "parse_confidence": 0.95
+  },
+  {
+   "id": 1335,
+   "size_text": "2 ct / 8 oz",
+   "display_quantity": "8",
+   "display_unit": "oz",
+   "quantity": "226.7962",
+   "base_unit": "g",
+   "price_regular": "5.49",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.6862",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-22T11:00:19.264974Z",
+   "last_seen_at": "2026-09-23T11:00:21.031009Z",
+   "observations": 2,
+   "parse_method": "llm",
+   "parse_confidence": 0.9
+  }
+ ],
+ "changes": [
+  {
+   "id": 64,
+   "kind": "shrink",
+   "source": "kroger",
+   "product": {
+    "id": "0002100004024",
+    "description": "Philadelphia Original Cream Cheese Brick",
+    "brand": "Philadelphia",
+    "category": "Dairy and eggs",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002100004024"
+   },
+   "before": {
+    "id": 421,
+    "size_text": "2 ct / 8 oz each",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "5.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3431",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-21T11:01:03.948404Z",
+    "observations": 16,
+    "parse_method": "llm",
+    "parse_confidence": 0.95
+   },
+   "after": {
+    "id": 1335,
+    "size_text": "2 ct / 8 oz",
+    "display_quantity": "8",
+    "display_unit": "oz",
+    "quantity": "226.7962",
+    "base_unit": "g",
+    "price_regular": "5.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.6862",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-22T11:00:19.264974Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 2,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "-50.00",
+   "price_change_pct": "0.00",
+   "unit_price_change_pct": "100.00",
+   "before_seen_at": "2026-09-21T11:01:03.948404Z",
+   "after_seen_at": "2026-09-22T11:00:19.264974Z",
+   "detected_at": "2026-09-22T11:00:19.264974Z",
+   "note": null
+  }
+ ]
+}

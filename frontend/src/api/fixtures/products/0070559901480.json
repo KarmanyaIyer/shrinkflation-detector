@@ -1,0 +1,135 @@
+{
+ "product": {
+  "id": "0070559901480",
+  "description": "Kodiak® Protein-Packed Buttermilk and Vanilla Frozen Thick and Fluffy Power Waffles®",
+  "brand": "Kodiak Cakes",
+  "category": "Frozen",
+  "image_url": "https://www.kroger.com/product/images/medium/front/0070559901480"
+ },
+ "upc": "0070559901480",
+ "retailer_categories": [
+  "Frozen",
+  "Natural & Organic"
+ ],
+ "active": true,
+ "first_seen_at": "2026-09-07T22:54:30.883952Z",
+ "last_seen_at": "2026-09-23T11:00:21.031009Z",
+ "current": {
+  "id": 1256,
+  "size_text": "14.82 oz",
+  "display_quantity": "14.82",
+  "display_unit": "oz",
+  "quantity": "420.1399",
+  "base_unit": "g",
+  "price_regular": "7.99",
+  "price_promo": "6.49",
+  "unit_price": {
+   "value": "0.5391",
+   "unit": "oz"
+  },
+  "first_seen_at": "2026-09-09T11:00:23.887622Z",
+  "last_seen_at": "2026-09-23T11:00:21.031009Z",
+  "observations": 15,
+  "parse_method": "rule",
+  "parse_confidence": 1.0
+ },
+ "snapshots": [
+  {
+   "id": 536,
+   "size_text": "14.82 oz",
+   "display_quantity": "14.82",
+   "display_unit": "oz",
+   "quantity": "420.1399",
+   "base_unit": "g",
+   "price_regular": "6.49",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.4379",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-07T22:54:30.883952Z",
+   "last_seen_at": "2026-09-09T00:01:48.586348Z",
+   "observations": 3,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  },
+  {
+   "id": 1256,
+   "size_text": "14.82 oz",
+   "display_quantity": "14.82",
+   "display_unit": "oz",
+   "quantity": "420.1399",
+   "base_unit": "g",
+   "price_regular": "7.99",
+   "price_promo": "6.49",
+   "unit_price": {
+    "value": "0.5391",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-09T11:00:23.887622Z",
+   "last_seen_at": "2026-09-23T11:00:21.031009Z",
+   "observations": 15,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  }
+ ],
+ "changes": [
+  {
+   "id": 14,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0070559901480",
+    "description": "Kodiak® Protein-Packed Buttermilk and Vanilla Frozen Thick and Fluffy Power Waffles®",
+    "brand": "Kodiak Cakes",
+    "category": "Frozen",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0070559901480"
+   },
+   "before": {
+    "id": 536,
+    "size_text": "14.82 oz",
+    "display_quantity": "14.82",
+    "display_unit": "oz",
+    "quantity": "420.1399",
+    "base_unit": "g",
+    "price_regular": "6.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4379",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1256,
+    "size_text": "14.82 oz",
+    "display_quantity": "14.82",
+    "display_unit": "oz",
+    "quantity": "420.1399",
+    "base_unit": "g",
+    "price_regular": "7.99",
+    "price_promo": "6.49",
+    "unit_price": {
+     "value": "0.5391",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "23.11",
+   "unit_price_change_pct": "23.11",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  }
+ ]
+}

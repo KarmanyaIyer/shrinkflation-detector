@@ -1,0 +1,154 @@
+{
+ "product": {
+  "id": "0081509902257",
+  "description": "Late July Mexican Street Corn Tortilla Chips",
+  "brand": "Late July",
+  "category": "Snacks",
+  "image_url": "https://www.kroger.com/product/images/medium/front/0081509902257"
+ },
+ "upc": "0081509902257",
+ "retailer_categories": [
+  "Snacks",
+  "Natural & Organic"
+ ],
+ "active": true,
+ "first_seen_at": "2026-09-07T22:54:30.883952Z",
+ "last_seen_at": "2026-09-23T11:00:21.031009Z",
+ "current": {
+  "id": 1369,
+  "size_text": "6 oz",
+  "display_quantity": "6",
+  "display_unit": "oz",
+  "quantity": "170.0971",
+  "base_unit": "g",
+  "price_regular": "5.99",
+  "price_promo": "4.99",
+  "unit_price": {
+   "value": "0.9983",
+   "unit": "oz"
+  },
+  "first_seen_at": "2026-09-23T11:00:21.031009Z",
+  "last_seen_at": "2026-09-23T11:00:21.031009Z",
+  "observations": 1,
+  "parse_method": "rule",
+  "parse_confidence": 1.0
+ },
+ "snapshots": [
+  {
+   "id": 74,
+   "size_text": "6 oz",
+   "display_quantity": "6",
+   "display_unit": "oz",
+   "quantity": "170.0971",
+   "base_unit": "g",
+   "price_regular": "5.79",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.9650",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-07T22:54:30.883952Z",
+   "last_seen_at": "2026-09-16T11:00:20.676615Z",
+   "observations": 11,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  },
+  {
+   "id": 1310,
+   "size_text": "6 oz",
+   "display_quantity": "6",
+   "display_unit": "oz",
+   "quantity": "170.0971",
+   "base_unit": "g",
+   "price_regular": "5.79",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.9650",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-17T11:00:19.026855Z",
+   "last_seen_at": "2026-09-22T11:00:19.264974Z",
+   "observations": 6,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  },
+  {
+   "id": 1369,
+   "size_text": "6 oz",
+   "display_quantity": "6",
+   "display_unit": "oz",
+   "quantity": "170.0971",
+   "base_unit": "g",
+   "price_regular": "5.99",
+   "price_promo": "4.99",
+   "unit_price": {
+    "value": "0.9983",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-23T11:00:21.031009Z",
+   "last_seen_at": "2026-09-23T11:00:21.031009Z",
+   "observations": 1,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  }
+ ],
+ "changes": [
+  {
+   "id": 91,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0081509902257",
+    "description": "Late July Mexican Street Corn Tortilla Chips",
+    "brand": "Late July",
+    "category": "Snacks",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0081509902257"
+   },
+   "before": {
+    "id": 1310,
+    "size_text": "6 oz",
+    "display_quantity": "6",
+    "display_unit": "oz",
+    "quantity": "170.0971",
+    "base_unit": "g",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.9650",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-17T11:00:19.026855Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 6,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1369,
+    "size_text": "6 oz",
+    "display_quantity": "6",
+    "display_unit": "oz",
+    "quantity": "170.0971",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "0.9983",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "3.45",
+   "unit_price_change_pct": "3.45",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  }
+ ]
+}

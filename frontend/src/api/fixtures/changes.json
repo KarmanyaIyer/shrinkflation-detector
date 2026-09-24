@@ -1,0 +1,4453 @@
+{
+ "items": [
+  {
+   "id": 91,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0081509902257",
+    "description": "Late July Mexican Street Corn Tortilla Chips",
+    "brand": "Late July",
+    "category": "Snacks",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0081509902257"
+   },
+   "before": {
+    "id": 1310,
+    "size_text": "6 oz",
+    "display_quantity": "6",
+    "display_unit": "oz",
+    "quantity": "170.0971",
+    "base_unit": "g",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.9650",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-17T11:00:19.026855Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 6,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1369,
+    "size_text": "6 oz",
+    "display_quantity": "6",
+    "display_unit": "oz",
+    "quantity": "170.0971",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "0.9983",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "3.45",
+   "unit_price_change_pct": "3.45",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 90,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001780014937",
+    "description": "ONE Chicken and Rice Formula Dry Dog Food",
+    "brand": "Purina ONE",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001780014937"
+   },
+   "before": {
+    "id": 1216,
+    "size_text": "16.5 lb.",
+    "display_quantity": "16.5",
+    "display_unit": "lb",
+    "quantity": "7484.2741",
+    "base_unit": "g",
+    "price_regular": "30.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1155",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1368,
+    "size_text": "16.5 lb.",
+    "display_quantity": "16.5",
+    "display_unit": "lb",
+    "quantity": "7484.2741",
+    "base_unit": "g",
+    "price_regular": "31.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1212",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "4.92",
+   "unit_price_change_pct": "4.92",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 89,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0002733100032",
+    "description": "La Banderita Family Pack Flour Tortillas",
+    "brand": "La Banderita",
+    "category": "Bakery",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002733100032"
+   },
+   "before": {
+    "id": 616,
+    "size_text": "20 ct / 22.5 oz",
+    "display_quantity": "22.5",
+    "display_unit": "oz",
+    "quantity": "637.8643",
+    "base_unit": "g",
+    "price_regular": "3.99",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "0.1773",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "after": {
+    "id": 1367,
+    "size_text": "20 ct / 22.5 oz",
+    "display_quantity": "22.5",
+    "display_unit": "oz",
+    "quantity": "637.8643",
+    "base_unit": "g",
+    "price_regular": "3.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1684",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-5.01",
+   "unit_price_change_pct": "-5.01",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 88,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001780014940",
+    "description": "ONE Dry Dog Food Lamb and Rice Formula",
+    "brand": "Purina ONE",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001780014940"
+   },
+   "before": {
+    "id": 1218,
+    "size_text": "16.5 lb.",
+    "display_quantity": "16.5",
+    "display_unit": "lb",
+    "quantity": "7484.2741",
+    "base_unit": "g",
+    "price_regular": "30.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1155",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1366,
+    "size_text": "16.5 lb.",
+    "display_quantity": "16.5",
+    "display_unit": "lb",
+    "quantity": "7484.2741",
+    "base_unit": "g",
+    "price_regular": "31.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1212",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "4.92",
+   "unit_price_change_pct": "4.92",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 87,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001780003199",
+    "description": "Sensitive Stomach, Sensitive Skin, Natural Dry Cat Food, +Plus Sensitive Skin and Stomach Formula",
+    "brand": "Purina ONE",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001780003199"
+   },
+   "before": {
+    "id": 1229,
+    "size_text": "3.5 lb.",
+    "display_quantity": "3.5",
+    "display_unit": "lb",
+    "quantity": "1587.5733",
+    "base_unit": "g",
+    "price_regular": "10.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1962",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1365,
+    "size_text": "3.5 lb.",
+    "display_quantity": "3.5",
+    "display_unit": "lb",
+    "quantity": "1587.5733",
+    "base_unit": "g",
+    "price_regular": "11.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2105",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "7.28",
+   "unit_price_change_pct": "7.28",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 86,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001780047474",
+    "description": "ONE Natural Dry Cat Food, Tender Selects Blend With Real Salmon",
+    "brand": "Purina ONE",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001780047474"
+   },
+   "before": {
+    "id": 1227,
+    "size_text": "3.5 lb.",
+    "display_quantity": "3.5",
+    "display_unit": "lb",
+    "quantity": "1587.5733",
+    "base_unit": "g",
+    "price_regular": "10.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1962",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1364,
+    "size_text": "3.5 lb.",
+    "display_quantity": "3.5",
+    "display_unit": "lb",
+    "quantity": "1587.5733",
+    "base_unit": "g",
+    "price_regular": "11.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2105",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "7.28",
+   "unit_price_change_pct": "7.28",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 85,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001780014915",
+    "description": "Dog Chow Complete Adult Dry Dog Food Kibble With Chicken Flavor",
+    "brand": "Dog Chow",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001780014915"
+   },
+   "before": {
+    "id": 1217,
+    "size_text": "18.5 lb.",
+    "display_quantity": "18.5",
+    "display_unit": "lb",
+    "quantity": "8391.4588",
+    "base_unit": "g",
+    "price_regular": "16.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0574",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1363,
+    "size_text": "18.5 lb.",
+    "display_quantity": "18.5",
+    "display_unit": "lb",
+    "quantity": "8391.4588",
+    "base_unit": "g",
+    "price_regular": "17.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0591",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "2.94",
+   "unit_price_change_pct": "2.94",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 84,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0084024314407",
+    "description": "Blue Buffalo™ Life Protection Formula™ Adult Dry Dog Food Chicken & Brown Rice",
+    "brand": "Blue Buffalo",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0084024314407"
+   },
+   "before": {
+    "id": 1212,
+    "size_text": "5 lb",
+    "display_quantity": "5",
+    "display_unit": "lb",
+    "quantity": "2267.9618",
+    "base_unit": "g",
+    "price_regular": "15.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1999",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1362,
+    "size_text": "5 lb",
+    "display_quantity": "5",
+    "display_unit": "lb",
+    "quantity": "2267.9618",
+    "base_unit": "g",
+    "price_regular": "17.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2186",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "9.38",
+   "unit_price_change_pct": "9.38",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 83,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001780017828",
+    "description": "Dog Chow Complete Adult Dry Dog Food Kibble Beef Flavor",
+    "brand": "Purina",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001780017828"
+   },
+   "before": {
+    "id": 1210,
+    "size_text": "18.5 lb.",
+    "display_quantity": "18.5",
+    "display_unit": "lb",
+    "quantity": "8391.4588",
+    "base_unit": "g",
+    "price_regular": "16.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0574",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1361,
+    "size_text": "18.5 lb.",
+    "display_quantity": "18.5",
+    "display_unit": "lb",
+    "quantity": "8391.4588",
+    "base_unit": "g",
+    "price_regular": "17.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0591",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "2.94",
+   "unit_price_change_pct": "2.94",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 82,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001780057312",
+    "description": "ONE Dry Dog Food Lamb and Rice Formula",
+    "brand": "Purina ONE",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001780057312"
+   },
+   "before": {
+    "id": 1211,
+    "size_text": "8 lb.",
+    "display_quantity": "8",
+    "display_unit": "lb",
+    "quantity": "3628.7390",
+    "base_unit": "g",
+    "price_regular": "16.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1327",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1360,
+    "size_text": "8 lb.",
+    "display_quantity": "8",
+    "display_unit": "lb",
+    "quantity": "3628.7390",
+    "base_unit": "g",
+    "price_regular": "17.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1366",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "2.94",
+   "unit_price_change_pct": "2.94",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 81,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0007119047857",
+    "description": "Kibbles 'n Bits Dry Dog Food, Savory Bacon & Steak Flavor for Adult Dogs, 16 lb Dog Food Bag",
+    "brand": "Kibbles 'n Bits",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007119047857"
+   },
+   "before": {
+    "id": 1209,
+    "size_text": "16 pounds",
+    "display_quantity": "16",
+    "display_unit": "lb",
+    "quantity": "7257.4779",
+    "base_unit": "g",
+    "price_regular": "15.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0625",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1359,
+    "size_text": "16 pounds",
+    "display_quantity": "16",
+    "display_unit": "lb",
+    "quantity": "7257.4779",
+    "base_unit": "g",
+    "price_regular": "16.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0636",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "1.88",
+   "unit_price_change_pct": "1.88",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 80,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001204401560",
+    "description": "Old Spice for Men Antiperspirant Deodorant Invisible Solid Fiji Scent 1-Pack",
+    "brand": "Old Spice",
+    "category": "Personal care",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001204401560"
+   },
+   "before": {
+    "id": 1139,
+    "size_text": "1 pack / 2.6 oz",
+    "display_quantity": "2.6",
+    "display_unit": "oz",
+    "quantity": "73.7088",
+    "base_unit": "g",
+    "price_regular": "8.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "3.2654",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "after": {
+    "id": 1358,
+    "size_text": "1 pack / 2.6 oz",
+    "display_quantity": "2.6",
+    "display_unit": "oz",
+    "quantity": "73.7088",
+    "base_unit": "g",
+    "price_regular": "8.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "3.4577",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "5.89",
+   "unit_price_change_pct": "5.89",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 79,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111013665",
+    "description": "Kroger® Double Zipper Sandwich Bags BIG DEAL!",
+    "brand": "Kroger",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111013665"
+   },
+   "before": {
+    "id": 1083,
+    "size_text": "280 ct",
+    "display_quantity": "280",
+    "display_unit": "ct",
+    "quantity": "280.0000",
+    "base_unit": "count",
+    "price_regular": "6.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0232",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1357,
+    "size_text": "280 ct",
+    "display_quantity": "280",
+    "display_unit": "ct",
+    "quantity": "280.0000",
+    "base_unit": "count",
+    "price_regular": "7.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0268",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "15.41",
+   "unit_price_change_pct": "15.41",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 78,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111013669",
+    "description": "Kroger® Double Zipper Sandwich Bags",
+    "brand": "Kroger",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111013669"
+   },
+   "before": {
+    "id": 1079,
+    "size_text": "180 ct",
+    "display_quantity": "180",
+    "display_unit": "ct",
+    "quantity": "180.0000",
+    "base_unit": "count",
+    "price_regular": "4.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0266",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1356,
+    "size_text": "180 ct",
+    "display_quantity": "180",
+    "display_unit": "ct",
+    "quantity": "180.0000",
+    "base_unit": "count",
+    "price_regular": "4.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0277",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "4.18",
+   "unit_price_change_pct": "4.18",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 77,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0004470006662",
+    "description": "Oscar Mayer Fully Cooked Thick Cut Bacon, Box, 7-9 slices",
+    "brand": "Oscar Mayer",
+    "category": "Meat and deli",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004470006662"
+   },
+   "before": {
+    "id": 927,
+    "size_text": "2.52 oz",
+    "display_quantity": "2.52",
+    "display_unit": "oz",
+    "quantity": "71.4408",
+    "base_unit": "g",
+    "price_regular": "7.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "3.1706",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1355,
+    "size_text": "2.52 oz",
+    "display_quantity": "2.52",
+    "display_unit": "oz",
+    "quantity": "71.4408",
+    "base_unit": "g",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "2.7738",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-12.52",
+   "unit_price_change_pct": "-12.52",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 76,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0004470006647",
+    "description": "Oscar Mayer Original Fully Cooked Bacon, Box, 9-11 slices",
+    "brand": "Oscar Mayer",
+    "category": "Meat and deli",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004470006647"
+   },
+   "before": {
+    "id": 924,
+    "size_text": "2.52 oz",
+    "display_quantity": "2.52",
+    "display_unit": "oz",
+    "quantity": "71.4408",
+    "base_unit": "g",
+    "price_regular": "7.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "3.1706",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1354,
+    "size_text": "2.52 oz",
+    "display_quantity": "2.52",
+    "display_unit": "oz",
+    "quantity": "71.4408",
+    "base_unit": "g",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "2.7738",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-12.52",
+   "unit_price_change_pct": "-12.52",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 75,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150000693",
+    "description": "Smucker's Concord Grape Jelly",
+    "brand": "Smucker's",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150000693"
+   },
+   "before": {
+    "id": 666,
+    "size_text": "18 oz",
+    "display_quantity": "18",
+    "display_unit": "oz",
+    "quantity": "510.2914",
+    "base_unit": "g",
+    "price_regular": "3.49",
+    "price_promo": "3.39",
+    "unit_price": {
+     "value": "0.1939",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1352,
+    "size_text": "18 oz",
+    "display_quantity": "18",
+    "display_unit": "oz",
+    "quantity": "510.2914",
+    "base_unit": "g",
+    "price_regular": "2.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1661",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-14.33",
+   "unit_price_change_pct": "-14.33",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 74,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150025565",
+    "description": "Jif Creamy Natural Peanut Butter",
+    "brand": "Jif",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150025565"
+   },
+   "before": {
+    "id": 649,
+    "size_text": "16 oz",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "3.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2056",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1351,
+    "size_text": "16 oz",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "3.19",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1994",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.04",
+   "unit_price_change_pct": "-3.04",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 73,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150001229",
+    "description": "Smucker's Seedless Strawberry Jam",
+    "brand": "Smucker's",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150001229"
+   },
+   "before": {
+    "id": 669,
+    "size_text": "18 oz",
+    "display_quantity": "18",
+    "display_unit": "oz",
+    "quantity": "510.2914",
+    "base_unit": "g",
+    "price_regular": "4.49",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "0.2494",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1350,
+    "size_text": "18 oz",
+    "display_quantity": "18",
+    "display_unit": "oz",
+    "quantity": "510.2914",
+    "base_unit": "g",
+    "price_regular": "4.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2383",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-4.45",
+   "unit_price_change_pct": "-4.45",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 72,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150005722",
+    "description": "Smucker's Strawberry Squeeze Fruit Spread",
+    "brand": "Smucker's",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150005722"
+   },
+   "before": {
+    "id": 665,
+    "size_text": "20 oz",
+    "display_quantity": "20",
+    "display_unit": "oz",
+    "quantity": "566.9905",
+    "base_unit": "g",
+    "price_regular": "3.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1995",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1349,
+    "size_text": "20 oz",
+    "display_quantity": "20",
+    "display_unit": "oz",
+    "quantity": "566.9905",
+    "base_unit": "g",
+    "price_regular": "3.69",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1845",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-7.52",
+   "unit_price_change_pct": "-7.52",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 71,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150005711",
+    "description": "Smucker's Grape Squeeze Jelly",
+    "brand": "Smucker's",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150005711"
+   },
+   "before": {
+    "id": 659,
+    "size_text": "20 oz",
+    "display_quantity": "20",
+    "display_unit": "oz",
+    "quantity": "566.9905",
+    "base_unit": "g",
+    "price_regular": "3.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1745",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1348,
+    "size_text": "20 oz",
+    "display_quantity": "20",
+    "display_unit": "oz",
+    "quantity": "566.9905",
+    "base_unit": "g",
+    "price_regular": "3.19",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1595",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-8.60",
+   "unit_price_change_pct": "-8.60",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 70,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150024177",
+    "description": "Jif Creamy Peanut Butter",
+    "brand": "Jif",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150024177"
+   },
+   "before": {
+    "id": 658,
+    "size_text": "28 oz",
+    "display_quantity": "28",
+    "display_unit": "oz",
+    "quantity": "793.7866",
+    "base_unit": "g",
+    "price_regular": "5.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1961",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1347,
+    "size_text": "28 oz",
+    "display_quantity": "28",
+    "display_unit": "oz",
+    "quantity": "793.7866",
+    "base_unit": "g",
+    "price_regular": "5.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1889",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.64",
+   "unit_price_change_pct": "-3.64",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 69,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150024321",
+    "description": "Jif Creamy Natural Peanut Butter",
+    "brand": "Jif",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150024321"
+   },
+   "before": {
+    "id": 654,
+    "size_text": "40 oz",
+    "display_quantity": "40",
+    "display_unit": "oz",
+    "quantity": "1133.9809",
+    "base_unit": "g",
+    "price_regular": "7.49",
+    "price_promo": "6.99",
+    "unit_price": {
+     "value": "0.1873",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1346,
+    "size_text": "40 oz",
+    "display_quantity": "40",
+    "display_unit": "oz",
+    "quantity": "1133.9809",
+    "base_unit": "g",
+    "price_regular": "7.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1823",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-2.67",
+   "unit_price_change_pct": "-2.67",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 68,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150072001",
+    "description": "Jif Creamy Peanut Butter",
+    "brand": "Jif",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150072001"
+   },
+   "before": {
+    "id": 650,
+    "size_text": "40 oz",
+    "display_quantity": "40",
+    "display_unit": "oz",
+    "quantity": "1133.9809",
+    "base_unit": "g",
+    "price_regular": "7.49",
+    "price_promo": "6.99",
+    "unit_price": {
+     "value": "0.1873",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1345,
+    "size_text": "40 oz",
+    "display_quantity": "40",
+    "display_unit": "oz",
+    "quantity": "1133.9809",
+    "base_unit": "g",
+    "price_regular": "7.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1823",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-2.67",
+   "unit_price_change_pct": "-2.67",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 67,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0005150025516",
+    "description": "Jif Creamy Peanut Butter",
+    "brand": "Jif",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0005150025516"
+   },
+   "before": {
+    "id": 648,
+    "size_text": "16 oz",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "3.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2056",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1344,
+    "size_text": "16 oz",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "3.19",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1994",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.04",
+   "unit_price_change_pct": "-3.04",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 66,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001111009530",
+    "description": "Simple Truth Organic® Apple Juice",
+    "brand": "Simple Truth Organic",
+    "category": "Beverages",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111009530"
+   },
+   "before": {
+    "id": 257,
+    "size_text": "64 fl oz",
+    "display_quantity": "64",
+    "display_unit": "fl oz",
+    "quantity": "1892.7059",
+    "base_unit": "ml",
+    "price_regular": "3.99",
+    "price_promo": "3.79",
+    "unit_price": {
+     "value": "0.0623",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-22T11:00:19.264974Z",
+    "observations": 17,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1342,
+    "size_text": "64 fl oz",
+    "display_quantity": "64",
+    "display_unit": "fl oz",
+    "quantity": "1892.7059",
+    "base_unit": "ml",
+    "price_regular": "3.59",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0561",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-23T11:00:21.031009Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 1,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-10.03",
+   "unit_price_change_pct": "-10.03",
+   "before_seen_at": "2026-09-22T11:00:19.264974Z",
+   "after_seen_at": "2026-09-23T11:00:21.031009Z",
+   "detected_at": "2026-09-23T11:00:21.031009Z",
+   "note": null
+  },
+  {
+   "id": 64,
+   "kind": "shrink",
+   "source": "kroger",
+   "product": {
+    "id": "0002100004024",
+    "description": "Philadelphia Original Cream Cheese Brick",
+    "brand": "Philadelphia",
+    "category": "Dairy and eggs",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002100004024"
+   },
+   "before": {
+    "id": 421,
+    "size_text": "2 ct / 8 oz each",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "5.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3431",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-21T11:01:03.948404Z",
+    "observations": 16,
+    "parse_method": "llm",
+    "parse_confidence": 0.95
+   },
+   "after": {
+    "id": 1335,
+    "size_text": "2 ct / 8 oz",
+    "display_quantity": "8",
+    "display_unit": "oz",
+    "quantity": "226.7962",
+    "base_unit": "g",
+    "price_regular": "5.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.6862",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-22T11:00:19.264974Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 2,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "-50.00",
+   "price_change_pct": "0.00",
+   "unit_price_change_pct": "100.00",
+   "before_seen_at": "2026-09-21T11:01:03.948404Z",
+   "after_seen_at": "2026-09-22T11:00:19.264974Z",
+   "detected_at": "2026-09-22T11:00:19.264974Z",
+   "note": null
+  },
+  {
+   "id": 63,
+   "kind": "grow",
+   "source": "kroger",
+   "product": {
+    "id": "0086001233561",
+    "description": "Khloud™ White Cheddar Protein Popcorn 4.0 oz",
+    "brand": "Khloud™",
+    "category": "Snacks",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0086001233561"
+   },
+   "before": {
+    "id": 100,
+    "size_text": "4.0 oz",
+    "display_quantity": "4",
+    "display_unit": "oz",
+    "quantity": "113.3981",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "1.4975",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-21T11:01:03.948404Z",
+    "observations": 16,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1333,
+    "size_text": "5.0 oz",
+    "display_quantity": "5",
+    "display_unit": "oz",
+    "quantity": "141.7476",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "1.1980",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-22T11:00:19.264974Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 2,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "25.00",
+   "price_change_pct": "0.00",
+   "unit_price_change_pct": "-20.00",
+   "before_seen_at": "2026-09-21T11:01:03.948404Z",
+   "after_seen_at": "2026-09-22T11:00:19.264974Z",
+   "detected_at": "2026-09-22T11:00:19.264974Z",
+   "note": null
+  },
+  {
+   "id": 59,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111079156",
+    "description": "Simple Truth Organic® No Stir Creamy Peanut Butter Spread",
+    "brand": "Simple Truth Organic",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111079156"
+   },
+   "before": {
+    "id": 655,
+    "size_text": "16 oz",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "4.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2806",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1309,
+    "size_text": "16 oz",
+    "display_quantity": "16",
+    "display_unit": "oz",
+    "quantity": "453.5924",
+    "base_unit": "g",
+    "price_regular": "4.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2994",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "6.68",
+   "unit_price_change_pct": "6.68",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 58,
+   "kind": "shrink",
+   "source": "kroger",
+   "product": {
+    "id": "0003600048756",
+    "description": "Huggies® Simply Clean® Unscented Baby Wipes",
+    "brand": "Huggies",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0003600048756"
+   },
+   "before": {
+    "id": 1203,
+    "size_text": "192 ct",
+    "display_quantity": "192",
+    "display_unit": "ct",
+    "quantity": "192.0000",
+    "base_unit": "count",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0364",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1308,
+    "size_text": "56 ct",
+    "display_quantity": "56",
+    "display_unit": "ct",
+    "quantity": "56.0000",
+    "base_unit": "count",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1248",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "-70.83",
+   "price_change_pct": "0.00",
+   "unit_price_change_pct": "242.86",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 56,
+   "kind": "shrink",
+   "source": "kroger",
+   "product": {
+    "id": "0007940071601",
+    "description": "Dove ® Shampoo Conditioner Intensive Repair",
+    "brand": "Dove",
+    "category": "Personal care",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007940071601"
+   },
+   "before": {
+    "id": 1094,
+    "size_text": "2 pk / 12 fl oz",
+    "display_quantity": "24",
+    "display_unit": "fl oz",
+    "quantity": "709.7647",
+    "base_unit": "ml",
+    "price_regular": "9.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4163",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 9,
+    "parse_method": "llm",
+    "parse_confidence": 0.8
+   },
+   "after": {
+    "id": 1305,
+    "size_text": "12 fo",
+    "display_quantity": "12",
+    "display_unit": "fl oz",
+    "quantity": "354.8824",
+    "base_unit": "ml",
+    "price_regular": "9.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.8325",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "-50.00",
+   "price_change_pct": "0.00",
+   "unit_price_change_pct": "100.00",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 54,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0003600049413",
+    "description": "Viva® Multi-Surface Cloth™ Paper Towels Single+ Rolls",
+    "brand": "Viva",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0003600049413"
+   },
+   "before": {
+    "id": 975,
+    "size_text": "6 ct",
+    "display_quantity": "6",
+    "display_unit": "ct",
+    "quantity": "6.0000",
+    "base_unit": "count",
+    "price_regular": "11.49",
+    "price_promo": "9.99",
+    "unit_price": {
+     "value": "1.9150",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1303,
+    "size_text": "6 ct",
+    "display_quantity": "6",
+    "display_unit": "ct",
+    "quantity": "6.0000",
+    "base_unit": "count",
+    "price_regular": "11.99",
+    "price_promo": "9.99",
+    "unit_price": {
+     "value": "1.9983",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "4.35",
+   "unit_price_change_pct": "4.35",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 53,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0007790019209",
+    "description": "Jimmy Dean® Fully Cooked Original Pork Breakfast Sausage Patties",
+    "brand": "Jimmy Dean",
+    "category": "Meat and deli",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007790019209"
+   },
+   "before": {
+    "id": 969,
+    "size_text": "9.6 oz",
+    "display_quantity": "9.6",
+    "display_unit": "oz",
+    "quantity": "272.1554",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "0.6240",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1302,
+    "size_text": "9.6 oz",
+    "display_quantity": "9.6",
+    "display_unit": "oz",
+    "quantity": "272.1554",
+    "base_unit": "g",
+    "price_regular": "5.79",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "0.6031",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.34",
+   "unit_price_change_pct": "-3.34",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 52,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0007790019206",
+    "description": "Jimmy Dean® Fully Cooked Original Pork Breakfast Sausage Links",
+    "brand": "Jimmy Dean",
+    "category": "Meat and deli",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007790019206"
+   },
+   "before": {
+    "id": 967,
+    "size_text": "9.6 oz",
+    "display_quantity": "9.6",
+    "display_unit": "oz",
+    "quantity": "272.1554",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "0.6240",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1301,
+    "size_text": "9.6 oz",
+    "display_quantity": "9.6",
+    "display_unit": "oz",
+    "quantity": "272.1554",
+    "base_unit": "g",
+    "price_regular": "5.79",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "0.6031",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.34",
+   "unit_price_change_pct": "-3.34",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 51,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0002840008936",
+    "description": "Tostitos® Medium Restaurant Style Salsa Dip",
+    "brand": "Tostitos",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002840008936"
+   },
+   "before": {
+    "id": 908,
+    "size_text": "15.5 oz",
+    "display_quantity": "15.5",
+    "display_unit": "oz",
+    "quantity": "439.4176",
+    "base_unit": "g",
+    "price_regular": "4.99",
+    "price_promo": "4.29",
+    "unit_price": {
+     "value": "0.3219",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1300,
+    "size_text": "15.5 oz",
+    "display_quantity": "15.5",
+    "display_unit": "oz",
+    "quantity": "439.4176",
+    "base_unit": "g",
+    "price_regular": "5.29",
+    "price_promo": "4.29",
+    "unit_price": {
+     "value": "0.3413",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "6.01",
+   "unit_price_change_pct": "6.01",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 50,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0002840005597",
+    "description": "Tostitos® Mild Chunky Salsa Dip",
+    "brand": "Tostitos",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002840005597"
+   },
+   "before": {
+    "id": 906,
+    "size_text": "15.5 oz",
+    "display_quantity": "15.5",
+    "display_unit": "oz",
+    "quantity": "439.4176",
+    "base_unit": "g",
+    "price_regular": "4.99",
+    "price_promo": "4.29",
+    "unit_price": {
+     "value": "0.3219",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1299,
+    "size_text": "15.5 oz",
+    "display_quantity": "15.5",
+    "display_unit": "oz",
+    "quantity": "439.4176",
+    "base_unit": "g",
+    "price_regular": "5.29",
+    "price_promo": "4.29",
+    "unit_price": {
+     "value": "0.3413",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "6.01",
+   "unit_price_change_pct": "6.01",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 49,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0019589319439",
+    "description": "Graza Sizzle Extra Virgin Olive Oil 25.3 fl oz",
+    "brand": "Graza",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0019589319439"
+   },
+   "before": {
+    "id": 817,
+    "size_text": "25.3 fl oz",
+    "display_quantity": "25.3",
+    "display_unit": "fl oz",
+    "quantity": "748.2103",
+    "base_unit": "ml",
+    "price_regular": "18.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.7229",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1298,
+    "size_text": "25.3 fl oz",
+    "display_quantity": "25.3",
+    "display_unit": "fl oz",
+    "quantity": "748.2103",
+    "base_unit": "ml",
+    "price_regular": "15.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.6320",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-12.58",
+   "unit_price_change_pct": "-12.58",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 48,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001600010610",
+    "description": "Gold Medal™ All Purpose Flour",
+    "brand": "Gold Medal",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001600010610"
+   },
+   "before": {
+    "id": 828,
+    "size_text": "5 lbs",
+    "display_quantity": "5",
+    "display_unit": "lb",
+    "quantity": "2267.9618",
+    "base_unit": "g",
+    "price_regular": "4.69",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0586",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1297,
+    "size_text": "5 lbs",
+    "display_quantity": "5",
+    "display_unit": "lb",
+    "quantity": "2267.9618",
+    "base_unit": "g",
+    "price_regular": "4.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0561",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-4.26",
+   "unit_price_change_pct": "-4.26",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 47,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111015343",
+    "description": "Kroger® Jasmine Rice",
+    "brand": "Kroger",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111015343"
+   },
+   "before": {
+    "id": 706,
+    "size_text": "5 lb",
+    "display_quantity": "5",
+    "display_unit": "lb",
+    "quantity": "2267.9618",
+    "base_unit": "g",
+    "price_regular": "6.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0849",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1296,
+    "size_text": "5 lb",
+    "display_quantity": "5",
+    "display_unit": "lb",
+    "quantity": "2267.9618",
+    "base_unit": "g",
+    "price_regular": "7.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0936",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "10.31",
+   "unit_price_change_pct": "10.31",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 46,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111079135",
+    "description": "Simple Truth Organic® Chunked Frozen Pineapple",
+    "brand": "Simple Truth Organic",
+    "category": "Frozen",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111079135"
+   },
+   "before": {
+    "id": 568,
+    "size_text": "10 oz",
+    "display_quantity": "10",
+    "display_unit": "oz",
+    "quantity": "283.4952",
+    "base_unit": "g",
+    "price_regular": "2.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2790",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1295,
+    "size_text": "10 oz",
+    "display_quantity": "10",
+    "display_unit": "oz",
+    "quantity": "283.4952",
+    "base_unit": "g",
+    "price_regular": "3.19",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3190",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "14.34",
+   "unit_price_change_pct": "14.34",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 44,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001299322111",
+    "description": "LaCroix® Limoncello Flavored Sparkling Water Cans",
+    "brand": "LaCroix",
+    "category": "Beverages",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001299322111"
+   },
+   "before": {
+    "id": 239,
+    "size_text": "8 pk / 12 fl oz",
+    "display_quantity": "96",
+    "display_unit": "fl oz",
+    "quantity": "2839.0588",
+    "base_unit": "ml",
+    "price_regular": "5.99",
+    "price_promo": "4.79",
+    "unit_price": {
+     "value": "0.0624",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "llm",
+    "parse_confidence": 0.95
+   },
+   "after": {
+    "id": 1293,
+    "size_text": "8 pk / 12 fl oz",
+    "display_quantity": "96",
+    "display_unit": "fl oz",
+    "quantity": "2839.0588",
+    "base_unit": "ml",
+    "price_regular": "5.29",
+    "price_promo": "4.79",
+    "unit_price": {
+     "value": "0.0551",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "llm",
+    "parse_confidence": 0.95
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-11.69",
+   "unit_price_change_pct": "-11.69",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 43,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0002200001475",
+    "description": "Orbit Gum Bubblemint Sugar Free Chewing Gum Bottle",
+    "brand": "Orbit",
+    "category": "Candy",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002200001475"
+   },
+   "before": {
+    "id": 215,
+    "size_text": "55 pc",
+    "display_quantity": "55",
+    "display_unit": "pieces",
+    "quantity": "55.0000",
+    "base_unit": "count",
+    "price_regular": "4.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0907",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1292,
+    "size_text": "55 pc",
+    "display_quantity": "55",
+    "display_unit": "pieces",
+    "quantity": "55.0000",
+    "base_unit": "count",
+    "price_regular": "5.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0962",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "6.01",
+   "unit_price_change_pct": "6.01",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 42,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001600012479",
+    "description": "General Mills Honey Nut Cheerios™ Cereal",
+    "brand": "Cheerios",
+    "category": "Cereal and breakfast",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001600012479"
+   },
+   "before": {
+    "id": 1,
+    "size_text": "10.8 oz",
+    "display_quantity": "10.8",
+    "display_unit": "oz",
+    "quantity": "306.1748",
+    "base_unit": "g",
+    "price_regular": "4.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3972",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1291,
+    "size_text": "10.8 oz",
+    "display_quantity": "10.8",
+    "display_unit": "oz",
+    "quantity": "306.1748",
+    "base_unit": "g",
+    "price_regular": "3.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3694",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-6.99",
+   "unit_price_change_pct": "-6.99",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 41,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001111010264",
+    "description": "Simple Truth Organic® Maple and Brown Sugar Instant Oatmeal",
+    "brand": "Simple Truth",
+    "category": "Cereal and breakfast",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111010264"
+   },
+   "before": {
+    "id": 36,
+    "size_text": "10 ct",
+    "display_quantity": "10",
+    "display_unit": "ct",
+    "quantity": "10.0000",
+    "base_unit": "count",
+    "price_regular": "3.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3490",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1290,
+    "size_text": "10 ct",
+    "display_quantity": "10",
+    "display_unit": "ct",
+    "quantity": "10.0000",
+    "base_unit": "count",
+    "price_regular": "2.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2990",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-14.33",
+   "unit_price_change_pct": "-14.33",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 40,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001600012222",
+    "description": "General Mills® REESE'S™ PUFFS Chocolatey Peanut Butter Cereal",
+    "brand": "Reese's Puffs",
+    "category": "Cereal and breakfast",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001600012222"
+   },
+   "before": {
+    "id": 7,
+    "size_text": "11.5 oz",
+    "display_quantity": "11.5",
+    "display_unit": "oz",
+    "quantity": "326.0195",
+    "base_unit": "g",
+    "price_regular": "5.49",
+    "price_promo": "4.29",
+    "unit_price": {
+     "value": "0.4774",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1289,
+    "size_text": "11.5 oz",
+    "display_quantity": "11.5",
+    "display_unit": "oz",
+    "quantity": "326.0195",
+    "base_unit": "g",
+    "price_regular": "3.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3470",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-27.32",
+   "unit_price_change_pct": "-27.32",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 39,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001600012399",
+    "description": "General Mills® Gluten Free Lucky Charms™ with Marshmallows Cereal",
+    "brand": "Lucky Charms",
+    "category": "Cereal and breakfast",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001600012399"
+   },
+   "before": {
+    "id": 3,
+    "size_text": "10.5 oz",
+    "display_quantity": "10.5",
+    "display_unit": "oz",
+    "quantity": "297.6700",
+    "base_unit": "g",
+    "price_regular": "4.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4086",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1288,
+    "size_text": "10.5 oz",
+    "display_quantity": "10.5",
+    "display_unit": "oz",
+    "quantity": "297.6700",
+    "base_unit": "g",
+    "price_regular": "3.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3800",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-6.99",
+   "unit_price_change_pct": "-6.99",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  },
+  {
+   "id": 34,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0004740030106",
+    "description": "Gillette Venus Women's ComfortGlide White Tea Scented Moisture Bars 3-Blade Disposable Razors",
+    "brand": "Gillette",
+    "category": "Personal care",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004740030106"
+   },
+   "before": {
+    "id": 1164,
+    "size_text": "2 count",
+    "display_quantity": "2",
+    "display_unit": "count",
+    "quantity": "2.0000",
+    "base_unit": "count",
+    "price_regular": "7.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "3.8950",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1276,
+    "size_text": "2 count",
+    "display_quantity": "2",
+    "display_unit": "count",
+    "quantity": "2.0000",
+    "base_unit": "count",
+    "price_regular": "7.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "3.9950",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "2.57",
+   "unit_price_change_pct": "2.57",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 33,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0004200087596",
+    "description": "Quilted Northern Ultra Plush® Toilet Paper Mega Roll",
+    "brand": "Quilted Northern",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004200087596"
+   },
+   "before": {
+    "id": 990,
+    "size_text": "12 rolls",
+    "display_quantity": "12",
+    "display_unit": "rolls",
+    "quantity": "12.0000",
+    "base_unit": "count",
+    "price_regular": "13.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "1.1658",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1275,
+    "size_text": "12 rolls",
+    "display_quantity": "12",
+    "display_unit": "rolls",
+    "quantity": "12.0000",
+    "base_unit": "count",
+    "price_regular": "14.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "1.2492",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "7.15",
+   "unit_price_change_pct": "7.15",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 32,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0003700074968",
+    "description": "Pampers Swaddlers Baby Diapers Size 4 (22-37 lbs)",
+    "brand": "Pampers",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0003700074968"
+   },
+   "before": {
+    "id": 1190,
+    "size_text": "66 count",
+    "display_quantity": "66",
+    "display_unit": "count",
+    "quantity": "66.0000",
+    "base_unit": "count",
+    "price_regular": "28.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4317",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1274,
+    "size_text": "66 count",
+    "display_quantity": "66",
+    "display_unit": "count",
+    "quantity": "66.0000",
+    "base_unit": "count",
+    "price_regular": "28.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4392",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "1.76",
+   "unit_price_change_pct": "1.76",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 31,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0003700074969",
+    "description": "Pampers Swaddlers Baby Diapers Size 5 (27+ lbs)",
+    "brand": "Pampers",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0003700074969"
+   },
+   "before": {
+    "id": 1186,
+    "size_text": "58 count",
+    "display_quantity": "58",
+    "display_unit": "count",
+    "quantity": "58.0000",
+    "base_unit": "count",
+    "price_regular": "28.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4912",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1273,
+    "size_text": "58 count",
+    "display_quantity": "58",
+    "display_unit": "count",
+    "quantity": "58.0000",
+    "base_unit": "count",
+    "price_regular": "28.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4998",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "1.76",
+   "unit_price_change_pct": "1.76",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 30,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0007940038641",
+    "description": "Dove Advanced Care Caring Coconut Antiperspirant Deodorant Stick",
+    "brand": "Dove",
+    "category": "Personal care",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007940038641"
+   },
+   "before": {
+    "id": 1146,
+    "size_text": "2.6 oz",
+    "display_quantity": "2.6",
+    "display_unit": "oz",
+    "quantity": "73.7088",
+    "base_unit": "g",
+    "price_regular": "8.99",
+    "price_promo": "8.49",
+    "unit_price": {
+     "value": "3.4577",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1272,
+    "size_text": "2.6 oz",
+    "display_quantity": "2.6",
+    "display_unit": "oz",
+    "quantity": "73.7088",
+    "base_unit": "g",
+    "price_regular": "8.49",
+    "price_promo": "7.99",
+    "unit_price": {
+     "value": "3.2654",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-5.56",
+   "unit_price_change_pct": "-5.56",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 29,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0004740004474",
+    "description": "Gillette Mach3 Men's Sensitive Green 3-Blade Disposable Razors",
+    "brand": "Gillette",
+    "category": "Personal care",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004740004474"
+   },
+   "before": {
+    "id": 1167,
+    "size_text": "3 count",
+    "display_quantity": "3",
+    "display_unit": "count",
+    "quantity": "3.0000",
+    "base_unit": "count",
+    "price_regular": "7.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "2.5967",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1271,
+    "size_text": "3 count",
+    "display_quantity": "3",
+    "display_unit": "count",
+    "quantity": "3.0000",
+    "base_unit": "count",
+    "price_regular": "7.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "2.6633",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "2.57",
+   "unit_price_change_pct": "2.57",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 28,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0084105802266",
+    "description": "Skintimate Sensitive Disposable Four Blade Razors",
+    "brand": "Skintimate",
+    "category": "Personal care",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0084105802266"
+   },
+   "before": {
+    "id": 1165,
+    "size_text": "4 count",
+    "display_quantity": "4",
+    "display_unit": "count",
+    "quantity": "4.0000",
+    "base_unit": "count",
+    "price_regular": "6.69",
+    "price_promo": null,
+    "unit_price": {
+     "value": "1.6725",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1270,
+    "size_text": "4 count",
+    "display_quantity": "4",
+    "display_unit": "count",
+    "quantity": "4.0000",
+    "base_unit": "count",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "1.7475",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "4.48",
+   "unit_price_change_pct": "4.48",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 27,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111015847",
+    "description": "Kroger® All Purpose Cleaner with Bleach",
+    "brand": "Kroger",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111015847"
+   },
+   "before": {
+    "id": 1062,
+    "size_text": "32 fl oz",
+    "display_quantity": "32",
+    "display_unit": "fl oz",
+    "quantity": "946.3529",
+    "base_unit": "ml",
+    "price_regular": "3.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1028",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1269,
+    "size_text": "32 fl oz",
+    "display_quantity": "32",
+    "display_unit": "fl oz",
+    "quantity": "946.3529",
+    "base_unit": "ml",
+    "price_regular": "3.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1091",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 14,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "6.08",
+   "unit_price_change_pct": "6.08",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 26,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111015850",
+    "description": "Kroger® Lemon All Purpose Cleaner",
+    "brand": "Kroger",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111015850"
+   },
+   "before": {
+    "id": 1056,
+    "size_text": "32 fl oz",
+    "display_quantity": "32",
+    "display_unit": "fl oz",
+    "quantity": "946.3529",
+    "base_unit": "ml",
+    "price_regular": "3.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1028",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1268,
+    "size_text": "32 fl oz",
+    "display_quantity": "32",
+    "display_unit": "fl oz",
+    "quantity": "946.3529",
+    "base_unit": "ml",
+    "price_regular": "3.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1091",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 14,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "6.08",
+   "unit_price_change_pct": "6.08",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 25,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111089998",
+    "description": "Kroger® Heavy Duty Aluminum Foil",
+    "brand": "Kroger",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111089998"
+   },
+   "before": {
+    "id": 1073,
+    "size_text": "50 sq ft",
+    "display_quantity": "50",
+    "display_unit": "sq ft",
+    "quantity": "4.6452",
+    "base_unit": "m2",
+    "price_regular": "5.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1098",
+     "unit": "sq ft"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1267,
+    "size_text": "50 sq ft",
+    "display_quantity": "50",
+    "display_unit": "sq ft",
+    "quantity": "4.6452",
+    "base_unit": "m2",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1158",
+     "unit": "sq ft"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "5.46",
+   "unit_price_change_pct": "5.46",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 24,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111089970",
+    "description": "Kroger® Aluminum Foil",
+    "brand": "Kroger",
+    "category": "Household",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111089970"
+   },
+   "before": {
+    "id": 1069,
+    "size_text": "75 sq ft",
+    "display_quantity": "75",
+    "display_unit": "sq ft",
+    "quantity": "6.9677",
+    "base_unit": "m2",
+    "price_regular": "5.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0732",
+     "unit": "sq ft"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1266,
+    "size_text": "75 sq ft",
+    "display_quantity": "75",
+    "display_unit": "sq ft",
+    "quantity": "6.9677",
+    "base_unit": "m2",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0772",
+     "unit": "sq ft"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "5.46",
+   "unit_price_change_pct": "5.46",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 23,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0004920004550",
+    "description": "Domino Pure Cane Granulated Sugar, 4 lb. Bag",
+    "brand": "Domino",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004920004550"
+   },
+   "before": {
+    "id": 843,
+    "size_text": "4 lb",
+    "display_quantity": "4",
+    "display_unit": "lb",
+    "quantity": "1814.3695",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0936",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1265,
+    "size_text": "4 lb",
+    "display_quantity": "4",
+    "display_unit": "lb",
+    "quantity": "1814.3695",
+    "base_unit": "g",
+    "price_regular": "5.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0827",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-11.69",
+   "unit_price_change_pct": "-11.69",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 22,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0004150000025",
+    "description": "French's Classic Yellow Mustard",
+    "brand": "French's",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004150000025"
+   },
+   "before": {
+    "id": 791,
+    "size_text": "14 oz",
+    "display_quantity": "14",
+    "display_unit": "oz",
+    "quantity": "396.8933",
+    "base_unit": "g",
+    "price_regular": "2.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1779",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1264,
+    "size_text": "14 oz",
+    "display_quantity": "14",
+    "display_unit": "oz",
+    "quantity": "396.8933",
+    "base_unit": "g",
+    "price_regular": "2.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1636",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-8.03",
+   "unit_price_change_pct": "-8.03",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 21,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0004180000019",
+    "description": "Welch's® Concord Grape Jelly",
+    "brand": "Welch's",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0004180000019"
+   },
+   "before": {
+    "id": 667,
+    "size_text": "20 oz",
+    "display_quantity": "20",
+    "display_unit": "oz",
+    "quantity": "566.9905",
+    "base_unit": "g",
+    "price_regular": "3.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1745",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1263,
+    "size_text": "20 oz",
+    "display_quantity": "20",
+    "display_unit": "oz",
+    "quantity": "566.9905",
+    "base_unit": "g",
+    "price_regular": "3.69",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1845",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-21T11:01:03.948404Z",
+    "observations": 13,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "5.73",
+   "unit_price_change_pct": "5.73",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 20,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0007225000903",
+    "description": "Nature's Own Life Keto Soft White Burger Buns, Keto Hamburger Buns, Keto Bread Buns",
+    "brand": "Nature's Own",
+    "category": "Bakery",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007225000903"
+   },
+   "before": {
+    "id": 643,
+    "size_text": "8 ct",
+    "display_quantity": "8",
+    "display_unit": "ct",
+    "quantity": "8.0000",
+    "base_unit": "count",
+    "price_regular": "8.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "1.0613",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1262,
+    "size_text": "8 ct",
+    "display_quantity": "8",
+    "display_unit": "ct",
+    "quantity": "8.0000",
+    "base_unit": "count",
+    "price_regular": "7.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.9988",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-5.89",
+   "unit_price_change_pct": "-5.89",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 19,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111007418",
+    "description": "Kroger® Grape Jelly Squeezable",
+    "brand": "Kroger",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111007418"
+   },
+   "before": {
+    "id": 660,
+    "size_text": "20.5 oz",
+    "display_quantity": "20.5",
+    "display_unit": "oz",
+    "quantity": "581.1652",
+    "base_unit": "g",
+    "price_regular": "3.19",
+    "price_promo": "2.99",
+    "unit_price": {
+     "value": "0.1556",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1261,
+    "size_text": "20.5 oz",
+    "display_quantity": "20.5",
+    "display_unit": "oz",
+    "quantity": "581.1652",
+    "base_unit": "g",
+    "price_regular": "3.49",
+    "price_promo": "3.29",
+    "unit_price": {
+     "value": "0.1702",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "9.40",
+   "unit_price_change_pct": "9.40",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 18,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0002733100033",
+    "description": "La Banderita® Soft Taco Flour Tortillas",
+    "brand": "La Banderita",
+    "category": "Bakery",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002733100033"
+   },
+   "before": {
+    "id": 618,
+    "size_text": "10 ct",
+    "display_quantity": "10",
+    "display_unit": "ct",
+    "quantity": "10.0000",
+    "base_unit": "count",
+    "price_regular": "3.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3790",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1260,
+    "size_text": "10 ct",
+    "display_quantity": "10",
+    "display_unit": "ct",
+    "quantity": "10.0000",
+    "base_unit": "count",
+    "price_regular": "3.29",
+    "price_promo": "3.29",
+    "unit_price": {
+     "value": "0.3290",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-13.19",
+   "unit_price_change_pct": "-13.19",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 17,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0007457030605",
+    "description": "Haagen-Dazs Chocolate Dark Chocolate Mini Ice Cream Bars, 6 Count",
+    "brand": "Haagen-Dazs",
+    "category": "Frozen",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007457030605"
+   },
+   "before": {
+    "id": 584,
+    "size_text": "11.1 fl oz",
+    "display_quantity": "11.1",
+    "display_unit": "fl oz",
+    "quantity": "328.2662",
+    "base_unit": "ml",
+    "price_regular": "6.49",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "0.5847",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1259,
+    "size_text": "11.1 fl oz",
+    "display_quantity": "11.1",
+    "display_unit": "fl oz",
+    "quantity": "328.2662",
+    "base_unit": "ml",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.6297",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "7.70",
+   "unit_price_change_pct": "7.70",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 16,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0007457065149",
+    "description": "Haagen Dazs Vanilla Milk Chocolate Almond Mini Ice Cream Bars, 6 Count",
+    "brand": "Haagen-Dazs",
+    "category": "Frozen",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007457065149"
+   },
+   "before": {
+    "id": 579,
+    "size_text": "6 ct",
+    "display_quantity": "6",
+    "display_unit": "ct",
+    "quantity": "6.0000",
+    "base_unit": "count",
+    "price_regular": "6.49",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "1.0817",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1258,
+    "size_text": "6 ct",
+    "display_quantity": "6",
+    "display_unit": "ct",
+    "quantity": "6.0000",
+    "base_unit": "count",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "1.1650",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "7.70",
+   "unit_price_change_pct": "7.70",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 15,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0007457015566",
+    "description": "Haagen-Dazs Vanilla Milk Chocolate Mini Ice Cream Bars, 6 Count",
+    "brand": "Haagen-Dazs",
+    "category": "Frozen",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007457015566"
+   },
+   "before": {
+    "id": 578,
+    "size_text": "6 ct / 11.1 fl oz",
+    "display_quantity": "11.1",
+    "display_unit": "fl oz",
+    "quantity": "328.2662",
+    "base_unit": "ml",
+    "price_regular": "6.49",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "0.5847",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "after": {
+    "id": 1257,
+    "size_text": "6 ct / 11.1 fl oz",
+    "display_quantity": "11.1",
+    "display_unit": "fl oz",
+    "quantity": "328.2662",
+    "base_unit": "ml",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.6297",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "7.70",
+   "unit_price_change_pct": "7.70",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 14,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0070559901480",
+    "description": "Kodiak® Protein-Packed Buttermilk and Vanilla Frozen Thick and Fluffy Power Waffles®",
+    "brand": "Kodiak Cakes",
+    "category": "Frozen",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0070559901480"
+   },
+   "before": {
+    "id": 536,
+    "size_text": "14.82 oz",
+    "display_quantity": "14.82",
+    "display_unit": "oz",
+    "quantity": "420.1399",
+    "base_unit": "g",
+    "price_regular": "6.49",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4379",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1256,
+    "size_text": "14.82 oz",
+    "display_quantity": "14.82",
+    "display_unit": "oz",
+    "quantity": "420.1399",
+    "base_unit": "g",
+    "price_regular": "7.99",
+    "price_promo": "6.49",
+    "unit_price": {
+     "value": "0.5391",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "23.11",
+   "unit_price_change_pct": "23.11",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 13,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0007255400154",
+    "description": "Nestle Drumstick The Original Vanilla Frozen Dairy Dessert Cones",
+    "brand": "Drumstick",
+    "category": "Frozen",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007255400154"
+   },
+   "before": {
+    "id": 500,
+    "size_text": "36.8 fluid ounces",
+    "display_quantity": "36.8",
+    "display_unit": "fl oz",
+    "quantity": "1088.3059",
+    "base_unit": "ml",
+    "price_regular": "9.99",
+    "price_promo": "6.99",
+    "unit_price": {
+     "value": "0.2715",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1255,
+    "size_text": "36.8 fluid ounces",
+    "display_quantity": "36.8",
+    "display_unit": "fl oz",
+    "quantity": "1088.3059",
+    "base_unit": "ml",
+    "price_regular": "8.99",
+    "price_promo": "7.99",
+    "unit_price": {
+     "value": "0.2443",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-10.01",
+   "unit_price_change_pct": "-10.01",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 12,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0071514150349",
+    "description": "Eggland's Best Classic Large White Eggs",
+    "brand": "Eggland's Best",
+    "category": "Dairy and eggs",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0071514150349"
+   },
+   "before": {
+    "id": 477,
+    "size_text": "12 ct",
+    "display_quantity": "12",
+    "display_unit": "ct",
+    "quantity": "12.0000",
+    "base_unit": "count",
+    "price_regular": "4.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4158",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1254,
+    "size_text": "12 ct",
+    "display_quantity": "12",
+    "display_unit": "ct",
+    "quantity": "12.0000",
+    "base_unit": "count",
+    "price_regular": "4.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3575",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-14.03",
+   "unit_price_change_pct": "-14.03",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 11,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0007342000024",
+    "description": "Daisy Pure and Natural Sour Cream",
+    "brand": "Daisy",
+    "category": "Dairy and eggs",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007342000024"
+   },
+   "before": {
+    "id": 465,
+    "size_text": "24 oz",
+    "display_quantity": "24",
+    "display_unit": "oz",
+    "quantity": "680.3886",
+    "base_unit": "g",
+    "price_regular": "3.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1662",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1253,
+    "size_text": "24 oz",
+    "display_quantity": "24",
+    "display_unit": "oz",
+    "quantity": "680.3886",
+    "base_unit": "g",
+    "price_regular": "3.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1579",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-5.01",
+   "unit_price_change_pct": "-5.01",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 10,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0003663202600",
+    "description": "Activia Strawberry Probiotic Low Fat Yogurt Cups",
+    "brand": "Activia",
+    "category": "Dairy and eggs",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0003663202600"
+   },
+   "before": {
+    "id": 393,
+    "size_text": "4 ct / 4 fl oz",
+    "display_quantity": "16",
+    "display_unit": "fl oz",
+    "quantity": "473.1765",
+    "base_unit": "ml",
+    "price_regular": "3.29",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.2056",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "after": {
+    "id": 1252,
+    "size_text": "4 ct / 4 fl oz",
+    "display_quantity": "16",
+    "display_unit": "fl oz",
+    "quantity": "473.1765",
+    "base_unit": "ml",
+    "price_regular": "3.39",
+    "price_promo": "3.39",
+    "unit_price": {
+     "value": "0.2119",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "3.04",
+   "unit_price_change_pct": "3.04",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 9,
+   "kind": "price_increase",
+   "source": "kroger",
+   "product": {
+    "id": "0001111007422",
+    "description": "Kroger® Strawberry Spread Squeezable",
+    "brand": "Kroger",
+    "category": "Pantry",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001111007422"
+   },
+   "before": {
+    "id": 663,
+    "size_text": "20.5 oz",
+    "display_quantity": "20.5",
+    "display_unit": "oz",
+    "quantity": "581.1652",
+    "base_unit": "g",
+    "price_regular": "3.19",
+    "price_promo": "2.99",
+    "unit_price": {
+     "value": "0.1556",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1251,
+    "size_text": "20.5 oz",
+    "display_quantity": "20.5",
+    "display_unit": "oz",
+    "quantity": "581.1652",
+    "base_unit": "g",
+    "price_regular": "3.49",
+    "price_promo": "3.29",
+    "unit_price": {
+     "value": "0.1702",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "9.40",
+   "unit_price_change_pct": "9.40",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 8,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0007047040389",
+    "description": "Yoplait™ Original Low Fat Strawberry and Harvest Peach Yogurt Cups",
+    "brand": "Yoplait",
+    "category": "Dairy and eggs",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0007047040389"
+   },
+   "before": {
+    "id": 387,
+    "size_text": "8 ct / 6 oz",
+    "display_quantity": "6",
+    "display_unit": "oz",
+    "quantity": "170.0971",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.9983",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "after": {
+    "id": 1250,
+    "size_text": "8 ct / 6 oz",
+    "display_quantity": "6",
+    "display_unit": "oz",
+    "quantity": "170.0971",
+    "base_unit": "g",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.9650",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.34",
+   "unit_price_change_pct": "-3.34",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 7,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0081921502139",
+    "description": "Waterloo® Cherry Limeade Sparkling Water",
+    "brand": "Waterloo",
+    "category": "Beverages",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0081921502139"
+   },
+   "before": {
+    "id": 238,
+    "size_text": "12 fl oz",
+    "display_quantity": "12",
+    "display_unit": "fl oz",
+    "quantity": "354.8824",
+    "base_unit": "ml",
+    "price_regular": "5.99",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "0.4992",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1249,
+    "size_text": "12 fl oz",
+    "display_quantity": "12",
+    "display_unit": "fl oz",
+    "quantity": "354.8824",
+    "base_unit": "ml",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4825",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.34",
+   "unit_price_change_pct": "-3.34",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 6,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0081921502274",
+    "description": "Waterloo® Raspberry Nectarine Sparkling Water",
+    "brand": "Waterloo",
+    "category": "Beverages",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0081921502274"
+   },
+   "before": {
+    "id": 236,
+    "size_text": "12 fl oz",
+    "display_quantity": "12",
+    "display_unit": "fl oz",
+    "quantity": "354.8824",
+    "base_unit": "ml",
+    "price_regular": "5.99",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "0.4992",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1248,
+    "size_text": "12 fl oz",
+    "display_quantity": "12",
+    "display_unit": "fl oz",
+    "quantity": "354.8824",
+    "base_unit": "ml",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4825",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.34",
+   "unit_price_change_pct": "-3.34",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 5,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0081921502049",
+    "description": "Waterloo® Strawberry Sparkling Water",
+    "brand": "Waterloo",
+    "category": "Beverages",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0081921502049"
+   },
+   "before": {
+    "id": 237,
+    "size_text": "12 fl oz",
+    "display_quantity": "12",
+    "display_unit": "fl oz",
+    "quantity": "354.8824",
+    "base_unit": "ml",
+    "price_regular": "5.99",
+    "price_promo": "3.99",
+    "unit_price": {
+     "value": "0.4992",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1247,
+    "size_text": "12 fl oz",
+    "display_quantity": "12",
+    "display_unit": "fl oz",
+    "quantity": "354.8824",
+    "base_unit": "ml",
+    "price_regular": "5.79",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.4825",
+     "unit": "fl oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-3.34",
+   "unit_price_change_pct": "-3.34",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 4,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0081029100795",
+    "description": "Tate's Bake Shop Pumpkin Spice White Chocolate Chip Cookies",
+    "brand": "Tate's Bake Shop",
+    "category": "Snacks",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0081029100795"
+   },
+   "before": {
+    "id": 128,
+    "size_text": "6.5 oz",
+    "display_quantity": "6.5",
+    "display_unit": "oz",
+    "quantity": "184.2719",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.9215",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1246,
+    "size_text": "6.5 oz",
+    "display_quantity": "6.5",
+    "display_unit": "oz",
+    "quantity": "184.2719",
+    "base_unit": "g",
+    "price_regular": "4.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.7677",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-16.69",
+   "unit_price_change_pct": "-16.69",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  },
+  {
+   "id": 3,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0002430004167",
+    "description": "Little Debbie® Fall Pumpkin Delights Pumpkin Flavored Cookies Multipack",
+    "brand": "Little Debbie",
+    "category": "Snacks",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0002430004167"
+   },
+   "before": {
+    "id": 126,
+    "size_text": "8 ct / 9.96 oz",
+    "display_quantity": "9.96",
+    "display_unit": "oz",
+    "quantity": "282.3613",
+    "base_unit": "g",
+    "price_regular": "3.19",
+    "price_promo": "3.00",
+    "unit_price": {
+     "value": "0.3203",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-09T00:01:48.586348Z",
+    "observations": 3,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "after": {
+    "id": 1245,
+    "size_text": "8 ct / 9.96 oz",
+    "display_quantity": "9.96",
+    "display_unit": "oz",
+    "quantity": "282.3613",
+    "base_unit": "g",
+    "price_regular": "2.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3002",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-09T11:00:23.887622Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 15,
+    "parse_method": "llm",
+    "parse_confidence": 0.9
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-6.27",
+   "unit_price_change_pct": "-6.27",
+   "before_seen_at": "2026-09-09T00:01:48.586348Z",
+   "after_seen_at": "2026-09-09T11:00:23.887622Z",
+   "detected_at": "2026-09-09T11:00:23.887622Z",
+   "note": null
+  }
+ ],
+ "total": 78,
+ "limit": 100,
+ "offset": 0
+}

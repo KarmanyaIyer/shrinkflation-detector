@@ -1,0 +1,134 @@
+{
+ "product": {
+  "id": "0086001233561",
+  "description": "Khloud™ White Cheddar Protein Popcorn 4.0 oz",
+  "brand": "Khloud™",
+  "category": "Snacks",
+  "image_url": "https://www.kroger.com/product/images/medium/front/0086001233561"
+ },
+ "upc": "0086001233561",
+ "retailer_categories": [
+  "Snacks"
+ ],
+ "active": true,
+ "first_seen_at": "2026-09-07T22:54:30.883952Z",
+ "last_seen_at": "2026-09-23T11:00:21.031009Z",
+ "current": {
+  "id": 1333,
+  "size_text": "5.0 oz",
+  "display_quantity": "5",
+  "display_unit": "oz",
+  "quantity": "141.7476",
+  "base_unit": "g",
+  "price_regular": "5.99",
+  "price_promo": "4.99",
+  "unit_price": {
+   "value": "1.1980",
+   "unit": "oz"
+  },
+  "first_seen_at": "2026-09-22T11:00:19.264974Z",
+  "last_seen_at": "2026-09-23T11:00:21.031009Z",
+  "observations": 2,
+  "parse_method": "rule",
+  "parse_confidence": 1.0
+ },
+ "snapshots": [
+  {
+   "id": 100,
+   "size_text": "4.0 oz",
+   "display_quantity": "4",
+   "display_unit": "oz",
+   "quantity": "113.3981",
+   "base_unit": "g",
+   "price_regular": "5.99",
+   "price_promo": "4.99",
+   "unit_price": {
+    "value": "1.4975",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-07T22:54:30.883952Z",
+   "last_seen_at": "2026-09-21T11:01:03.948404Z",
+   "observations": 16,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  },
+  {
+   "id": 1333,
+   "size_text": "5.0 oz",
+   "display_quantity": "5",
+   "display_unit": "oz",
+   "quantity": "141.7476",
+   "base_unit": "g",
+   "price_regular": "5.99",
+   "price_promo": "4.99",
+   "unit_price": {
+    "value": "1.1980",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-22T11:00:19.264974Z",
+   "last_seen_at": "2026-09-23T11:00:21.031009Z",
+   "observations": 2,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  }
+ ],
+ "changes": [
+  {
+   "id": 63,
+   "kind": "grow",
+   "source": "kroger",
+   "product": {
+    "id": "0086001233561",
+    "description": "Khloud™ White Cheddar Protein Popcorn 4.0 oz",
+    "brand": "Khloud™",
+    "category": "Snacks",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0086001233561"
+   },
+   "before": {
+    "id": 100,
+    "size_text": "4.0 oz",
+    "display_quantity": "4",
+    "display_unit": "oz",
+    "quantity": "113.3981",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "1.4975",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-21T11:01:03.948404Z",
+    "observations": 16,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1333,
+    "size_text": "5.0 oz",
+    "display_quantity": "5",
+    "display_unit": "oz",
+    "quantity": "141.7476",
+    "base_unit": "g",
+    "price_regular": "5.99",
+    "price_promo": "4.99",
+    "unit_price": {
+     "value": "1.1980",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-22T11:00:19.264974Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 2,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "25.00",
+   "price_change_pct": "0.00",
+   "unit_price_change_pct": "-20.00",
+   "before_seen_at": "2026-09-21T11:01:03.948404Z",
+   "after_seen_at": "2026-09-22T11:00:19.264974Z",
+   "detected_at": "2026-09-22T11:00:19.264974Z",
+   "note": null
+  }
+ ]
+}

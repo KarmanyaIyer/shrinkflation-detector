@@ -2,16 +2,17 @@ import { request } from "./http";
 import type {
   AskRequest,
   AskResponse,
-  CatalogList,
   CategoryCount,
   ChangeList,
+  ChangeOut,
   FeedKind,
   FieldOut,
   ProductDetail,
   Stats,
 } from "./types";
 
-export const PAGE_SIZE = 30;
+// The API caps a page at 100.
+export const PAGE_SIZE = 100;
 
 export interface ChangesParams {
   kind: FeedKind;
@@ -42,21 +43,18 @@ export function getChanges(params: ChangesParams, signal?: AbortSignal): Promise
   return request<ChangeList>(`/changes?${query.toString()}`, { signal });
 }
 
-export interface CatalogParams {
-  q?: string | null;
-  category?: string | null;
-  limit?: number;
-  offset?: number;
-}
-
-export function getCatalog(params: CatalogParams, signal?: AbortSignal): Promise<CatalogList> {
-  const query = new URLSearchParams({
-    limit: String(params.limit ?? PAGE_SIZE),
-    offset: String(params.offset ?? 0),
-  });
-  if (params.q) query.set("q", params.q);
-  if (params.category) query.set("category", params.category);
-  return request<CatalogList>(`/catalog?${query.toString()}`, { signal });
+// Every published change, paging until the total is reached. The story and the table both
+// work on the full list, so one load serves both.
+export async function getAllChanges(signal?: AbortSignal): Promise<ChangeOut[]> {
+  const items: ChangeOut[] = [];
+  let total = Number.POSITIVE_INFINITY;
+  while (items.length < total) {
+    const page = await getChanges({ kind: "all", offset: items.length }, signal);
+    total = page.total;
+    if (page.items.length === 0) break;
+    items.push(...page.items);
+  }
+  return items;
 }
 
 export function getProduct(id: string, signal?: AbortSignal): Promise<ProductDetail> {

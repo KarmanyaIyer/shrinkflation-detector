@@ -1,0 +1,134 @@
+{
+ "product": {
+  "id": "0001600012222",
+  "description": "General Mills® REESE'S™ PUFFS Chocolatey Peanut Butter Cereal",
+  "brand": "Reese's Puffs",
+  "category": "Cereal and breakfast",
+  "image_url": "https://www.kroger.com/product/images/medium/front/0001600012222"
+ },
+ "upc": "0001600012222",
+ "retailer_categories": [
+  "Breakfast"
+ ],
+ "active": true,
+ "first_seen_at": "2026-09-07T22:54:30.883952Z",
+ "last_seen_at": "2026-09-23T11:00:21.031009Z",
+ "current": {
+  "id": 1289,
+  "size_text": "11.5 oz",
+  "display_quantity": "11.5",
+  "display_unit": "oz",
+  "quantity": "326.0195",
+  "base_unit": "g",
+  "price_regular": "3.99",
+  "price_promo": null,
+  "unit_price": {
+   "value": "0.3470",
+   "unit": "oz"
+  },
+  "first_seen_at": "2026-09-16T11:00:20.676615Z",
+  "last_seen_at": "2026-09-23T11:00:21.031009Z",
+  "observations": 8,
+  "parse_method": "rule",
+  "parse_confidence": 1.0
+ },
+ "snapshots": [
+  {
+   "id": 7,
+   "size_text": "11.5 oz",
+   "display_quantity": "11.5",
+   "display_unit": "oz",
+   "quantity": "326.0195",
+   "base_unit": "g",
+   "price_regular": "5.49",
+   "price_promo": "4.29",
+   "unit_price": {
+    "value": "0.4774",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-07T22:54:30.883952Z",
+   "last_seen_at": "2026-09-15T11:00:28.393131Z",
+   "observations": 10,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  },
+  {
+   "id": 1289,
+   "size_text": "11.5 oz",
+   "display_quantity": "11.5",
+   "display_unit": "oz",
+   "quantity": "326.0195",
+   "base_unit": "g",
+   "price_regular": "3.99",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.3470",
+    "unit": "oz"
+   },
+   "first_seen_at": "2026-09-16T11:00:20.676615Z",
+   "last_seen_at": "2026-09-23T11:00:21.031009Z",
+   "observations": 8,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  }
+ ],
+ "changes": [
+  {
+   "id": 40,
+   "kind": "price_decrease",
+   "source": "kroger",
+   "product": {
+    "id": "0001600012222",
+    "description": "General Mills® REESE'S™ PUFFS Chocolatey Peanut Butter Cereal",
+    "brand": "Reese's Puffs",
+    "category": "Cereal and breakfast",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0001600012222"
+   },
+   "before": {
+    "id": 7,
+    "size_text": "11.5 oz",
+    "display_quantity": "11.5",
+    "display_unit": "oz",
+    "quantity": "326.0195",
+    "base_unit": "g",
+    "price_regular": "5.49",
+    "price_promo": "4.29",
+    "unit_price": {
+     "value": "0.4774",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1289,
+    "size_text": "11.5 oz",
+    "display_quantity": "11.5",
+    "display_unit": "oz",
+    "quantity": "326.0195",
+    "base_unit": "g",
+    "price_regular": "3.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.3470",
+     "unit": "oz"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "0.00",
+   "price_change_pct": "-27.32",
+   "unit_price_change_pct": "-27.32",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  }
+ ]
+}

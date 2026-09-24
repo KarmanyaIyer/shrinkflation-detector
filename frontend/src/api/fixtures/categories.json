@@ -1,0 +1,67 @@
+[
+ {
+  "category": "Baby and pet",
+  "products": 60,
+  "changes": 12
+ },
+ {
+  "category": "Bakery",
+  "products": 60,
+  "changes": 3
+ },
+ {
+  "category": "Beverages",
+  "products": 108,
+  "changes": 5
+ },
+ {
+  "category": "Candy",
+  "products": 36,
+  "changes": 1
+ },
+ {
+  "category": "Cereal and breakfast",
+  "products": 60,
+  "changes": 4
+ },
+ {
+  "category": "Coffee and tea",
+  "products": 48,
+  "changes": 0
+ },
+ {
+  "category": "Dairy and eggs",
+  "products": 119,
+  "changes": 5
+ },
+ {
+  "category": "Frozen",
+  "products": 95,
+  "changes": 6
+ },
+ {
+  "category": "Household",
+  "products": 116,
+  "changes": 8
+ },
+ {
+  "category": "Meat and deli",
+  "products": 48,
+  "changes": 4
+ },
+ {
+  "category": "Pantry",
+  "products": 276,
+  "changes": 20
+ },
+ {
+  "category": "Personal care",
+  "products": 96,
+  "changes": 6
+ },
+ {
+  "category": "Snacks",
+  "products": 120,
+  "changes": 4
+ }
+]

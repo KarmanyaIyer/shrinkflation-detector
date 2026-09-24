@@ -1,0 +1,135 @@
+{
+ "product": {
+  "id": "0003600048756",
+  "description": "Huggies® Simply Clean® Unscented Baby Wipes",
+  "brand": "Huggies",
+  "category": "Baby and pet",
+  "image_url": "https://www.kroger.com/product/images/medium/front/0003600048756"
+ },
+ "upc": "0003600048756",
+ "retailer_categories": [
+  "Baby",
+  "Baby"
+ ],
+ "active": true,
+ "first_seen_at": "2026-09-07T22:54:30.883952Z",
+ "last_seen_at": "2026-09-23T11:00:21.031009Z",
+ "current": {
+  "id": 1308,
+  "size_text": "56 ct",
+  "display_quantity": "56",
+  "display_unit": "ct",
+  "quantity": "56.0000",
+  "base_unit": "count",
+  "price_regular": "6.99",
+  "price_promo": null,
+  "unit_price": {
+   "value": "0.1248",
+   "unit": "each"
+  },
+  "first_seen_at": "2026-09-16T11:00:20.676615Z",
+  "last_seen_at": "2026-09-23T11:00:21.031009Z",
+  "observations": 8,
+  "parse_method": "rule",
+  "parse_confidence": 1.0
+ },
+ "snapshots": [
+  {
+   "id": 1203,
+   "size_text": "192 ct",
+   "display_quantity": "192",
+   "display_unit": "ct",
+   "quantity": "192.0000",
+   "base_unit": "count",
+   "price_regular": "6.99",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.0364",
+    "unit": "each"
+   },
+   "first_seen_at": "2026-09-07T22:54:30.883952Z",
+   "last_seen_at": "2026-09-15T11:00:28.393131Z",
+   "observations": 10,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  },
+  {
+   "id": 1308,
+   "size_text": "56 ct",
+   "display_quantity": "56",
+   "display_unit": "ct",
+   "quantity": "56.0000",
+   "base_unit": "count",
+   "price_regular": "6.99",
+   "price_promo": null,
+   "unit_price": {
+    "value": "0.1248",
+    "unit": "each"
+   },
+   "first_seen_at": "2026-09-16T11:00:20.676615Z",
+   "last_seen_at": "2026-09-23T11:00:21.031009Z",
+   "observations": 8,
+   "parse_method": "rule",
+   "parse_confidence": 1.0
+  }
+ ],
+ "changes": [
+  {
+   "id": 58,
+   "kind": "shrink",
+   "source": "kroger",
+   "product": {
+    "id": "0003600048756",
+    "description": "Huggies® Simply Clean® Unscented Baby Wipes",
+    "brand": "Huggies",
+    "category": "Baby and pet",
+    "image_url": "https://www.kroger.com/product/images/medium/front/0003600048756"
+   },
+   "before": {
+    "id": 1203,
+    "size_text": "192 ct",
+    "display_quantity": "192",
+    "display_unit": "ct",
+    "quantity": "192.0000",
+    "base_unit": "count",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.0364",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-07T22:54:30.883952Z",
+    "last_seen_at": "2026-09-15T11:00:28.393131Z",
+    "observations": 10,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "after": {
+    "id": 1308,
+    "size_text": "56 ct",
+    "display_quantity": "56",
+    "display_unit": "ct",
+    "quantity": "56.0000",
+    "base_unit": "count",
+    "price_regular": "6.99",
+    "price_promo": null,
+    "unit_price": {
+     "value": "0.1248",
+     "unit": "each"
+    },
+    "first_seen_at": "2026-09-16T11:00:20.676615Z",
+    "last_seen_at": "2026-09-23T11:00:21.031009Z",
+    "observations": 8,
+    "parse_method": "rule",
+    "parse_confidence": 1.0
+   },
+   "size_change_pct": "-70.83",
+   "price_change_pct": "0.00",
+   "unit_price_change_pct": "242.86",
+   "before_seen_at": "2026-09-15T11:00:28.393131Z",
+   "after_seen_at": "2026-09-16T11:00:20.676615Z",
+   "detected_at": "2026-09-16T11:00:20.676615Z",
+   "note": null
+  }
+ ]
+}

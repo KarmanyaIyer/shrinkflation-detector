@@ -1,0 +1,26 @@
+{
+ "products_tracked": 1242,
+ "categories": 13,
+ "snapshots": 1370,
+ "changes_published": 78,
+ "shrink_count": 3,
+ "grow_count": 1,
+ "price_increase_count": 38,
+ "price_decrease_count": 36,
+ "llm_calls": 433,
+ "llm_cost_usd": "0.081044",
+ "tracking_since": "2026-09-07T22:54:30.883952Z",
+ "last_run": {
+  "id": 18,
+  "kind": "refresh",
+  "status": "ok",
+  "started_at": "2026-09-23T11:00:20.120217Z",
+  "finished_at": "2026-09-23T11:07:00.964933Z",
+  "products_checked": 1242,
+  "snapshots_added": 31,
+  "changes_found": 27,
+  "api_calls": 25,
+  "errors": 0
+ },
+ "location_label": "one Cincinnati-area Kroger"
+}
