@@ -174,11 +174,20 @@ describe("story copy in other states", () => {
     const one = story({ changes: rises.slice(0, 1) });
     expect(one.headline).toBe("Over 16 days at one Kroger, one price rose.");
     expect(one.dek).toMatch(/^One shelf price moved: .+, \$\d+\.\d\d to \$\d+\.\d\d, \+\d+\.\d% per (oz|fl oz|item|sq ft)\.$/);
-    expect(one.steps[2]!.paragraphs[0]).toEqual([{ b: "All 1 price move was increases." }]);
+    expect(one.steps[2]!.paragraphs[0]).toEqual([{ b: "The one price move was an increase." }]);
 
     const tied = rises.slice(0, 2).map((c) => ({ ...c, unit_price_change_pct: "9.90", price_change_pct: "9.90" }));
     const tie = story({ changes: tied });
-    expect(tie.dek).toBe("Of the 2 price moves, two were under 10% per unit. Two products tied for the largest move at +9.9% per unit.");
+    expect(tie.dek).toBe("Of the 2 price moves, 2 were under 10% per unit. Two products tied for the largest move at +9.9% per unit.");
+
+    // A tie on magnitude across both directions carries no sign.
+    const cut = fx.changes.find((c) => c.kind === "price_decrease")!;
+    const split = [tied[0]!, { ...cut, unit_price_change_pct: "-9.90", price_change_pct: "-9.90" }];
+    expect(story({ changes: split }).dek).toBe(
+      "Of the 2 price moves, 2 were under 10% per unit. Two products tied for the largest move at 9.9% either way per unit.",
+    );
+    const big = tied.map((c) => ({ ...c, unit_price_change_pct: "12.00", price_change_pct: "12.00" }));
+    expect(story({ changes: big }).dek).toMatch(/^Of the 2 price moves, none were under 10% per unit\./);
   });
 
   it("writes the size steps for sizes only", () => {
@@ -193,7 +202,7 @@ describe("story copy in other states", () => {
   it("says plainly when the run failed or the data is stale", () => {
     const failed = story({ stats: fx.failedRunStats, now: new Date("2026-09-24T12:00:00Z") });
     expect(failed.freshness).toBe(
-      "The last check, Sep 24 at 7:02 a.m. Eastern, ended with 15 errors after 480 of 1,242 products. Figures are from the last complete check.",
+      "The last check, Sep 24 at 7:02 a.m. Eastern, ended with 15 errors after 480 of 1,242 products. Figures include everything recorded so far.",
     );
     const stale = story({ now: new Date("2026-09-26T12:00:00Z") });
     expect(stale.freshness).toBe("Data last updated Sep 23 at 7:07 a.m. Eastern.");

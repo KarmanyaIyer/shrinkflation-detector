@@ -44,13 +44,14 @@ const FORBIDDEN = [
   new RegExp(["Kent", "ucky"].join("")),
   new RegExp(["New", "port"].join("")),
   new RegExp(["0140", "0423"].join("")),
-  /–/,
-  /—/,
+  /\u2013/,
+  /\u2014/,
 ];
 
 beforeEach(() => {
   vi.mocked(getStats).mockClear();
   vi.mocked(getProduct).mockClear();
+  vi.mocked(Element.prototype.scrollIntoView).mockClear();
 });
 
 describe("article", () => {
@@ -64,7 +65,7 @@ describe("article", () => {
     expect(screen.getByText(/Pantry is the largest group, with 276 items\./)).toBeInTheDocument();
     expect(screen.getByText(/The listed size went down on three products/)).toBeInTheDocument();
     expect(screen.getByText(/1,242 products in 13 categories, 25 API calls\./)).toBeInTheDocument();
-    expect(screen.getByText(/433 model calls have cost \$0\.08 in total/)).toBeInTheDocument();
+    expect(screen.getByText(/433 model calls, for size reading and the assistant together, have cost \$0\.08/)).toBeInTheDocument();
     expect(screen.getByText(/78 so far: 38 price increases, 36 price cuts, 3 size decreases and 1 size increase\./)).toBeInTheDocument();
     for (const pattern of FORBIDDEN) expect(document.body.textContent).not.toMatch(pattern);
   });
@@ -100,6 +101,8 @@ describe("article", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("The API returned an error (503). Try again in a minute.");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("The records could not be loaded.");
     expect(screen.getByRole("heading", { name: "How this works" })).toBeInTheDocument();
+    // No note markers exist on the error page, so the notes carry no back links.
+    expect(screen.queryByRole("link", { name: /^Back to/ })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(await screen.findByText(/Over 16 days at one Kroger/)).toBeInTheDocument();
     expect(vi.mocked(getStats)).toHaveBeenCalledTimes(2);
@@ -174,6 +177,26 @@ describe("product drawer", () => {
     expect(screen.getByTestId("loc")).toHaveTextContent("/");
     expect(document.activeElement).toBe(rowButton);
     expect(document.body).not.toHaveClass("locked");
+  });
+
+  it("drops the fragment before opening and does not scroll again on close", async () => {
+    renderApp("/#changes");
+    await screen.findByRole("heading", { level: 1 });
+    await waitFor(() => expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1));
+    const rowButton = document.querySelector<HTMLButtonElement>(".rowbtn")!;
+    rowButton.focus();
+    fireEvent.click(rowButton);
+    const dialog = await screen.findByRole("dialog");
+    await within(dialog).findByRole("heading", { level: 2 });
+    expect(document.title).toMatch(/. · Shrinkflation Detector$/);
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    // The article entry lost its fragment, so going back lands on / and the browser leaves
+    // focus alone.
+    expect(screen.getByTestId("loc")).toHaveTextContent(/^\/$/);
+    expect(document.activeElement).toBe(rowButton);
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(document.title).toBe("Shrinkflation Detector");
   });
 
   it("renders the article behind a directly loaded product", async () => {

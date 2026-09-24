@@ -262,7 +262,8 @@ function dekFor(counts: StoryCounts, priceMoves: ChangeOut[]): string {
   if (priceMoves.length === 1) {
     lead = "One shelf price moved";
   } else {
-    lead = `Of the ${formatInt(priceMoves.length)} price moves, ${numberWord(counts.under10)} ${counts.under10 === 1 ? "was" : "were"} under 10% per unit`;
+    const under = counts.under10 === 0 ? "none" : formatInt(counts.under10);
+    lead = `Of the ${formatInt(priceMoves.length)} price moves, ${under} ${counts.under10 === 1 ? "was" : "were"} under 10% per unit`;
   }
   let tail: string;
   if (winners.length === 1) {
@@ -270,8 +271,9 @@ function dekFor(counts: StoryCounts, priceMoves: ChangeOut[]): string {
     const name = displayName(a.name);
     tail = priceMoves.length === 1 ? `: ${name}, ${a.line}.` : `. The largest was ${name}, ${a.line}.`;
   } else {
-    const first = winners[0]!;
-    const value = formatPercent(pct(first));
+    // Ties are on magnitude, so the sign is only shown when every tied move points the same way.
+    const signs = new Set(winners.map((change) => Math.sign(pct(change) ?? 0)));
+    const value = signs.size === 1 ? formatPercent(pct(winners[0]!)) : `${(formatPercent(largest) ?? "").replace(/^[+−-]/, "")} either way`;
     tail = `. ${countNoun(winners.length, "product").replace(/^./, (c) => c.toUpperCase())} tied for the largest move at ${value} per unit.`;
   }
   return `${lead}${tail}`;
@@ -288,7 +290,7 @@ function freshnessFor(stats: Stats, changes: ChangeOut[], now: Date): string {
   const when = `${date} at ${time} Eastern`;
   if (run.status !== "ok") {
     const checked = `${formatInt(run.products_checked)} of ${formatInt(stats.products_tracked)} products`;
-    return `The last check, ${when}, ended with ${pluralize(run.errors, "error")} after ${checked}. Figures are from the last complete check.`;
+    return `The last check, ${when}, ended with ${pluralize(run.errors, "error")} after ${checked}. Figures include everything recorded so far.`;
   }
   const age = now.getTime() - new Date(at).getTime();
   if (age > HOURS_36) return `Data last updated ${when}.`;
@@ -419,7 +421,12 @@ export function buildStory(input: StoryInput): Story {
     });
   } else if (counts.priceUp || counts.priceDown) {
     const n = counts.priceUp || counts.priceDown;
-    swarmText.push({ b: `All ${formatInt(n)} price ${n === 1 ? "move was" : "moves were"} ${counts.priceUp ? "increases" : "cuts"}.` });
+    swarmText.push({
+      b:
+        n === 1
+          ? `The one price move was ${counts.priceUp ? "an increase" : "a cut"}.`
+          : `All ${formatInt(n)} price moves were ${counts.priceUp ? "increases" : "cuts"}.`,
+    });
   } else {
     swarmText.push({ b: "No shelf price changed." });
   }
@@ -550,7 +557,7 @@ export function buildStory(input: StoryInput): Story {
   const lede: Run[] = [
     `A scheduled job records the listed package size and regular shelf price of ${formatInt(counts.products)} grocery products at ${stats.location_label}`,
     { fn: 2 },
-    " through Kroger’s public product API. It reads each size from the listing text, divides price by size to get a price per unit, and stores a new record only when the size or price changes.",
+    " through Kroger’s public product API. It reads each size from the listing text, divides price by size to get a price per unit, and stores a new record only when the size, price or product name changes.",
   ];
 
   return {

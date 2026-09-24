@@ -1,12 +1,13 @@
 import { forwardRef } from "react";
 import { Link } from "react-router";
 import { formatPercent, quoted, unitWord } from "../lib/format";
-import { productPath, rememberOpener } from "../lib/drawerRoute";
+import { productPath, useOpenProduct } from "../lib/drawerRoute";
 import type { SizeCase, StepKind } from "../lib/story";
 
 // The before and after label cards for the size steps. The canvas dot for each product lands
 // on the `.sc-dot` placeholder, measured by the graphic after layout.
 function Card({ item, active }: { item: SizeCase; active: boolean }) {
+  const openProduct = useOpenProduct();
   const qb = item.quantityBefore ?? 1;
   const qa = item.quantityAfter ?? 1;
   const max = Math.max(qb, qa, 0.0001);
@@ -29,7 +30,11 @@ function Card({ item, active }: { item: SizeCase; active: boolean }) {
           className="sc-name"
           to={productPath(item.id)}
           state={{ fromArticle: true }}
-          onClick={(event) => rememberOpener(event.currentTarget)}
+          onClick={(event) => {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+            event.preventDefault();
+            openProduct(item.id, event.currentTarget);
+          }}
         >
           {item.short}
         </Link>

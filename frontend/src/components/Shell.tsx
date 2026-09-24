@@ -1,12 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Link, Outlet, useLocation, useNavigationType } from "react-router";
 
+import { isDrawerPath } from "../lib/drawerRoute";
+
 export const GITHUB_URL = "https://github.com/KarmanyaIyer/shrinkflation-detector";
 export const SITE_URL = "https://karmanyaiyer.com";
-
-export function isDrawerPath(pathname: string): boolean {
-  return /^\/products\/[^/]+\/?$/.test(pathname);
-}
 
 function BackArrow() {
   return (

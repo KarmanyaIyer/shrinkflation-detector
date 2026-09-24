@@ -31,7 +31,6 @@ function parseMethod(snapshot: SnapshotOut | null | undefined): string {
   const confidence = snapshot?.parse_confidence;
   const conf = confidence !== null && confidence !== undefined ? `, confidence ${confidence.toFixed(2)}` : "";
   if (method === "rule") return "rules";
-  if (method === "cache") return `cached model reading${conf}`;
   if (method.includes("llm") || method.includes("model")) return `model (${method})${conf}`;
   return `${method}${conf}`;
 }
@@ -205,7 +204,8 @@ export function ProductDrawer() {
 
   // Take the opener once, lock the page behind, focus the panel, and give focus back on close.
   useLayoutEffect(() => {
-    opener.current = takeOpener();
+    // The opener is one-shot; the ref keeps it through a StrictMode remount.
+    opener.current = takeOpener() ?? opener.current;
     const scrollbar = window.innerWidth - document.documentElement.clientWidth;
     document.body.classList.add("locked");
     if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;

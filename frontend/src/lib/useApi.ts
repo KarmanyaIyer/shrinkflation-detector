@@ -70,5 +70,8 @@ export function useSlow(loading: boolean, delayMs: number): boolean {
 export function usePageTitle(title: string | null): void {
   useEffect(() => {
     document.title = title ? `${title} · Shrinkflation Detector` : "Shrinkflation Detector";
+    return () => {
+      document.title = "Shrinkflation Detector";
+    };
   }, [title]);
 }

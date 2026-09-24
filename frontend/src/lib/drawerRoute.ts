@@ -23,8 +23,14 @@ export function productPath(id: string): string {
   return `/products/${encodeURIComponent(id)}`;
 }
 
+export function isDrawerPath(pathname: string): boolean {
+  return /^\/products\/[^/]+\/?$/.test(pathname);
+}
+
 // Opens a product's drawer over the article. The state marks the entry as one the app pushed,
-// so closing can go back instead of pushing a second history entry.
+// so closing can go back instead of pushing a second history entry. A fragment on the article's
+// entry (/#changes) is dropped first: going back to an entry with a fragment makes the browser
+// blur whatever was focused, which would defeat the focus return on close.
 export function useOpenProduct(): (id: string, trigger?: Element | null) => void {
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,9 +38,12 @@ export function useOpenProduct(): (id: string, trigger?: Element | null) => void
     (id: string, trigger?: Element | null) => {
       rememberOpener(trigger ?? document.activeElement);
       const state: DrawerState = { fromArticle: true };
-      const alreadyOpen = /^\/products\/[^/]+$/.test(location.pathname);
+      const alreadyOpen = isDrawerPath(location.pathname);
+      if (!alreadyOpen && location.hash) {
+        void navigate({ pathname: location.pathname, search: location.search }, { replace: true });
+      }
       void navigate(productPath(id), { state, replace: alreadyOpen });
     },
-    [navigate, location.pathname],
+    [navigate, location.pathname, location.search, location.hash],
   );
 }

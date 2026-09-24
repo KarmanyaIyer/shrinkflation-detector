@@ -1,6 +1,28 @@
 import { GITHUB_URL } from "./Shell";
 
-export function Footnotes() {
+// Which note markers exist on the page: 1 sits in the size step, 2 in the lede, 3 in the table
+// header. A back link is only rendered when its marker is there to go back to.
+export interface NoteRefs {
+  1: boolean;
+  2: boolean;
+  3: boolean;
+}
+
+export const NO_REFS: NoteRefs = { 1: false, 2: false, 3: false };
+
+function BackRef({ to, label, refs }: { to: 1 | 2 | 3; label: string; refs: NoteRefs }) {
+  if (!refs[to]) return null;
+  return (
+    <>
+      {" "}
+      <a className="back-ref" href={`#r${to}`} aria-label={label}>
+        Back
+      </a>
+    </>
+  );
+}
+
+export function Footnotes({ refs }: { refs: NoteRefs }) {
   return (
     <>
       <section className="notes" aria-labelledby="n-h">
@@ -8,23 +30,17 @@ export function Footnotes() {
         <ol>
           <li id="fn1">
             Sizes are read from the listing text in Kroger’s API. A size decrease means that text changed. Nobody weighed
-            the package, so a corrected listing and a smaller package look the same here.{" "}
-            <a className="back-ref" href="#r1" aria-label="Back to the text">
-              Back
-            </a>
+            the package, so a corrected listing and a smaller package look the same here.
+            <BackRef to={1} label="Back to the text" refs={refs} />
           </li>
           <li id="fn2">
-            All data comes from one store. Prices at other Kroger stores can differ.{" "}
-            <a className="back-ref" href="#r2" aria-label="Back to the text">
-              Back
-            </a>
+            All data comes from one store. Prices at other Kroger stores can differ.
+            <BackRef to={2} label="Back to the text" refs={refs} />
           </li>
           <li id="fn3">
             Dates are in the store’s time zone, Eastern time. “Sep 22 to 23” means the old size or price was last seen on
-            Sep 22 and the new one was first seen on Sep 23.{" "}
-            <a className="back-ref" href="#r3" aria-label="Back to the table">
-              Back
-            </a>
+            Sep 22 and the new one was first seen on Sep 23.
+            <BackRef to={3} label="Back to the table" refs={refs} />
           </li>
         </ol>
       </section>

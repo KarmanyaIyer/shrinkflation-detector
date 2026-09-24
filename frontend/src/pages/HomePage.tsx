@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Outlet, useLocation, useSearchParams } from "react-router";
+import { Outlet, useLocation, useNavigationType, useSearchParams } from "react-router";
 import { getAllChanges, getCategories, getField, getStats } from "../api/client";
 import { ArticleHead } from "../components/ArticleHead";
 import { AskSection } from "../components/AskSection";
 import { ChangesSection } from "../components/ChangesSection";
 import { FindSection } from "../components/FindSection";
-import { Footnotes } from "../components/Footnotes";
+import { Footnotes, NO_REFS } from "../components/Footnotes";
 import { MethodSection } from "../components/MethodSection";
 import { describeLoadError } from "../components/Status";
 import { Story } from "../components/Story";
@@ -18,6 +18,7 @@ export function HomePage() {
   const field = useApi(getField, []);
   const changes = useApi(getAllChanges, []);
   const location = useLocation();
+  const navigationType = useNavigationType();
   const [params] = useSearchParams();
   usePageTitle(null);
 
@@ -33,10 +34,15 @@ export function HomePage() {
   const ready = story !== null && field.status === "ok";
 
   // Hash links scroll once the sections exist. Old links of the form /?kind=shrink land on
-  // the change table.
+  // the change table. Going back or forward (which is also how the drawer closes) leaves the
+  // scroll position to the browser, so returning to /#ask does not jump the article again.
   const landedOnKind = useRef(!location.hash && params.has("kind"));
+  const handled = useRef(false);
   useEffect(() => {
     if (!ready) return;
+    const wentBack = handled.current && navigationType === "POP";
+    handled.current = true;
+    if (wentBack) return;
     const hash = location.hash.slice(1);
     let target = hash ? document.getElementById(hash) : null;
     if (!target && landedOnKind.current) {
@@ -47,7 +53,7 @@ export function HomePage() {
     const element = target;
     const frame = requestAnimationFrame(() => element.scrollIntoView({ block: "start" }));
     return () => cancelAnimationFrame(frame);
-  }, [ready, location.hash, location.key]);
+  }, [ready, location.hash, location.key, navigationType]);
 
   function retry() {
     for (const state of [stats, categories, field, changes]) if (state.status === "error") state.reload();
@@ -68,7 +74,7 @@ export function HomePage() {
         </header>
         <div className="tools">
           <MethodSection method={null} />
-          <Footnotes />
+          <Footnotes refs={NO_REFS} />
         </div>
       </article>
     );
@@ -94,7 +100,7 @@ export function HomePage() {
           categories={categories.status === "ok" ? categories.data : null}
         />
         <MethodSection method={story?.method ?? null} />
-        <Footnotes />
+        <Footnotes refs={{ 1: (story?.shrinks.length ?? 0) > 0, 2: story !== null, 3: changes.status === "ok" }} />
       </div>
       <Outlet />
     </article>

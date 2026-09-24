@@ -406,7 +406,7 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
         <canvas
           ref={canvasRef}
           tabIndex={0}
-          role="group"
+          role="application"
           aria-label="Product dots. Use the arrow keys to move between products and Enter to open one."
           onPointerMove={onPointerMove}
           onPointerLeave={onPointerLeave}
@@ -665,10 +665,10 @@ function Overlay({
           );
         })}
         <text className="t-axl" x={swarm.sx(0) - 10} y={labelY} textAnchor="end" fontSize={fs}>
-          {"← Costs you less"}
+          {"← Price per unit fell"}
         </text>
         <text className="t-axl" x={swarm.sx(0) + 10} y={labelY} fontSize={fs}>
-          {"Costs you more →"}
+          {"Price per unit rose →"}
         </text>
       </g>
       <g className="ly ly-ann">
