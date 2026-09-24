@@ -62,7 +62,10 @@ to review.
 - `backend/` Python package `shrinkflation`: `kroger/` API client, `sizes/` size parser,
   `pipeline/` basket build, refresh, and change detection, `api/` public endpoints,
   `agent/` tool-calling question endpoint, `llm/` DeepSeek client with cost tracking.
-- `frontend/` React site: feed, product pages, ask.
+- `frontend/` React site: one article page whose headline, dek, and steps are written from the
+  data, a scrolling graphic of every tracked product, a question box over the same records, the
+  full change table, product search, a method box, and a product record drawer at
+  `/products/:id`.
 - `docker-compose.yml` Postgres and Jaeger for local development, plus `api` and `pipeline`
   services under the `app` profile.
 
