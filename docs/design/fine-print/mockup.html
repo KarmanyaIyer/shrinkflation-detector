@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shrinkflation Detector</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23E4572E'/%3E%3C/svg%3E">
+<meta name="description" content="Daily size and price checks of 1,242 grocery products at one Cincinnati-area Kroger, with every recorded change and an assistant that answers from the records.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Public+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --ink:#121212; --rule:#DADADA; --muted:#555555;
+  --more:#E4572E; --less:#17827A; --dot:#C4C4C4;
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --sans:"Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --mast:52px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:20px;line-height:1.6;font-optical-sizing:auto;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit;text-decoration-line:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:currentColor}
+a:hover{text-decoration-thickness:2px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+sup{line-height:0;font-size:.62em;font-family:var(--sans);font-weight:600}
+sup a{text-decoration:none;padding:0 2px}
+code,.code{font-family:var(--mono);font-size:.86em}
+
+/* masthead */
+.mast{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:1px solid var(--rule)}
+.mast-in{max-width:1280px;margin:0 auto;height:var(--mast);padding:0 32px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:24px}
+.mast a{text-decoration:none}
+.back{display:inline-flex;align-items:center;gap:8px;min-height:44px;font:500 14px/1 var(--sans);justify-self:start}
+.back svg{width:16px;height:16px;flex:none}
+.back:hover span{text-decoration:underline;text-underline-offset:3px}
+.mast-name{font:700 21px/1 var(--serif);letter-spacing:-.012em;white-space:nowrap}
+.mast-links{justify-self:end;display:flex;gap:26px;font:500 14px/1 var(--sans)}
+.mast-links a{display:inline-flex;align-items:center;min-height:44px}
+.mast-links a:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* article head */
+.head{max-width:780px;margin:0 auto;padding:60px 32px 8px}
+.kicker{font:700 13px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;margin:0 0 18px}
+h1{font-family:var(--serif);font-weight:600;font-size:52px;line-height:1.07;letter-spacing:-.017em;margin:0 0 20px;text-wrap:balance}
+.dek{font-size:23px;line-height:1.4;margin:0 0 26px;max-width:680px;text-wrap:pretty}
+.byline{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font:14px/1.4 var(--sans);margin:0 0 30px;padding-top:14px;border-top:1px solid var(--rule)}
+.byline b{font-weight:700}
+.byline .sep{color:var(--muted)}
+.byline .when{color:var(--muted)}
+.lede{max-width:640px;margin:0 0 26px;text-wrap:pretty}
+.skip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px;font:500 14px/1 var(--sans);margin:0 0 8px}
+.skip-l{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+.skip a{display:inline-flex;align-items:center;min-height:40px;gap:6px}
+.skip a::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg)}
+
+/* scrolly */
+.scrolly{max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:minmax(300px,370px) minmax(0,1fr);column-gap:64px}
+.steps{padding:18vh 0 22vh}
+.step{min-height:82vh}
+.step-in{border-top:2px solid var(--ink);padding-top:14px;opacity:.28;transition:opacity .45s ease}
+.step.is-on .step-in{opacity:1}
+.step p{margin:0 0 12px;font-size:20px;line-height:1.58;text-wrap:pretty}
+.step p:last-child{margin-bottom:0}
+.step strong{font-weight:650}
+.kd{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--dot);vertical-align:1px;margin-right:6px;flex:none}
+.kd.m{background:var(--more)} .kd.l{background:var(--less)} .kd.n{background:var(--dot)}
+.gcol{position:relative}
+figure{margin:0}
+.sticky{position:sticky;top:calc(var(--mast) + 22px);height:calc(100vh - var(--mast) - 44px);min-height:520px;display:flex;flex-direction:column}
+.g-head{flex:none;border-top:2px solid var(--ink);padding:10px 0 12px;min-height:66px}
+.g-title{font:700 16px/1.3 var(--sans);margin:0 0 6px}
+.g-legend{display:flex;flex-wrap:wrap;gap:4px 18px;font:14px/1.3 var(--sans);color:var(--ink)}
+.lg{display:inline-flex;align-items:center}
+.g-head .swap{animation:fadein .45s ease both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.g-stage{position:relative;flex:1;min-height:0}
+.g-stage canvas,.g-stage svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.g-stage svg{pointer-events:none;overflow:visible}
+.g-source{flex:none;margin:8px 0 0;padding-top:8px;border-top:1px solid var(--rule);font:13px/1.4 var(--sans);color:var(--muted)}
+.g-stage.fade{animation:fadein .3s ease both}
+
+/* svg overlay text */
+.ly{opacity:0;transition:opacity .35s ease}
+#g-svg[data-step="1"] .ly-grid,#g-svg[data-step="2"] .ly-grid,#g-svg[data-step="6"] .ly-grid{opacity:1}
+#g-svg[data-step="2"] .ly-cnt{opacity:1;transition-delay:.35s}
+#g-svg[data-step="3"] .ly-axis{opacity:1;transition-delay:.3s}
+#g-svg[data-step="3"] .ly-ann{opacity:1;transition-delay:.85s}
+.t-cat{font:600 13px var(--sans);fill:var(--ink)}
+.t-n{font:13px var(--sans);fill:var(--muted);font-variant-numeric:tabular-nums}
+.t-cnt{font:600 12px var(--sans);fill:var(--ink);font-variant-numeric:tabular-nums}
+.t-tick{font:12px var(--sans);fill:var(--muted);font-variant-numeric:tabular-nums}
+.t-axl{font:600 13px var(--sans);fill:var(--ink)}
+.t-ann-b{font:700 13px var(--sans);fill:var(--ink)}
+.t-ann{font:13px var(--sans);fill:var(--ink)}
+.t-halo{stroke:#fff;stroke-width:4px;stroke-linejoin:round;paint-order:stroke}
+.s-axis{stroke:var(--ink);stroke-width:1}
+.s-tick{stroke:var(--ink);stroke-width:1}
+.s-zero{stroke:var(--ink);stroke-width:1;stroke-dasharray:2 3}
+.s-lead{stroke:var(--ink);stroke-width:1}
+.s-grid{stroke:var(--rule);stroke-width:1}
+
+/* size change cards inside the graphic */
+.g-cards{position:absolute;inset:0;display:flex;align-items:center;gap:28px;opacity:0;pointer-events:none;transition:opacity .4s ease}
+.g-cards[data-step="4"],.g-cards[data-step="5"]{opacity:1;pointer-events:auto;transition-delay:.25s}
+.sc-group{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sc-group.shrank{flex:3}
+.sc-group.grew{flex:1;border-left:1px solid var(--rule);padding-left:28px}
+.sc-h{margin:0;font:700 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase}
+.sc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.sc-group.grew .sc-row{grid-template-columns:1fr}
+.sc{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-start;cursor:pointer;text-align:left;transition:opacity .45s ease;font-family:var(--sans);min-width:0}
+.sc:focus-visible{outline:2px solid var(--ink);outline-offset:6px}
+.g-cards[data-step="4"] .sc.grow,.g-cards[data-step="5"] .sc.shrink{opacity:.26}
+.sc-top{display:flex;align-items:flex-start;gap:8px;min-height:48px}
+.sc-dot{width:14px;height:14px;flex:none;margin-top:4px}
+.sc-name{font:650 17px/1.25 var(--serif)}
+.sc:hover .sc-name{text-decoration:underline;text-underline-offset:3px}
+.sc-when{font:13px/1.3 var(--sans);color:var(--muted);margin:2px 0 16px 22px}
+.pk{display:flex;align-items:flex-end;gap:12px;height:150px;margin:0 0 14px}
+.pk-col{position:relative;width:54px;height:100%;display:flex;align-items:flex-end}
+.pk-box{display:block;width:100%}
+.pk-before{height:var(--hb);border:1.5px solid var(--ink);background:#fff}
+.pk-ghost{position:absolute;left:0;bottom:0;width:100%;height:var(--hb);border:1.5px dashed var(--ink);opacity:.55}
+.pk-fill{position:relative;height:var(--hb);background:var(--c);transition:none}
+.sc.shrink{--c:var(--more)} .sc.grow{--c:var(--less)}
+.g-cards[data-step="4"] .sc.shrink .pk-fill,.g-cards[data-step="5"] .sc.shrink .pk-fill,.g-cards[data-step="5"] .sc.grow .pk-fill{height:var(--ha);transition:height .9s cubic-bezier(.65,0,.35,1) .75s}
+.sc-labels{display:flex;flex-direction:column;gap:5px;font:600 15px/1.25 var(--sans)}
+.sc-labels > span{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.sw{display:inline-block;flex:none;width:11px;height:11px;border:1.5px solid var(--ink);background:#fff}
+.sw.f{border:0;background:var(--c,var(--ink))}
+.lg .sw{margin-right:7px}
+.lg .sw.f{background:var(--ink)}
+.sc-price{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--rule);width:100%;font:14px/1.35 var(--sans)}
+.sc-big{margin:12px 0 0;font:700 28px/1 var(--sans);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.sc.shrink .sc-big{color:var(--more)}
+.sc.grow .sc-big{color:var(--less)}
+.sc-bigl{margin:5px 0 0;font:13px/1.35 var(--sans);color:var(--muted)}
+.sc-compact{display:none}
+/* narrow graphic: cards become rows */
+.g-stage.narrow .g-cards{flex-direction:column;align-items:stretch;justify-content:center;gap:10px}
+.g-stage.narrow .sc-group{gap:6px;flex:none}
+.g-stage.narrow .sc-group.grew{border-left:0;padding-left:0}
+.g-stage.narrow .sc-h{border-top:1px solid var(--rule);padding-top:7px;font-size:11px}
+.g-stage.narrow .sc-row{grid-template-columns:1fr;gap:6px}
+.g-stage.narrow .sc{display:grid;grid-template-columns:58px 1fr;grid-template-areas:"pk top" "pk cmp";column-gap:10px;align-items:start}
+.g-stage.narrow .pk{grid-area:pk;height:54px;margin:2px 0 0;gap:6px}
+.g-stage.narrow .pk-col{width:22px}
+.g-stage.narrow .sc-top{grid-area:top;min-height:0;gap:6px}
+.g-stage.narrow .sc-dot{width:10px;height:10px;margin-top:5px}
+.g-stage.narrow .sc-name{font-size:15px;line-height:1.3}
+.g-stage.narrow .sc-when,.g-stage.narrow .sc-labels,.g-stage.narrow .sc-price,.g-stage.narrow .sc-big,.g-stage.narrow .sc-bigl{display:none}
+.g-stage.narrow .sc-compact{display:block;grid-area:cmp;margin:2px 0 0 16px;font:13px/1.35 var(--sans)}
+.sc-compact b{font-weight:700}
+
+/* tooltip */
+.tip{position:absolute;z-index:5;left:0;top:0;width:max-content;max-width:250px;background:#fff;border:1px solid var(--ink);padding:9px 11px;font:13px/1.4 var(--sans);pointer-events:none;opacity:0;transition:opacity .12s ease}
+.tip.on{opacity:1}
+.tip b{display:block;font-weight:700;margin-bottom:3px}
+.tip span{display:block}
+.tip .tt-k{display:flex;align-items:center;margin-top:3px}
+.tip .tt-open{pointer-events:auto;margin-top:8px;min-height:40px;width:100%;border:1px solid var(--ink);background:var(--ink);color:#fff;font:600 13px var(--sans);cursor:pointer}
+.tip.touch{pointer-events:auto}
+
+/* tools */
+.tools{max-width:1280px;margin:0 auto;padding:0 32px 40px}
+.tool{max-width:760px;margin:0 auto;padding-top:88px}
+.tool.wide{max-width:1080px}
+.tool > h2,.method > h2,.notes > h2{margin:0}
+.tool > h2{border-top:2px solid var(--ink);padding-top:14px;font:600 36px/1.12 var(--serif);letter-spacing:-.012em}
+.tool-intro{margin:12px 0 0;max-width:640px;text-wrap:pretty}
+
+/* ask */
+.ask-form{display:flex;align-items:flex-end;gap:16px;margin-top:30px;border-bottom:1px solid var(--ink)}
+.ask-form:focus-within{border-bottom-color:var(--ink);box-shadow:0 1px 0 0 var(--ink)}
+.ask-form input{flex:1;min-width:0;border:0;background:transparent;padding:6px 0 12px;font:italic 400 30px/1.25 var(--serif);color:var(--ink);letter-spacing:-.005em;outline:none;border-radius:0}
+.ask-form input:not(:placeholder-shown){font-style:normal}
+.ask-form input::placeholder{color:var(--muted);opacity:1}
+.ask-form button{flex:none;margin-bottom:10px;height:44px;padding:0 22px;border:1px solid var(--ink);background:var(--ink);color:#fff;font:600 15px/1 var(--sans);cursor:pointer;border-radius:0;display:inline-flex;align-items:center;gap:10px}
+.ask-form button:disabled{background:#fff;color:var(--ink);cursor:progress}
+.ask-form button svg{width:16px;height:16px}
+.ask-try{display:flex;flex-wrap:wrap;align-items:center;gap:2px 22px;margin-top:14px;font:15px/1.3 var(--sans)}
+.ask-try-l{font:700 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ex{all:unset;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;font:15px/1.3 var(--sans)}
+.ex:hover{text-decoration-thickness:2px}
+.ex:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.ask-out{margin-top:30px}
+.ask-out:empty{display:none}
+.pend{border-top:1px solid var(--rule);padding-top:16px;font:14px/1.5 var(--sans)}
+.pend-bar{position:relative;height:2px;background:var(--rule);overflow:hidden;margin-bottom:14px}
+.pend-bar i{position:absolute;left:0;top:0;height:100%;width:100%;background:var(--ink);transform-origin:left;animation:pend 2.1s cubic-bezier(.4,0,.2,1) both}
+@keyframes pend{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.pend ol{list-style:none;margin:0;padding:0}
+.pend li{display:flex;gap:10px;align-items:baseline;animation:fadein .3s ease both}
+.pend li{padding:2px 0}
+.pend li i{flex:none;width:7px;height:7px;border:1.5px solid var(--ink);border-radius:50%;transform:translateY(-1px)}
+.pend li:last-child i{background:var(--ink)}
+.ans{animation:fadein .5s ease both}
+.ans-q{font:700 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.ans-body p{margin:0 0 14px;text-wrap:pretty}
+.ans-body ul{list-style:none;margin:0 0 18px;padding:0;border-top:1px solid var(--rule)}
+.ans-body li{padding:12px 0;border-bottom:1px solid var(--rule);line-height:1.5}
+.ans-body li button{all:unset;cursor:pointer;font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.ans-body li button:hover{text-decoration-thickness:2px}
+.ans-body li button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+details.how{margin-top:6px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);font:14px/1.5 var(--sans)}
+details.how summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:10px;font-weight:600;list-style:none}
+details.how summary::-webkit-details-marker{display:none}
+details.how summary::before{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .2s ease}
+details.how[open] summary::before{transform:rotate(45deg)}
+.calls{width:100%;border-collapse:collapse;margin:2px 0 14px}
+.calls th{font-weight:600;text-align:left;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px 6px 0;border-bottom:1px solid var(--rule)}
+.calls td{padding:8px 12px 8px 0;vertical-align:top;border-bottom:1px solid var(--rule)}
+.calls tr:last-child td{border-bottom:0}
+.calls .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:0}
+.calls code{font-size:13px}
+.ans-foot{margin:12px 0 0;font:13px/1.5 var(--sans);color:var(--muted)}
+.ans-foot code{font-size:12px}
+
+/* change table */
+.ch-controls{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 28px;margin-top:26px}
+.seg{display:inline-flex;border:1px solid var(--ink)}
+.seg button{all:unset;box-sizing:border-box;cursor:pointer;min-height:40px;padding:0 15px;display:inline-flex;align-items:center;gap:7px;font:500 14px/1 var(--sans);border-left:1px solid var(--ink);white-space:nowrap}
+.seg button:first-child{border-left:0}
+.seg button span{color:var(--muted);font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.seg button[aria-pressed="true"] span{color:#fff}
+.seg button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.cat-sel{display:inline-flex;align-items:center;gap:10px;font:14px/1 var(--sans)}
+.cat-sel span{font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.cat-sel select{font:500 15px var(--sans);color:var(--ink);background:#fff;border:0;border-bottom:1px solid var(--ink);border-radius:0;padding:8px 26px 8px 2px;min-height:40px;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 12px) 52%,calc(100% - 7px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;cursor:pointer}
+.ch-count{margin:18px 0 0;font:14px/1.4 var(--sans);color:var(--muted)}
+.ch-table{width:100%;border-collapse:collapse;margin-top:8px;font:15px/1.35 var(--sans)}
+.ch-table thead th{text-align:left;font:700 12px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--ink);vertical-align:bottom;white-space:nowrap}
+.ch-table th button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font:inherit;letter-spacing:inherit;text-transform:inherit}
+.ch-table th sup{font-size:10px;margin-left:2px}
+.ch-table th button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.ch-table th button::after{content:"";width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--rule)}
+.ch-table th[aria-sort="descending"] button::after{border-top-color:var(--ink)}
+.ch-table th[aria-sort="ascending"] button::after{border-top:0;border-bottom:5px solid var(--ink)}
+.ch-table th[aria-sort] button{color:var(--ink)}
+.ch-table tbody tr{cursor:pointer}
+.ch-table tbody tr:hover{background:#FAFAFA}
+.ch-table tbody tr:hover .rowbtn{text-decoration-thickness:2px}
+.ch-table td{padding:13px 14px 13px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.c-prod{width:34%}
+.rowbtn{all:unset;cursor:pointer;font-weight:600;line-height:1.35;text-decoration:underline;text-decoration-color:var(--rule);text-decoration-thickness:1px;text-underline-offset:3px}
+.rowbtn:hover{text-decoration-color:var(--ink)}
+.rowbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.c-cat{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+.c-size{width:18%}
+.chg{font-weight:600}
+.same,.promo{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+.c-price{width:15%;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c-price b{font-weight:600}
+.c-unit{width:23%;font-variant-numeric:tabular-nums}
+.u-line{display:flex;align-items:center;gap:10px}
+.u-pct{font-weight:700;min-width:62px}
+.u-abs{display:block;color:var(--muted);font-size:13px;margin-top:3px;white-space:nowrap}
+.ubar{position:relative;flex:none;width:96px;height:10px}
+.ubar-z{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink)}
+.ubar-f{position:absolute;top:0;height:100%}
+.ubar-f.m{background:var(--more)} .ubar-f.l{background:var(--less)}
+.ubar-f.over::after{content:"";position:absolute;right:5px;top:-2px;bottom:-2px;width:3px;background:#fff;transform:skewX(-20deg)}
+.c-when{white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right;padding-right:0!important}
+.ch-table thead th:last-child{text-align:right;padding-right:0}
+.ch-empty td{color:var(--muted);cursor:default}
+.more{all:unset;box-sizing:border-box;cursor:pointer;margin-top:18px;min-height:44px;padding:0 20px;border:1px solid var(--ink);display:inline-flex;align-items:center;font:600 14px/1 var(--sans)}
+.more:hover{background:var(--ink);color:#fff}
+.more:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* find */
+.find-box{margin-top:26px;border-bottom:1px solid var(--ink);display:flex;align-items:center;gap:12px}
+.find-box svg{width:20px;height:20px;flex:none}
+.find-box input{flex:1;min-width:0;border:0;outline:none;background:transparent;padding:12px 0;font:400 20px/1.3 var(--sans);color:var(--ink);border-radius:0}
+.find-box input::placeholder{color:var(--muted);opacity:1}
+.find-box:focus-within{box-shadow:0 1px 0 0 var(--ink)}
+.find-count{margin:14px 0 0;font:14px/1.5 var(--sans);color:var(--muted)}
+.find-count button{all:unset;cursor:pointer;color:var(--ink);text-decoration:underline;text-underline-offset:3px;margin:0 4px;min-height:32px}
+.find-count button:focus-visible{outline:2px solid var(--ink)}
+.find-list{list-style:none;margin:8px 0 0;padding:0;border-top:1px solid var(--rule)}
+.find-list:empty{border-top:0}
+.fr{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px 20px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--rule);font:15px/1.35 var(--sans)}
+.fr:hover .fr-name{text-decoration:underline;text-underline-offset:3px}
+.fr:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.fr-name{font-weight:600}
+.fr-meta{grid-column:1;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.fr-meta .kd{margin-left:10px}
+.fr-size{grid-row:1;grid-column:2;color:var(--ink);white-space:nowrap}
+.fr-price{grid-row:1;grid-column:3;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;min-width:60px}
+.fr mark{background:none;color:inherit;box-shadow:inset 0 -2px 0 var(--ink)}
+
+/* methodology */
+.method{max-width:760px;margin:96px auto 0;border:1px solid var(--rule);border-top:2px solid var(--ink);padding:26px 32px 28px}
+.method > h2{font:700 13px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
+.method ol{margin:0;padding:0;list-style:none;counter-reset:m}
+.method li{counter-increment:m;position:relative;padding-left:34px;margin:0 0 14px;font-size:17px;line-height:1.55;text-wrap:pretty}
+.method li::before{content:counter(m);position:absolute;left:0;top:2px;font:700 13px/1.6 var(--sans);width:22px;height:22px;border:1px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1}
+.method li strong{font-weight:650}
+.method code{font-size:14px}
+.stack{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--rule);font:14px/1.5 var(--sans)}
+.stack span{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--muted);margin-right:10px}
+.notes{max-width:760px;margin:44px auto 0}
+.notes > h2{font:700 13px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.notes ol{margin:14px 0 0;padding-left:22px;font-size:16px;line-height:1.55}
+.notes li{margin-bottom:8px;padding-left:4px}
+.notes li::marker{font:600 13px var(--sans)}
+.notes a.back-ref{text-decoration:none;font-family:var(--sans);font-size:13px;margin-left:4px}
+.bio{max-width:760px;margin:36px auto 0;padding-top:16px;border-top:1px solid var(--rule);font-style:italic;font-size:18px;line-height:1.55}
+
+/* footer */
+.foot{border-top:1px solid var(--ink);margin-top:72px}
+.foot-in{max-width:1280px;margin:0 auto;padding:18px 32px 40px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px}
+.foot a{text-decoration:none}
+.foot-name{font:700 19px/1 var(--serif)}
+.foot-gh{justify-self:end;display:inline-flex;align-items:center;min-height:44px;font:500 14px/1 var(--sans)}
+.foot-gh:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* drawer */
+.scrim{position:fixed;inset:0;z-index:60;background:rgba(18,18,18,.28);opacity:0;transition:opacity .25s ease}
+.scrim.on{opacity:1}
+.drawer{position:fixed;z-index:61;top:0;right:0;bottom:0;width:min(540px,100vw);background:#fff;border-left:1px solid var(--ink);overflow-y:auto;overscroll-behavior:contain;transform:translateX(100%);transition:transform .32s cubic-bezier(.3,.7,.2,1);outline:none}
+.drawer.on{transform:none}
+.dr-bar{position:sticky;top:0;z-index:2;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 28px;height:56px;border-bottom:1px solid var(--rule)}
+.dr-kicker{font:700 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:12px}
+.dr-kicker .kind{display:inline-flex;align-items:center;letter-spacing:0;text-transform:none;font-weight:600;font-size:13px}
+.dr-close{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;font:600 14px/1 var(--sans)}
+.dr-close svg{width:14px;height:14px}
+.dr-close:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.dr-body{padding:22px 28px 40px}
+.dr-title{font:600 28px/1.15 var(--serif);letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance}
+.dr-meta{font:13px/1.4 var(--sans);color:var(--muted);margin:0 0 16px}
+.dr-meta .sep{margin:0 6px}
+.dr-sum{font-size:19px;line-height:1.55;margin:0 0 22px;text-wrap:pretty}
+.dr-fig{margin:0 0 22px;padding-top:10px;border-top:2px solid var(--ink)}
+.dr-fig figcaption{font:700 14px/1.3 var(--sans);margin-bottom:4px}
+.dr-fig svg{display:block;width:100%;height:auto;overflow:visible}
+.c-step{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.c-base{stroke:var(--ink);stroke-width:1}
+.c-tick{font:12px var(--sans);fill:var(--muted)}
+.c-val{font:600 13px var(--sans);fill:var(--ink);font-variant-numeric:tabular-nums}
+.c-pct{font:700 13px var(--sans);fill:var(--ink)}
+.c-lead{stroke:var(--ink);stroke-width:1}
+.c-pt{stroke:#fff;stroke-width:2}
+.dr-table{width:100%;border-collapse:collapse;font:14px/1.35 var(--sans)}
+.dr-table caption{text-align:left;font:700 14px/1.3 var(--sans);padding:10px 0 8px;border-top:2px solid var(--ink)}
+.dr-table th{text-align:left;font:700 11px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 10px 8px 0;border-bottom:1px solid var(--ink)}
+.dr-table td{padding:10px 10px 10px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.dr-table .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dr-table th:last-child,.dr-table td:last-child{padding-right:0}
+.dr-table b{font-weight:700}
+.dr-table .pm{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.dr-foot{margin:14px 0 0;font:13px/1.5 var(--sans);color:var(--muted)}
+.dr-dl{display:grid;grid-template-columns:auto 1fr;gap:8px 20px;margin:0;padding-top:12px;border-top:2px solid var(--ink);font:15px/1.4 var(--sans)}
+.dr-dl dt{color:var(--muted)} .dr-dl dd{margin:0;font-weight:600}
+body.locked{overflow:hidden}
+
+/* tablet */
+@media (max-width:1100px){
+  .scrolly{grid-template-columns:minmax(260px,320px) minmax(0,1fr);column-gap:40px}
+  h1{font-size:46px}
+}
+/* phone */
+@media (max-width:760px){
+  :root{--mast:auto}
+  body{font-size:18px}
+  html{scroll-padding-top:12px}
+  .mast{position:relative}
+  .mast-in{height:auto;padding:0 16px;grid-template-columns:1fr auto;grid-template-areas:"back gh" "name name";row-gap:0}
+  .mast .back{grid-area:back;font-size:13px}
+  .mast-links{grid-area:gh}
+  .mast-links a.opt{display:none}
+  .mast-name{grid-area:name;justify-self:center;font-size:22px;padding:6px 0 14px}
+  .head{padding:28px 16px 4px}
+  .kicker{font-size:12px;margin-bottom:14px}
+  h1{font-size:33px;line-height:1.1;margin-bottom:16px}
+  .dek{font-size:20px;margin-bottom:20px}
+  .byline{font-size:13px;margin-bottom:22px;flex-direction:column;gap:2px}
+  .byline .sep{display:none}
+  .lede{font-size:18px}
+  .skip{gap:0 18px}
+  .scrolly{display:flex;flex-direction:column;padding:0}
+  .gcol{order:-1;position:sticky;top:0;z-index:1;height:58vh;background:#fff}
+  .sticky{position:relative;top:0;height:100%;min-height:0;padding:8px 16px 6px}
+  .g-head{min-height:0;padding:7px 0 8px}
+  .g-title{font-size:14px;margin-bottom:4px}
+  .g-legend{font-size:12px;gap:2px 12px}
+  .kd{width:9px;height:9px;margin-right:5px}
+  .g-source{display:none}
+  .steps{position:relative;z-index:2;padding:2vh 16px 12vh}
+  .step{min-height:0;margin:0 0 72vh}
+  .step:last-child{margin-bottom:24vh}
+  .step-in{background:#fff;border:1px solid var(--rule);border-top:2px solid var(--ink);padding:14px 16px 16px;opacity:1}
+  .step p{font-size:18px;line-height:1.55}
+  .tools{padding:0 16px 32px}
+  .tool{padding-top:64px}
+  .tool > h2{font-size:30px}
+  .tool-intro{font-size:18px}
+  .ask-form{gap:8px}
+  .ask-form input{font-size:23px;padding-bottom:10px}
+  .ask-form button{padding:0;width:44px;justify-content:center}
+  .ask-form button span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .ask-try{gap:0 16px;font-size:15px}
+  .ch-controls{display:block}
+  .seg{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--ink)}
+  .seg button{justify-content:center;padding:0 6px;min-height:44px;border-left:0;background:#fff}
+  .seg button:nth-child(-n+3){grid-column:span 2}
+  .seg button:nth-child(n+4){grid-column:span 3}
+  .cat-sel{margin-top:14px;display:flex}
+  .cat-sel select{flex:1;min-height:44px}
+  .ch-table thead{display:none}
+  .ch-table,.ch-table tbody{display:block}
+  .ch-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+  .ch-table tbody tr:first-child{border-top:1px solid var(--ink)}
+  .ch-table td{display:block;padding:0;border:0;width:auto!important}
+  .ch-table td::before{content:attr(data-l);display:block;font:700 10.5px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .c-prod{grid-column:1 / -1}
+  .c-prod::before{display:none!important}
+  .c-size{grid-column:1;grid-row:2}
+  .c-price{grid-column:2;grid-row:2;white-space:normal}
+  .c-unit{grid-column:1;grid-row:3}
+  .c-when{text-align:left;grid-column:2;grid-row:3}
+  .u-line{gap:8px}
+  .u-pct{min-width:0}
+  .ubar{width:56px}
+  .u-abs{white-space:normal}
+  .rowbtn{font-size:16px}
+  .fr{grid-template-columns:minmax(0,1fr) auto;padding:13px 0}
+  .fr-size{grid-row:2;grid-column:1;font-size:14px;color:var(--muted)}
+  .fr-meta{grid-row:3}
+  .fr-price{grid-row:1;grid-column:2}
+  .method{margin-top:64px;padding:20px 18px 22px}
+  .method li{font-size:16px;padding-left:32px}
+  .notes ol{font-size:15px}
+  .bio{font-size:17px}
+  .foot-in{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 16px;padding:18px 16px 32px}
+  .foot-name{order:-1;flex-basis:100%;font-size:21px;padding-bottom:6px}
+  .foot .back{font-size:14px}
+  .drawer{width:100vw;border-left:0}
+  .dr-bar{padding:0 16px}
+  .dr-body{padding:18px 16px 36px}
+  .dr-title{font-size:24px}
+  .dr-sum{font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important;transition-delay:0ms!important}
+  .g-stage.fade{animation:fadein .25s ease both!important}
+  .step-in{transition:opacity .2s ease!important}
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="mast-in">
+    <a class="back" href="https://karmanyaiyer.com"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 3 2 8l5 5M2 8h12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Karmanya Iyer</span></a>
+    <a class="mast-name" href="#top">Shrinkflation Detector</a>
+    <nav class="mast-links" aria-label="Sections">
+      <a class="opt" href="#ask">Ask the data</a>
+      <a class="opt" href="#changes">Every change</a>
+      <a href="https://github.com/KarmanyaIyer/shrinkflation-detector">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<article>
+  <header class="head" id="top">
+    <p class="kicker">Grocery prices</p>
+    <h1>Over 16 days at one Kroger, 38 prices rose, 36 fell and three packages shrank.</h1>
+    <p class="dek">The biggest shrink was a pack of Huggies baby wipes. Its label went from “192&nbsp;ct” to “56&nbsp;ct” at the same $6.99.</p>
+    <p class="byline"><span>By <b>Karmanya Iyer</b></span><span class="sep" aria-hidden="true">·</span><span class="when">Checked every morning at 7 a.m. Eastern</span></p>
+    <p class="lede">A scheduled job records the package size and shelf price of 1,242 grocery products at one Cincinnati-area Kroger<sup><a href="#fn2" id="r2" aria-label="Note 2">2</a></sup>, through Kroger’s public product API. It reads each size from the label text, divides price by size to get a price per unit, and stores a new record only when the size or price changes.</p>
+    <nav class="skip" aria-label="Jump to a tool"><span class="skip-l">Skip to</span><a href="#ask">Ask the data</a><a href="#changes">Every change</a><a href="#find">Find a product</a><a href="#method">How this works</a></nav>
+  </header>
+
+  <section class="scrolly" id="story" aria-label="What the checks found">
+    <div class="steps">
+      <div class="step is-on" data-step="1"><div class="step-in">
+        <p>Each dot is one product, grouped by category. Pantry is the largest group, with 276 items. Candy is the smallest, with 36.</p>
+      </div></div>
+      <div class="step" data-step="2"><div class="step-in">
+        <p>A change means a morning check found a different size or price than the check before it. That happened to <strong>78 products</strong>.</p>
+        <p>Color shows which way the price per unit went: <span class="nowrap"><i class="kd m"></i>up for 41,</span> <span class="nowrap"><i class="kd l"></i>down for 37.</span></p>
+      </div></div>
+      <div class="step" data-step="3"><div class="step-in">
+        <p>Prices moved in both directions, almost evenly: <strong>38 went up and 36 came down.</strong> Of those 74 moves, 57 were under 10% per unit.</p>
+      </div></div>
+      <div class="step" data-step="4"><div class="step-in">
+        <p><strong>Three packages shrank</strong> while the shelf price stayed the same.</p>
+        <p>Two are multipack labels whose text changed: Dove lost its “2&nbsp;pk” and Philadelphia lost the word “each”. That is what the label says, not a measurement of the package.<sup><a href="#fn1" id="r1" aria-label="Note 1">1</a></sup></p>
+      </div></div>
+      <div class="step" data-step="5"><div class="step-in">
+        <p><strong>One package grew.</strong> Khloud protein popcorn went from 4&nbsp;oz to 5&nbsp;oz at the same $5.99, so its price per ounce fell 20%.</p>
+      </div></div>
+      <div class="step" data-step="6"><div class="step-in">
+        <p>That is the whole record so far: 1,370 stored states across 1,242 products. <span class="pick-hint">Select a dot</span> to open one product’s history, or <a href="#ask">ask the data</a>.</p>
+      </div></div>
+    </div>
+    <div class="gcol">
+      <figure class="sticky" id="graphic" aria-label="Chart of all 1,242 products and the 78 recorded changes">
+        <figcaption class="g-head" id="g-head"></figcaption>
+        <div class="g-stage" id="g-stage">
+          <canvas id="g-canvas" aria-hidden="true"></canvas>
+          <svg id="g-svg" data-step="1" aria-hidden="true"></svg>
+          <div class="g-cards" id="g-cards" data-step="1"></div>
+          <div class="tip" id="g-tip" role="status"></div>
+        </div>
+        <p class="g-source">Source: Kroger public product API, one Cincinnati-area Kroger, Sep 7 to 23, 2026.</p>
+      </figure>
+    </div>
+  </section>
+
+  <div class="tools">
+    <section class="tool" id="ask" aria-labelledby="ask-h">
+      <h2 id="ask-h">Ask the data</h2>
+      <p class="tool-intro">An assistant answers from the same records. It can call four read-only tools, and each answer lists the calls it made.</p>
+      <form class="ask-form" id="ask-form" autocomplete="off">
+        <label class="sr" for="q">Your question</label>
+        <input id="q" name="q" type="text" maxlength="200" placeholder="Ask about a product, brand, or category">
+        <button type="submit" id="ask-btn"><span>Ask</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9 3l5 5-5 5M14 8H2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+      </form>
+      <div class="ask-try"><span class="ask-try-l">Try</span>
+        <button class="ex" type="button" data-chip>Did anything shrink this month?</button>
+        <button class="ex" type="button">Which cereals got cheaper?</button>
+        <button class="ex" type="button">What happened to Kodiak waffles?</button>
+      </div>
+      <div class="ask-out" id="ask-out" aria-live="polite"></div>
+    </section>
+
+    <section class="tool wide" id="changes" aria-labelledby="ch-h">
+      <h2 id="ch-h">Every change</h2>
+      <div class="ch-controls">
+        <div class="seg" role="group" aria-label="Kind of change" id="seg"></div>
+        <label class="cat-sel"><span>Category</span><select id="cat"></select></label>
+      </div>
+      <p class="ch-count" id="ch-count" aria-live="polite"></p>
+      <table class="ch-table">
+        <thead><tr>
+          <th scope="col" data-sort="product"><button type="button">Product</button></th>
+          <th scope="col">Package label</th>
+          <th scope="col">Shelf price</th>
+          <th scope="col" data-sort="unit"><button type="button">Price per unit</button></th>
+          <th scope="col" data-sort="when"><button type="button">When</button><sup><a href="#fn3" id="r3" aria-label="Note 3">3</a></sup></th>
+        </tr></thead>
+        <tbody id="ch-body"></tbody>
+      </table>
+      <button class="more" id="ch-more" type="button"></button>
+    </section>
+
+    <section class="tool" id="find" aria-labelledby="find-h">
+      <h2 id="find-h">Find a product</h2>
+      <div class="find-box">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m13 13 5 5" stroke="currentColor" stroke-width="1.6"/></svg>
+        <label class="sr" for="find-q">Search products</label>
+        <input id="find-q" type="search" placeholder="Search 1,242 products by name, brand, or category" autocomplete="off">
+      </div>
+      <p class="find-count" id="find-count"></p>
+      <ul class="find-list" id="find-list"></ul>
+    </section>
+
+    <aside class="method" id="method" aria-labelledby="m-h">
+      <h2 id="m-h">How this works</h2>
+      <ol>
+        <li><strong>Collection.</strong> Every morning at 11:00 UTC, which is 7 a.m. Eastern, a job asks Kroger’s public product API for all 1,242 products in 25 API calls. The Sep 23 run checked every product in 6 minutes 41 seconds with no errors.</li>
+        <li><strong>Reading labels.</strong> Each label, such as “12 oz”, “2 pk / 12 fl oz” or “192 ct”, becomes a quantity and a unit. Plain labels are parsed by rules. Hard ones go to DeepSeek V4.1 Flash, which has handled 433 of them for $0.08 in total. Every result is validated with Pydantic before it is stored.</li>
+        <li><strong>Unit price.</strong> The regular price divided by the quantity, in the product’s own unit: per&nbsp;oz, per&nbsp;fl&nbsp;oz or per count. Promo prices are recorded but not used.</li>
+        <li><strong>Storage.</strong> A new row is stored only when the size or price differs from the last check. 1,370 rows hold the full history of 1,242 products.</li>
+        <li><strong>Publishing.</strong> A change is published once a later check sees the new size or price. There are 78 so far: 38 price increases, 36 price cuts, 3 shrinks and 1 grow. A fifth kind, shrank but cheaper per unit, has no records yet.</li>
+        <li><strong>The assistant.</strong> It can only call four read-only tools: <code>search_products</code>, <code>get_product_history</code>, <code>list_recent_changes</code> and <code>get_tracking_stats</code>. Each call is traced with OpenTelemetry.</li>
+      </ol>
+      <p class="stack"><span>Stack</span>Python, FastAPI, Postgres on Neon, React and TypeScript, Docker, Azure Container Apps, GitHub Actions, OpenTelemetry</p>
+    </aside>
+
+    <section class="notes" aria-labelledby="n-h">
+      <h2 id="n-h">Notes</h2>
+      <ol>
+        <li id="fn1">Sizes come from the label text in Kroger’s API. A shrink means the label changed. Nobody weighed the package. <a class="back-ref" href="#r1" aria-label="Back to the text">Back</a></li>
+        <li id="fn2">All data comes from one store. Prices at other Kroger stores can differ. <a class="back-ref" href="#r2" aria-label="Back to the text">Back</a></li>
+        <li id="fn3">Dates are in the store’s time zone, Eastern time. “Sep 22 to 23” means the old size or price was last seen on Sep 22 and the new one first seen on Sep 23. <a class="back-ref" href="#r3" aria-label="Back to the table">Back</a></li>
+      </ol>
+    </section>
+
+    <p class="bio">Karmanya Iyer is an AI engineer with a finance degree. The code for this project is <a href="https://github.com/KarmanyaIyer/shrinkflation-detector">on GitHub</a>.</p>
+  </div>
+</article>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <a class="back" href="https://karmanyaiyer.com"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 3 2 8l5 5M2 8h12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Karmanya Iyer</span></a>
+    <span class="foot-name">Shrinkflation Detector</span>
+    <a class="foot-gh" href="https://github.com/KarmanyaIyer/shrinkflation-detector">Source on GitHub</a>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title" tabindex="-1" hidden>
+  <div class="dr-bar"><span class="dr-kicker" id="dr-kicker"></span><button class="dr-close" id="dr-close" type="button">Close<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="1.6"/></svg></button></div>
+  <div class="dr-body" id="dr-body"></div>
+</aside>
+
+<script type="application/json" id="d-stats">__STATS__</script>
+<script type="application/json" id="d-cats">__CATS__</script>
+<script type="application/json" id="d-ask">__ASK__</script>
+<script type="application/json" id="d-hist">__HIST__</script>
+<script type="application/json" id="d-changes">__CHANGES__</script>
+<script type="application/json" id="d-field">__FIELD__</script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const J = id => JSON.parse(document.getElementById(id).textContent);
+const STATS = J('d-stats');
+const FIELD = J('d-field').products;
+const CHANGES = J('d-changes').items;
+const CATS = J('d-cats');
+const ASK = J('d-ask');
+const HIST = J('d-hist');
+const ASK_Q = 'Did anything shrink this month?';
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MINUS = '−';
+const nf = new Intl.NumberFormat('en-US');
+const dayFmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' });
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dp = iso => { const p = dayFmt.formatToParts(new Date(iso)); return { m: p.find(x => x.type === 'month').value, d: p.find(x => x.type === 'day').value }; };
+const fDay = iso => { const a = dp(iso); return a.m + ' ' + a.d; };
+function fRange(a, b) {
+  const A = dp(a), B = dp(b);
+  if (A.m === B.m && A.d === B.d) return A.m + ' ' + A.d;
+  return A.m === B.m ? `${A.m} ${A.d} to ${B.d}` : `${A.m} ${A.d} to ${B.m} ${B.d}`;
+}
+const fMoney = v => '$' + Number(v).toFixed(2);
+function fPct(v, dig = 1) {
+  if (v == null || v === '') return '';
+  v = Number(v);
+  if (Math.abs(v) < 0.05) return '0%';
+  return (v > 0 ? '+' : MINUS) + Math.abs(v).toFixed(dig) + '%';
+}
+const unitName = u => (u === 'each' ? 'ea' : u);
+const fUnit = up => '$' + Number(up.value).toFixed(3);
+const KIND = { shrink: 'Shrank', grow: 'Grew', price_increase: 'Price up', price_decrease: 'Price down' };
+const isMore = k => k === 'shrink' || k === 'price_increase';
+const qt = s => '“' + s + '”';
+const T = s => new Date(s).getTime();
+
+const BY_ID = {};
+FIELD.forEach(p => { BY_ID[p.id] = p; });
+const CH = {};
+CHANGES.forEach(c => { CH[c.product.id] = c; });
+const SHORT = {
+  '0070559901480': 'Kodiak Power Waffles',
+  '0001600012222': 'Reese’s Puffs cereal',
+  '0003600048756': 'Huggies Simply Clean wipes',
+  '0007940071601': 'Dove shampoo and conditioner',
+  '0002100004024': 'Philadelphia cream cheese',
+  '0086001233561': 'Khloud protein popcorn',
+};
+const TOUCH = matchMedia('(pointer: coarse)').matches;
+$$('.pick-hint').forEach(el => { el.textContent = TOUCH ? 'Tap a dot' : 'Select a dot'; });
+
+/* ------------------------------------------------------------------ graphic */
+const stage = $('#g-stage'), canvas = $('#g-canvas'), ctx = canvas.getContext('2d');
+const svg = $('#g-svg'), cardsEl = $('#g-cards'), tip = $('#g-tip'), gHead = $('#g-head');
+const C_N = [196, 196, 196], C_M = [228, 87, 46], C_L = [23, 130, 122];
+const G = { step: 1, W: 0, H: 0, dpr: 1, narrow: false, raf: 0, hover: null, dots: [], geom: null };
+
+const catOrder = CATS.slice().sort((a, b) => b.products - a.products || a.category.localeCompare(b.category));
+FIELD.forEach(p => {
+  const ch = CH[p.id];
+  G.dots.push({ id: p.id, p, ch, kind: p.change, pct: ch ? Number(ch.unit_price_change_pct) : null,
+    x: 0, y: 0, r: 0, c: C_N.slice(), a: 0, f: null, t: null, delay: 0 });
+});
+const rank = d => (!d.kind ? 2 : isMore(d.kind) ? 0 : 1);
+const byCat = catOrder.map(c => G.dots.filter(d => d.p.category === c.category).sort((a, b) =>
+  rank(a) - rank(b) || (rank(a) === 0 ? b.pct - a.pct : rank(a) === 1 ? a.pct - b.pct : a.p.name.localeCompare(b.p.name))));
+G.drawOrder = G.dots.slice().sort((a, b) => (a.kind ? 1 : 0) - (b.kind ? 1 : 0) || ((a.kind === 'shrink' || a.kind === 'grow') ? 1 : 0) - ((b.kind === 'shrink' || b.kind === 'grow') ? 1 : 0));
+
+function gridGeom() {
+  const W = G.W, H = G.H, out = { pos: new Map(), labels: [], r: 2, pitch: 6 };
+  if (!G.narrow) {
+    const rows = 4, gapY = 12, Lw = 172;
+    const maxCols = Math.ceil(catOrder[0].products / rows);
+    const pitch = Math.min(12, (W - Lw) / maxCols, (H - 6 - gapY * (catOrder.length - 1)) / (rows * catOrder.length));
+    const blockH = rows * pitch;
+    let y = 3;
+    catOrder.forEach((c, ci) => {
+      const list = byCat[ci];
+      out.labels.push({ name: c.category, n: c.products, ch: c.changes, x: 0, y: y + blockH / 2, xn: Lw - 16,
+        cx: Lw + Math.ceil(c.changes / rows) * pitch + 5 });
+      list.forEach((d, i) => {
+        const col = Math.floor(i / rows), row = i % rows;
+        out.pos.set(d, { x: Lw + col * pitch + pitch / 2, y: y + row * pitch + pitch / 2 });
+      });
+      y += blockH + gapY;
+    });
+    out.r = pitch * 0.37; out.pitch = pitch; out.Lw = Lw;
+  } else {
+    const labelH = 16, gapY = 5;
+    let best = null;
+    for (let cols = 34; cols <= 96; cols++) {
+      const pitch = W / cols;
+      let tot = -gapY;
+      catOrder.forEach(c => { tot += labelH + Math.ceil(c.products / cols) * pitch + gapY; });
+      if (tot <= H - 2) { best = { cols, pitch }; break; }
+    }
+    if (!best) best = { cols: 96, pitch: W / 96 };
+    const { cols, pitch } = best;
+    let y = 0;
+    catOrder.forEach((c, ci) => {
+      const list = byCat[ci];
+      const rows = Math.ceil(c.products / cols);
+      out.labels.push({ name: c.category, n: c.products, ch: c.changes, x: 0, y: y + 11, above: true });
+      y += labelH;
+      list.forEach((d, i) => {
+        const col = Math.floor(i / rows), row = i % rows;
+        out.pos.set(d, { x: col * pitch + pitch / 2, y: y + row * pitch + pitch / 2 });
+      });
+      y += rows * pitch + gapY;
+    });
+    out.r = Math.max(1.6, pitch * 0.36); out.pitch = pitch;
+  }
+  return out;
+}
+
+function swarmGeom() {
+  const W = G.W, H = G.H, nar = G.narrow;
+  const r = nar ? 4.4 : 7, gap = nar ? 1 : 1.6, D = 2 * r + gap;
+  const offW = nar ? 88 : 132;
+  const x0 = nar ? 6 : 12, x1 = W - offW - (nar ? 14 : 34);
+  const sx = v => x0 + (v + 30) / 60 * (x1 - x0);
+  const cy = Math.round(H * (nar ? 0.56 : 0.5));
+  const pos = new Map(), placed = [];
+  const inScale = G.dots.filter(d => d.kind && Math.abs(d.pct) <= 30).sort((a, b) => a.pct - b.pct);
+  let minY = cy, maxY = cy;
+  inScale.forEach(d => {
+    const x = sx(d.pct);
+    let y = cy;
+    for (let k = 0; k < 600; k++) {
+      const off = k === 0 ? 0 : (k % 2 ? (k + 1) / 2 : -k / 2);
+      const yy = cy + off;
+      let ok = true;
+      for (const o of placed) { if ((o.x - x) ** 2 + (o.y - yy) ** 2 < D * D) { ok = false; break; } }
+      if (ok) { y = yy; break; }
+    }
+    placed.push({ x, y });
+    pos.set(d, { x, y });
+    minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+  });
+  const xa = x1 + (nar ? 30 : 58), xb = W - (nar ? 8 : 22);
+  const shr = G.dots.filter(d => d.kind === 'shrink').sort((a, b) => a.pct - b.pct);
+  const at100 = shr.filter(d => d.pct < 150), big = shr.filter(d => d.pct >= 150);
+  at100.forEach((d, i) => pos.set(d, { x: xa, y: cy + (i - (at100.length - 1) / 2) * D }));
+  big.forEach(d => pos.set(d, { x: xb, y: cy }));
+  return { pos, r, sx, cy, x0, x1, xa, xb, minY: Math.min(minY, cy - D), maxY: Math.max(maxY, cy + D) };
+}
+
+function cardGeom() {
+  const sr = stage.getBoundingClientRect(), pos = new Map();
+  $$('.sc', cardsEl).forEach(el => {
+    const b = $('.sc-dot', el).getBoundingClientRect();
+    pos.set(el.dataset.id, { x: b.left - sr.left + b.width / 2, y: b.top - sr.top + b.height / 2 });
+  });
+  return pos;
+}
+
+function targetFor(d, step, g, s, cp) {
+  const gp = g.pos.get(d);
+  const col = !d.kind ? C_N : isMore(d.kind) ? C_M : C_L;
+  const grid = (c, a) => ({ x: gp.x, y: gp.y, r: g.r, c, a });
+  const sw = s.pos.get(d);
+  const sizeK = d.kind === 'shrink' || d.kind === 'grow';
+  switch (step) {
+    case 1: return grid(C_N, 1);
+    case 2: return grid(col, d.kind ? 1 : 0.34);
+    case 3: return d.kind ? { x: sw.x, y: sw.y, r: s.r, c: col, a: 1 } : grid(C_N, 0);
+    case 4: case 5: {
+      if (sizeK) {
+        const p = cp.get(d.id) || sw;
+        const on = step === 4 ? d.kind === 'shrink' : d.kind === 'grow';
+        return { x: p.x, y: p.y, r: G.narrow ? 5 : 7, c: col, a: on ? 1 : 0.26 };
+      }
+      if (d.kind) return { x: sw.x, y: sw.y, r: s.r, c: col, a: 0 };
+      return grid(C_N, 0);
+    }
+    default: return grid(col, 1);
+  }
+}
+
+const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+function draw() {
+  ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
+  ctx.clearRect(0, 0, G.W, G.H);
+  for (const d of G.drawOrder) {
+    if (d.a < 0.01 || d.r <= 0) continue;
+    ctx.globalAlpha = d.a;
+    ctx.fillStyle = `rgb(${d.c[0] | 0},${d.c[1] | 0},${d.c[2] | 0})`;
+    ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.2832); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  const h = G.hover;
+  if (h && h.a > 0.2) {
+    ctx.strokeStyle = '#121212'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(h.x, h.y, h.r + 3, 0, 6.2832); ctx.stroke();
+  }
+}
+function tick(now) {
+  let done = true;
+  for (const d of G.dots) {
+    let k = (now - G.t0 - d.delay) / 700;
+    if (k < 1) done = false;
+    k = Math.max(0, Math.min(1, k));
+    const e = ease(k), f = d.f, t = d.t;
+    d.x = f.x + (t.x - f.x) * e; d.y = f.y + (t.y - f.y) * e; d.r = f.r + (t.r - f.r) * e;
+    d.a = f.a + (t.a - f.a) * e;
+    d.c[0] = f.c[0] + (t.c[0] - f.c[0]) * e; d.c[1] = f.c[1] + (t.c[1] - f.c[1]) * e; d.c[2] = f.c[2] + (t.c[2] - f.c[2]) * e;
+  }
+  draw();
+  if (!done) G.raf = requestAnimationFrame(tick);
+}
+
+function go(step, instant) {
+  G.step = step;
+  svg.dataset.step = step; cardsEl.dataset.step = step;
+  const { g, s } = G.geom;
+  const cp = cardGeom();
+  for (const d of G.dots) {
+    const t = targetFor(d, step, g, s, cp);
+    d.f = { x: d.x, y: d.y, r: d.r, c: d.c.slice(), a: d.a };
+    d.t = t;
+    const moves = Math.hypot(t.x - d.x, t.y - d.y) > 2;
+    d.delay = moves ? (t.x / Math.max(1, G.W)) * 240 : 0;
+  }
+  cancelAnimationFrame(G.raf);
+  if (instant || REDUCED) {
+    for (const d of G.dots) { d.x = d.t.x; d.y = d.t.y; d.r = d.t.r; d.a = d.t.a; d.c = d.t.c.slice(); }
+    draw();
+    if (REDUCED && !instant) { stage.classList.remove('fade'); void stage.offsetWidth; stage.classList.add('fade'); }
+    return;
+  }
+  G.t0 = performance.now();
+  G.raf = requestAnimationFrame(tick);
+}
+
+function renderOverlay() {
+  const { g, s } = G.geom, nar = G.narrow, W = G.W;
+  let h = '<g class="ly ly-grid">';
+  g.labels.forEach(L => {
+    if (L.above) h += `<text class="t-cat" x="0" y="${L.y}" style="font-size:11px">${esc(L.name)} <tspan class="t-n" style="font-size:11px">${nf.format(L.n)}</tspan></text>`;
+    else h += `<text class="t-cat" x="0" y="${L.y}" dy="0.35em">${esc(L.name)}</text><text class="t-n" x="${L.xn}" y="${L.y}" dy="0.35em" text-anchor="end">${nf.format(L.n)}</text>`;
+  });
+  h += '</g>';
+  // per category change count, shown in step 2 at the end of the colored block
+  if (!nar) {
+    h += '<g class="ly ly-cnt">';
+    g.labels.forEach(L => { if (L.ch) h += `<text class="t-cnt t-halo" x="${L.cx}" y="${L.y}" dy="0.35em">${L.ch}</text>`; });
+    h += '</g>';
+  }
+  // axis
+  const ay = s.maxY + (nar ? 16 : 26);
+  h += '<g class="ly ly-axis">';
+  h += `<line class="s-zero" x1="${s.sx(0)}" x2="${s.sx(0)}" y1="${s.minY - (nar ? 8 : 14)}" y2="${ay}"/>`;
+  h += `<line class="s-axis" x1="${s.x0}" x2="${s.x1}" y1="${ay}" y2="${ay}"/>`;
+  const ticks = nar ? [-30, -15, 0, 15, 30] : [-30, -20, -10, 0, 10, 20, 30];
+  ticks.forEach(v => {
+    const x = s.sx(v);
+    h += `<line class="s-tick" x1="${x}" x2="${x}" y1="${ay}" y2="${ay + 5}"/>`;
+    if (nar && v === 30) return;
+    h += `<text class="t-tick" x="${x}" y="${ay + 19}" text-anchor="${nar && v === -30 ? 'start' : 'middle'}"${nar ? ' style="font-size:11px"' : ''}>${v === 0 ? '0' : fPct(v, 0)}</text>`;
+  });
+  // broken axis to the off-scale shrinks
+  const bx = s.x1 + (nar ? 9 : 16);
+  h += `<line class="s-axis" x1="${bx + 6}" x2="${s.xb + (nar ? 4 : 8)}" y1="${ay}" y2="${ay}"/>`;
+  h += `<path class="s-axis" d="M${bx - 4},${ay + 5} L${bx + 1},${ay - 5} M${bx + 2},${ay + 5} L${bx + 7},${ay - 5}" fill="none"/>`;
+  [[s.xa, '+100%'], [s.xb, '+243%']].forEach(([x, l]) => {
+    h += `<line class="s-tick" x1="${x}" x2="${x}" y1="${ay}" y2="${ay + 5}"/><text class="t-tick" x="${x}" y="${ay + 19}" text-anchor="${nar && x === s.xb ? 'end' : 'middle'}"${nar ? ' style="font-size:11px"' : ''}>${l}</text>`;
+  });
+  const ly2 = ay + (nar ? 40 : 46);
+  h += `<text class="t-axl" x="${s.sx(0) - 10}" y="${ly2}" text-anchor="end"${nar ? ' style="font-size:11px"' : ''}>← Costs you less</text>`;
+  h += `<text class="t-axl" x="${s.sx(0) + 10}" y="${ly2}"${nar ? ' style="font-size:11px"' : ''}>Costs you more →</text>`;
+  h += '</g>';
+  // annotations
+  h += '<g class="ly ly-ann">';
+  const fs = nar ? ' style="font-size:11px"' : '';
+  const annTop = s.minY - (nar ? 40 : 64);
+  const kod = G.dots.find(d => d.id === '0070559901480'), ree = G.dots.find(d => d.id === '0001600012222');
+  [[kod, 'end', nar ? 38 : 0], [ree, 'start', 0]].forEach(([d, anchor, lift]) => {
+    const p = s.pos.get(d); if (!p) return;
+    const c = d.ch, top = annTop - lift;
+    const tx = anchor === 'end' ? p.x + (nar ? 4 : 6) : Math.max(0, p.x - (nar ? 4 : 6));
+    h += `<line class="s-lead" x1="${p.x}" x2="${p.x}" y1="${p.y - s.r - 3}" y2="${top + 8}"/>`;
+    h += `<line class="s-lead" x1="${p.x}" x2="${tx}" y1="${top + 8}" y2="${top + 8}"/>`;
+    h += `<text class="t-ann-b"${fs} x="${tx}" y="${top - (nar ? 13 : 16)}" text-anchor="${anchor}">${esc(SHORT[d.id])}</text>`;
+    h += `<text class="t-ann"${fs} x="${tx}" y="${top}" text-anchor="${anchor}">${fMoney(c.before.price_regular)} to ${fMoney(c.after.price_regular)}, ${fPct(c.unit_price_change_pct)}</text>`;
+  });
+  // off-scale label
+  const ox = (s.xa + s.xb) / 2;
+  h += `<text class="t-ann-b"${fs} x="${s.xb + (nar ? 4 : 8)}" y="${s.cy - (nar ? 34 : 46)}" text-anchor="end">3 shrinks</text>`;
+  h += `<text class="t-ann"${fs} x="${s.xb + (nar ? 4 : 8)}" y="${s.cy - (nar ? 21 : 29)}" text-anchor="end">off the scale</text>`;
+  h += '</g>';
+  svg.setAttribute('viewBox', `0 0 ${G.W} ${G.H}`);
+  svg.innerHTML = h;
+}
+
+const SIZE_CH = CHANGES.filter(c => c.kind === 'shrink' || c.kind === 'grow').sort((a, b) =>
+  (a.kind === 'grow') - (b.kind === 'grow') || Number(b.unit_price_change_pct) - Number(a.unit_price_change_pct) || a.after_seen_at.localeCompare(b.after_seen_at));
+function cardHTML(c) {
+  const b = c.before, a = c.after;
+  const qb = Number(b.display_quantity), qa = Number(a.display_quantity), mx = Math.max(qb, qa);
+  const hb = (qb / mx * 100).toFixed(1) + '%', ha = (qa / mx * 100).toFixed(1) + '%';
+  const same = b.price_regular === a.price_regular;
+  const u = unitName(a.unit_price.unit);
+  const price = same ? `Shelf price ${fMoney(a.price_regular)}, unchanged` : `Shelf price ${fMoney(b.price_regular)} to ${fMoney(a.price_regular)}`;
+  return `<button class="sc ${c.kind}" type="button" data-id="${c.product.id}" aria-label="${esc(c.product.description)}: label ${esc(b.size_text)} to ${esc(a.size_text)}. Open history.">
+    <span class="sc-top"><span class="sc-dot"></span><span class="sc-name">${esc(SHORT[c.product.id] || c.product.description)}</span></span>
+    <span class="sc-when">${fRange(c.before_seen_at, c.after_seen_at)}</span>
+    <span class="pk" aria-hidden="true" style="--hb:${hb};--ha:${ha}">
+      <span class="pk-col"><span class="pk-box pk-before"></span></span>
+      <span class="pk-col"><span class="pk-ghost"></span><span class="pk-box pk-fill"></span></span>
+    </span>
+    <span class="sc-labels"><span><i class="sw" aria-hidden="true"></i>${qt(esc(b.size_text))}</span><span><i class="sw f" aria-hidden="true"></i>${qt(esc(a.size_text))}</span></span>
+    <span class="sc-price">${price}</span>
+    <span class="sc-big">${fPct(c.unit_price_change_pct)}</span>
+    <span class="sc-bigl">Price per ${u}<br>${fUnit(b.unit_price)} to ${fUnit(a.unit_price)}</span>
+    <span class="sc-compact">${qt(esc(b.size_text))} to ${qt(esc(a.size_text))} at ${fMoney(a.price_regular)}<br><b>${fPct(c.unit_price_change_pct)}</b> per ${u}, ${fRange(c.before_seen_at, c.after_seen_at)}</span>
+  </button>`;
+}
+cardsEl.innerHTML =
+  `<div class="sc-group shrank"><p class="sc-h">Shrank</p><div class="sc-row">${SIZE_CH.filter(c => c.kind === 'shrink').map(cardHTML).join('')}</div></div>` +
+  `<div class="sc-group grew"><p class="sc-h">Grew</p><div class="sc-row">${SIZE_CH.filter(c => c.kind === 'grow').map(cardHTML).join('')}</div></div>`;
+$$('.sc', cardsEl).forEach(el => el.addEventListener('click', () => openProduct(el.dataset.id, el)));
+
+const LEG = {
+  one: '<span class="lg"><i class="kd n"></i>One product</span>',
+  dir: '<span class="lg"><i class="kd m"></i>Price per unit up</span><span class="lg"><i class="kd l"></i>Price per unit down</span><span class="lg"><i class="kd n"></i>No change</span>',
+  sw: '<span class="lg"><i class="kd m"></i>Up</span><span class="lg"><i class="kd l"></i>Down</span><span class="lg">One dot per product</span>',
+  pk: '<span class="lg"><i class="sw"></i>Label before</span><span class="lg"><i class="sw f"></i>Label after</span><span class="lg">Box height is the quantity read from the label</span>',
+};
+const HEADS = {
+  1: ['1,242 products, by category', LEG.one],
+  2: ['Products with a recorded change', LEG.dir],
+  3: ['Change in price per unit, 78 products', LEG.sw],
+  4: ['Package labels that changed size', LEG.pk],
+  5: ['Package labels that changed size', LEG.pk],
+  6: ['1,242 products, by category', LEG.dir],
+};
+let headKey = '';
+function setHead(n) {
+  const [t, l] = HEADS[n];
+  if (headKey === t + l) return;
+  headKey = t + l;
+  gHead.innerHTML = `<div class="swap"><p class="g-title">${t}</p><div class="g-legend">${l}</div></div>`;
+}
+
+function measure() {
+  const r = stage.getBoundingClientRect();
+  G.W = Math.max(200, Math.round(r.width)); G.H = Math.max(200, Math.round(r.height));
+  G.dpr = Math.min(3, window.devicePixelRatio || 1);
+  canvas.width = Math.round(G.W * G.dpr); canvas.height = Math.round(G.H * G.dpr);
+  G.narrow = G.W < 560;
+  stage.classList.toggle('narrow', G.narrow);
+  G.geom = { g: gridGeom(), s: swarmGeom() };
+  renderOverlay();
+}
+
+const stepEls = $$('.step');
+function currentStep() {
+  const trig = innerHeight * (G.narrow && innerWidth <= 760 ? 0.8 : 0.62);
+  let n = 1;
+  stepEls.forEach((el, i) => { if (el.getBoundingClientRect().top < trig) n = i + 1; });
+  return n;
+}
+function setStep(n, instant) {
+  stepEls.forEach((el, i) => el.classList.toggle('is-on', i + 1 === n));
+  setHead(n);
+  hideTip();
+  go(n, instant);
+}
+let scrollQueued = false;
+addEventListener('scroll', () => {
+  if (scrollQueued) return;
+  scrollQueued = true;
+  requestAnimationFrame(() => {
+    scrollQueued = false;
+    const n = currentStep();
+    if (n !== G.step) setStep(n);
+  });
+}, { passive: true });
+
+let lastW = 0, lastH = 0;
+new ResizeObserver(() => {
+  const r = stage.getBoundingClientRect();
+  if (Math.abs(r.width - lastW) < 1 && Math.abs(r.height - lastH) < 1) return;
+  lastW = r.width; lastH = r.height;
+  measure();
+  go(G.step, true);
+}).observe(stage);
+
+/* hover and tap */
+function pick(x, y) {
+  if (G.step === 4 || G.step === 5) return null;
+  let best = null, bd = Infinity;
+  for (const d of G.dots) {
+    if (d.a < 0.3) continue;
+    const dd = (d.x - x) ** 2 + (d.y - y) ** 2;
+    if (dd < bd) { bd = dd; best = d; }
+  }
+  if (!best) return null;
+  return Math.sqrt(bd) <= Math.max(best.r + 5, TOUCH ? 12 : 7) ? best : null;
+}
+function tipHTML(d, touch) {
+  const p = d.p, ch = d.ch;
+  let h = `<b>${esc(p.name)}</b><span>${qt(esc(p.size))}, ${fMoney(p.price)}</span>`;
+  if (ch) h += `<span class="tt-k"><i class="kd ${isMore(d.kind) ? 'm' : 'l'}"></i>${KIND[d.kind]}, ${fPct(ch.unit_price_change_pct)} per ${unitName(ch.after.unit_price.unit)}</span>`;
+  else h += '<span class="tt-k">No change recorded</span>';
+  if (touch) h += '<button class="tt-open" type="button">Open history</button>';
+  return h;
+}
+function showTip(d, touch) {
+  G.hover = d; draw();
+  tip.innerHTML = tipHTML(d, touch);
+  tip.classList.toggle('touch', !!touch);
+  tip.classList.add('on');
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = d.x + 14, y = d.y - th - 10;
+  if (x + tw > G.W) x = d.x - tw - 14;
+  if (x < 0) x = Math.max(0, Math.min(G.W - tw, d.x - tw / 2));
+  if (y < 0) y = d.y + 14;
+  tip.style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px)`;
+  if (touch) { const b = $('.tt-open', tip); b.onclick = () => openProduct(d.id, b); }
+}
+function hideTip() { if (!G.hover && !tip.classList.contains('on')) return; G.hover = null; tip.classList.remove('on', 'touch'); draw(); }
+function localXY(e) { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+canvas.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  const d = pick(...localXY(e));
+  canvas.style.cursor = d ? 'pointer' : 'default';
+  if (d) { if (d !== G.hover) showTip(d, false); } else hideTip();
+});
+canvas.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hideTip(); });
+canvas.addEventListener('click', e => {
+  const d = pick(...localXY(e));
+  if (!d) { hideTip(); return; }
+  if (TOUCH) showTip(d, true); else openProduct(d.id, canvas);
+});
+
+/* ------------------------------------------------------------------ ask */
+const askForm = $('#ask-form'), qIn = $('#q'), askBtn = $('#ask-btn'), askOut = $('#ask-out');
+let asking = false;
+if (innerWidth <= 760) { qIn.placeholder = 'Ask about a product or brand'; $('#find-q').placeholder = 'Search 1,242 products'; }
+function argText(a) { return Object.entries(a).map(([k, v]) => `${k}: ${typeof v === 'string' ? '"' + esc(v) + '"' : esc(v)}`).join(', '); }
+function answerHTML() {
+  const tc = ASK.tool_calls;
+  const paras = ASK.answer.split(/\n\n+/).map(s => s.replace(/(^|[\s(])-(\d)/g, '$1' + MINUS + '$2'));
+  const ids = tc.flatMap(c => c.product_ids || []);
+  let body = `<p>${esc(paras[0])}</p><ul>`;
+  paras.slice(1).forEach((p, i) => {
+    const k = p.indexOf(':');
+    const id = ids[i];
+    body += k > 0 && id && BY_ID[id] ? `<li><button type="button" data-id="${id}">${esc(p.slice(0, k))}</button>${esc(p.slice(k))}</li>` : `<li>${esc(p)}</li>`;
+  });
+  body += '</ul>';
+  const rows = tc.map(c => `<tr><td><code>${esc(c.name)}</code></td><td><code>${argText(c.arguments)}</code></td><td class="n">${(c.product_ids || []).length} products</td><td class="n">${nf.format(c.ms)} ms</td></tr>`).join('');
+  return `<div class="ans">
+    <div class="ans-body">${body}</div>
+    <details class="how"><summary>How this answer was found</summary>
+      <table class="calls"><thead><tr><th>Tool</th><th>Arguments</th><th class="n">Result</th><th class="n">Time</th></tr></thead><tbody>${rows}</tbody></table>
+    </details>
+    <p class="ans-foot">Answered by <code>${esc(ASK.model)}</code> in ${(ASK.latency_ms / 1000).toFixed(2)} s using ${nf.format(ASK.total_tokens)} tokens. Trace <code>${esc(ASK.trace_id.slice(0, 12))}</code></p>
+  </div>`;
+}
+function runAsk() {
+  if (asking) return;
+  asking = true;
+  qIn.value = ASK_Q;
+  askBtn.disabled = true; askBtn.firstElementChild.textContent = 'Asking';
+  const tc = ASK.tool_calls[0];
+  askOut.innerHTML = `<div class="pend"><div class="pend-bar"><i></i></div><ol id="pend-log"></ol></div>`;
+  const log = $('#pend-log');
+  const lines = [
+    [0, 'Reading the question'],
+    [600, `Calling <code>${esc(tc.name)}</code> with <code>${argText(tc.arguments)}</code>`],
+    [1150, `<code>${esc(tc.name)}</code> returned ${tc.product_ids.length} products in ${tc.ms} ms`],
+    [1600, 'Writing the answer'],
+  ];
+  lines.forEach(([t, html]) => setTimeout(() => { log.insertAdjacentHTML('beforeend', `<li><i aria-hidden="true"></i><div>${html}</div></li>`); }, t));
+  setTimeout(() => {
+    askOut.innerHTML = answerHTML();
+    $$('.ans-body li button', askOut).forEach(b => b.addEventListener('click', () => openProduct(b.dataset.id, b)));
+    askBtn.disabled = false; askBtn.firstElementChild.textContent = 'Ask';
+    asking = false;
+  }, 2100);
+}
+askForm.addEventListener('submit', e => { e.preventDefault(); runAsk(); });
+$$('.ex').forEach(b => b.addEventListener('click', () => { qIn.value = b.textContent; runAsk(); }));
+
+/* ------------------------------------------------------------------ change table */
+const TB = { kind: 'all', cat: '', sort: 'when', dir: -1, all: false };
+const KIND_ORDER = [['all', 'All'], ['shrink', 'Shrank'], ['grow', 'Grew'], ['price_increase', 'Price up'], ['price_decrease', 'Price down']];
+const kindCount = k => (k === 'all' ? CHANGES.length : CHANGES.filter(c => c.kind === k).length);
+$('#seg').innerHTML = KIND_ORDER.map(([k, l]) => `<button type="button" data-kind="${k}" aria-pressed="${k === 'all'}">${l} <span>${kindCount(k)}</span></button>`).join('');
+$('#cat').innerHTML = '<option value="">All categories</option>' + CATS.slice().sort((a, b) => a.category.localeCompare(b.category))
+  .map(c => `<option value="${esc(c.category)}">${esc(c.category)} (${c.changes})</option>`).join('');
+function tableRows() {
+  const r = CHANGES.filter(c => (TB.kind === 'all' || c.kind === TB.kind) && (!TB.cat || c.product.category === TB.cat));
+  r.sort((a, b) => {
+    let v;
+    if (TB.sort === 'when') v = a.after_seen_at.localeCompare(b.after_seen_at) || Math.abs(a.unit_price_change_pct) - Math.abs(b.unit_price_change_pct);
+    else if (TB.sort === 'unit') v = Number(a.unit_price_change_pct) - Number(b.unit_price_change_pct);
+    else v = a.product.description.localeCompare(b.product.description);
+    return v * TB.dir;
+  });
+  return r;
+}
+function ubar(v) {
+  const cap = 30, w = Math.min(Math.abs(v), cap) / cap * 50, over = Math.abs(v) > cap;
+  return `<span class="ubar" aria-hidden="true"><span class="ubar-z"></span><span class="ubar-f ${v > 0 ? 'm' : 'l'}${over ? ' over' : ''}" style="${v > 0 ? 'left' : 'right'}:50%;width:${w}%"></span></span>`;
+}
+function rowHTML(c) {
+  const b = c.before, a = c.after;
+  const sizeCh = b.size_text !== a.size_text, priceCh = b.price_regular !== a.price_regular;
+  const v = Number(c.unit_price_change_pct), u = unitName(a.unit_price.unit);
+  const size = sizeCh ? `<span class="chg">${qt(esc(b.size_text))} to ${qt(esc(a.size_text))}</span>` : `${qt(esc(a.size_text))}<span class="same">No size change</span>`;
+  const promo = a.price_promo ? `<span class="promo">Promo ${fMoney(a.price_promo)}</span>` : '';
+  const price = priceCh ? `${fMoney(b.price_regular)} to <b>${fMoney(a.price_regular)}</b>${promo}` : `${fMoney(a.price_regular)}<span class="same">Unchanged</span>`;
+  return `<tr data-id="${c.product.id}">
+    <td class="c-prod"><button class="rowbtn" type="button" data-id="${c.product.id}">${esc(c.product.description)}</button><span class="c-cat">${esc(c.product.category)}</span></td>
+    <td class="c-size" data-l="Package label">${size}</td>
+    <td class="c-price" data-l="Shelf price">${price}</td>
+    <td class="c-unit" data-l="Price per unit"><span class="u-line">${ubar(v)}<span class="u-pct">${fPct(v)}</span></span><span class="u-abs">${fUnit(b.unit_price)} to ${fUnit(a.unit_price)} per ${u}</span></td>
+    <td class="c-when" data-l="When">${fRange(c.before_seen_at, c.after_seen_at)}</td>
+  </tr>`;
+}
+function renderTable() {
+  const rows = tableRows();
+  const limit = innerWidth <= 760 ? 8 : 12;
+  const shown = TB.all ? rows : rows.slice(0, limit);
+  const kindLabel = { all: 'changes', shrink: 'shrinks', grow: 'grows', price_increase: 'price increases', price_decrease: 'price cuts' }[TB.kind];
+  $('#ch-count').textContent = rows.length === 1 ? `1 ${kindLabel === 'changes' ? 'change' : kindLabel.replace(/s$/, '').replace(/rea$/, 'rease')}${TB.cat ? ' in ' + TB.cat : ''}` : `${rows.length} ${kindLabel}${TB.cat ? ' in ' + TB.cat : ''}`;
+  $('#ch-body').innerHTML = shown.length ? shown.map(rowHTML).join('') : '<tr class="ch-empty"><td colspan="5">No changes match these filters.</td></tr>';
+  const more = $('#ch-more');
+  more.hidden = rows.length <= limit;
+  more.textContent = TB.all ? 'Show fewer' : `Show all ${rows.length}`;
+  $$('.ch-table thead th[data-sort]').forEach(th => {
+    if (th.dataset.sort === TB.sort) th.setAttribute('aria-sort', TB.dir < 0 ? 'descending' : 'ascending'); else th.removeAttribute('aria-sort');
+  });
+}
+$('#seg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  TB.kind = b.dataset.kind;
+  $$('#seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  renderTable();
+});
+$('#cat').addEventListener('change', e => { TB.cat = e.target.value; renderTable(); });
+$('#ch-more').addEventListener('click', () => { TB.all = !TB.all; renderTable(); });
+$$('.ch-table thead th[data-sort] button').forEach(b => b.addEventListener('click', () => {
+  const k = b.parentElement.dataset.sort;
+  if (TB.sort === k) TB.dir *= -1; else { TB.sort = k; TB.dir = k === 'product' ? 1 : -1; }
+  renderTable();
+}));
+$('#ch-body').addEventListener('click', e => {
+  const tr = e.target.closest('tr[data-id]'); if (!tr) return;
+  openProduct(tr.dataset.id, $('.rowbtn', tr));
+});
+renderTable();
+
+/* ------------------------------------------------------------------ find */
+const findIn = $('#find-q'), findList = $('#find-list'), findCount = $('#find-count');
+const SUGGEST = ['wipes', 'peanut butter', 'Cheerios', 'dog food'];
+function hl(text, toks) {
+  let out = esc(text);
+  toks.forEach(t => { if (t.length < 2) return; const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'); out = out.replace(re, '<mark>$1</mark>'); });
+  return out;
+}
+function renderFind() {
+  const s = findIn.value.trim().toLowerCase();
+  if (!s) {
+    findCount.innerHTML = 'Try' + SUGGEST.map(w => ` <button type="button" data-s="${w}">${w}</button>`).join('');
+    findList.innerHTML = '';
+    return;
+  }
+  const toks = s.split(/\s+/);
+  const res = FIELD.filter(p => { const hay = (p.name + ' ' + p.brand + ' ' + p.category).toLowerCase(); return toks.every(t => hay.includes(t)); })
+    .sort((a, b) => (b.change ? 1 : 0) - (a.change ? 1 : 0) || a.name.localeCompare(b.name));
+  const top = res.slice(0, 10);
+  findCount.textContent = res.length === 0 ? 'No products match.' : res.length > 10 ? `Showing 10 of ${nf.format(res.length)} matches` : `${res.length} ${res.length === 1 ? 'match' : 'matches'}`;
+  findList.innerHTML = top.map(p => `<li><button class="fr" type="button" data-id="${p.id}">
+    <span class="fr-name">${hl(p.name, toks)}</span>
+    <span class="fr-size">${qt(esc(p.size))}</span>
+    <span class="fr-price">${fMoney(p.price)}</span>
+    <span class="fr-meta">${esc(p.brand)}, ${esc(p.category)}${p.change ? `<i class="kd ${isMore(p.change) ? 'm' : 'l'}"></i>${KIND[p.change]}` : ''}</span>
+  </button></li>`).join('');
+}
+findIn.addEventListener('input', renderFind);
+findCount.addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if (!b) return; findIn.value = b.dataset.s; renderFind(); findIn.focus(); });
+findList.addEventListener('click', e => { const b = e.target.closest('.fr'); if (b) openProduct(b.dataset.id, b); });
+renderFind();
+
+/* ------------------------------------------------------------------ drawer */
+const drawer = $('#drawer'), scrim = $('#scrim'), drBody = $('#dr-body'), drKicker = $('#dr-kicker');
+let opener = null;
+const sameState = (a, b) => a.size_text === b.size_text && a.price_regular === b.price_regular && a.price_promo === b.price_promo;
+function summary(states) {
+  const m = [];
+  states.forEach(s => { const l = m[m.length - 1]; if (l && sameState(l, s)) { l.last_seen_at = s.last_seen_at; } else m.push({ ...s }); });
+  const priceStr = s => fMoney(s.price_regular) + (s.price_promo ? ` with a ${fMoney(s.price_promo)} promo` : '');
+  let out = `Labeled ${qt(esc(m[0].size_text))} at ${priceStr(m[0])}`;
+  if (m.length === 1) return out + ` since ${fDay(m[0].first_seen_at)}.`;
+  out += ` from ${fDay(m[0].first_seen_at)} to ${fDay(m[0].last_seen_at)}`;
+  for (let i = 1; i < m.length; i++) {
+    const a = m[i - 1], b = m[i], parts = [];
+    const sizeCh = a.size_text !== b.size_text;
+    const priceCh = a.price_regular !== b.price_regular || a.price_promo !== b.price_promo;
+    if (sizeCh) parts.push(qt(esc(b.size_text)));
+    if (priceCh) parts.push((sizeCh ? 'at ' : '') + priceStr(b));
+    else if (sizeCh) parts.push('at the same price');
+    const last = i === m.length - 1;
+    out += `, then ${parts.join(' ')} ${last ? 'since ' + fDay(b.first_seen_at) : 'from ' + fDay(b.first_seen_at) + ' to ' + fDay(b.last_seen_at)}`;
+  }
+  return out + '.';
+}
+function stepChart(states, W) {
+  const H = 196, m = { t: 30, r: 14, b: 30, l: 8 };
+  const t0 = T(states[0].first_seen_at), tLast = T(states[states.length - 1].last_seen_at);
+  const t1 = Math.max(tLast, t0 + 86400000) + 10 * 3600000;
+  const vals = states.map(s => Number(s.unit_price.value));
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const span = hi - lo || hi * 0.2;
+  lo = Math.max(0, lo - span * 0.55); hi += span * 0.55;
+  const sx = t => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r);
+  const sy = v => m.t + (1 - (v - lo) / (hi - lo)) * (H - m.t - m.b);
+  let d = '';
+  states.forEach((s, i) => {
+    const xs = sx(T(s.first_seen_at)), xe = i < states.length - 1 ? sx(T(states[i + 1].first_seen_at)) : sx(t1);
+    d += (i === 0 ? `M${xs.toFixed(1)},${sy(vals[i]).toFixed(1)}` : `V${sy(vals[i]).toFixed(1)}`) + `H${xe.toFixed(1)}`;
+  });
+  const base = H - m.b + 0.5;
+  let h = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Step chart of price per unit over time">`;
+  h += `<line class="c-base" x1="${m.l}" x2="${W - m.r}" y1="${base}" y2="${base}"/>`;
+  // x ticks at state starts and the last check
+  const tks = [];
+  states.forEach((s, i) => { if (i === 0 || vals[i] !== vals[i - 1] || s.size_text !== states[i - 1].size_text) tks.push(T(s.first_seen_at)); });
+  tks.push(tLast);
+  let lastX = -99;
+  tks.forEach((t, i) => {
+    const x = sx(t);
+    if (x - lastX < 46 && i !== tks.length - 1) return;
+    if (i === tks.length - 1 && x - lastX < 46) return;
+    lastX = x;
+    const anchor = i === 0 ? 'start' : i === tks.length - 1 ? 'end' : 'middle';
+    h += `<line class="c-base" x1="${x}" x2="${x}" y1="${base}" y2="${base + 5}"/><text class="c-tick" x="${x}" y="${base + 19}" text-anchor="${anchor}">${fDay(new Date(t).toISOString())}</text>`;
+  });
+  h += `<path class="c-step" d="${d}"/>`;
+  // value labels at the start of each run, change markers at each step
+  const u = unitName(states[0].unit_price.unit);
+  states.forEach((s, i) => {
+    if (i > 0 && vals[i] === vals[i - 1]) return;
+    const x = sx(T(s.first_seen_at)), y = sy(vals[i]);
+    if (i === 0) {
+      const nxt = states.findIndex((t, j) => j > 0 && vals[j] !== vals[0]);
+      const tight = nxt > 0 && sx(T(states[nxt].first_seen_at)) - x < 96;
+      const below = tight && vals[nxt] > vals[0];
+      h += `<text class="c-val" x="${x}" y="${below ? y + 20 : y - 10}">${fUnit(s.unit_price)}/${u}</text>`;
+      return;
+    }
+    const up = vals[i] > vals[i - 1];
+    const pct = (vals[i] / vals[i - 1] - 1) * 100;
+    const right = x < W * 0.6;
+    const lx = right ? x + 10 : x - 10, anchor = right ? 'start' : 'end';
+    const ly = up ? y - 10 : y + 20;
+    h += `<circle class="c-pt" cx="${x}" cy="${y}" r="5.5" fill="${up ? '#E4572E' : '#17827A'}"/>`;
+    h += `<text class="c-val" x="${lx}" y="${ly}" text-anchor="${anchor}"><tspan class="c-pct">${fPct(pct)}</tspan> to ${fUnit(s.unit_price)}/${u}</text>`;
+  });
+  h += '</svg>';
+  return h;
+}
+function stateTable(states) {
+  const u = unitName(states[0].unit_price.unit);
+  const rows = states.map((s, i) => {
+    const p = states[i - 1];
+    const sc = p && p.size_text !== s.size_text, pc = p && (p.price_regular !== s.price_regular || p.price_promo !== s.price_promo);
+    const parse = s.parse_method === 'llm' ? `Model parse, ${Number(s.parse_confidence).toFixed(2)}` : 'Rule parse';
+    return `<tr><td>${sc ? '<b>' : ''}${qt(esc(s.size_text))}${sc ? '</b>' : ''}<span class="pm">${parse}</span></td>
+      <td class="n">${pc ? '<b>' : ''}${fMoney(s.price_regular)}${pc ? '</b>' : ''}${s.price_promo ? `<span class="pm">Promo ${fMoney(s.price_promo)}</span>` : ''}</td>
+      <td class="n">${fUnit(s.unit_price)}</td><td>${fRange(s.first_seen_at, s.last_seen_at)}</td><td class="n">${s.observations}</td></tr>`;
+  }).join('');
+  return `<table class="dr-table"><caption>Stored states</caption><thead><tr><th>Label</th><th class="n">Price</th><th class="n">Per ${u}</th><th>Seen</th><th class="n">Checks</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function openProduct(id, from) {
+  const p = BY_ID[id]; if (!p) return;
+  opener = from || document.activeElement;
+  const h = HIST[id], ch = CH[id];
+  const states = h ? h.snapshots : ch ? [ch.before, ch.after] : null;
+  drKicker.innerHTML = `<span>${esc(p.category)}</span>` + (p.change ? `<span class="kind"><i class="kd ${isMore(p.change) ? 'm' : 'l'}"></i>${KIND[p.change]}</span>` : '');
+  scrim.hidden = false; drawer.hidden = false;
+  document.body.classList.add('locked');
+  let html = `<h3 class="dr-title" id="dr-title">${esc(p.name)}</h3><p class="dr-meta">${esc(p.brand)}<span class="sep">·</span>UPC ${esc(p.id)}</p>`;
+  if (states) html += `<p class="dr-sum">${summary(states)}</p><figure class="dr-fig"><figcaption>Price per ${unitName(states[0].unit_price.unit)}, regular price</figcaption><div class="dr-chart"></div></figure>${stateTable(states)}`;
+  else html += `<p class="dr-sum">No size or price change recorded. The latest check read ${qt(esc(p.size))} at ${fMoney(p.price)}.</p><dl class="dr-dl"><dt>Label</dt><dd>${qt(esc(p.size))}</dd><dt>Shelf price</dt><dd>${fMoney(p.price)}</dd><dt>Changes</dt><dd>None</dd></dl>`;
+  drBody.innerHTML = html;
+  drawer.scrollTop = 0;
+  if (states) { const box = $('.dr-chart', drBody); box.innerHTML = stepChart(states, Math.round(box.getBoundingClientRect().width) || 460); }
+  requestAnimationFrame(() => { scrim.classList.add('on'); drawer.classList.add('on'); $('#dr-close').focus({ preventScroll: true }); });
+}
+function closeDrawer() {
+  if (drawer.hidden) return;
+  scrim.classList.remove('on'); drawer.classList.remove('on');
+  document.body.classList.remove('locked');
+  setTimeout(() => { drawer.hidden = true; scrim.hidden = true; }, REDUCED ? 0 : 320);
+  if (opener && opener.focus) opener.focus({ preventScroll: true });
+}
+$('#dr-close').addEventListener('click', closeDrawer);
+scrim.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => {
+  if (drawer.hidden) { if (e.key === 'Escape') hideTip(); return; }
+  if (e.key === 'Escape') { e.preventDefault(); closeDrawer(); return; }
+  if (e.key === 'Tab') {
+    const f = $$('button, a[href], [tabindex]:not([tabindex="-1"])', drawer).filter(x => x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+window.__openProduct = openProduct;
+window.__story = G;
+
+/* ------------------------------------------------------------------ init */
+measure();
+for (const d of G.dots) { const t = targetFor(d, 1, G.geom.g, G.geom.s, new Map()); Object.assign(d, { x: t.x, y: t.y, r: t.r, a: t.a, c: t.c.slice() }); }
+lastW = stage.getBoundingClientRect().width; lastH = stage.getBoundingClientRect().height;
+const n0 = currentStep();
+setStep(n0, true);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measure(); go(G.step, true); });
+})();
+</script>
+</body>
+</html>
