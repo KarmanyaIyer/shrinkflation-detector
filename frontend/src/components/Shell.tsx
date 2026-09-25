@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigationType } from "react-router";
 
+import { ArticleDownContext } from "../lib/articleStatus";
 import { isDrawerPath } from "../lib/drawerRoute";
 
 export const GITHUB_URL = "https://github.com/KarmanyaIyer/shrinkflation-detector";
@@ -18,6 +19,7 @@ export function Shell() {
   const location = useLocation();
   const navigationType = useNavigationType();
   const previous = useRef(location.pathname);
+  const [articleDown, setArticleDown] = useState(false);
 
   // A new page starts at the top. Opening or closing the product drawer keeps the article
   // where it was, Back and Forward keep the browser's restored position, and hash links are
@@ -42,16 +44,27 @@ export function Shell() {
             <BackArrow />
             <span>Karmanya Iyer</span>
           </a>
-          <Link className="mast-name" to="/">
+          <Link
+            className="mast-name"
+            to="/"
+            onClick={() => {
+              // Already on the article: the route does not change, so go to the top here.
+              if (location.pathname === "/") window.scrollTo({ top: 0, behavior: "instant" });
+            }}
+          >
             Shrinkflation Detector
           </Link>
           <nav className="mast-links" aria-label="Sections">
-            <Link className="opt" to="/#ask">
-              Ask the data
-            </Link>
-            <Link className="opt" to="/#changes">
-              Every change
-            </Link>
+            {articleDown ? null : (
+              <>
+                <Link className="opt" to="/#ask">
+                  Ask the data
+                </Link>
+                <Link className="opt" to="/#changes">
+                  Every change
+                </Link>
+              </>
+            )}
             <a href={GITHUB_URL} rel="noopener">
               GitHub
             </a>
@@ -59,7 +72,9 @@ export function Shell() {
         </div>
       </header>
       <main id="main" tabIndex={-1}>
-        <Outlet />
+        <ArticleDownContext.Provider value={setArticleDown}>
+          <Outlet />
+        </ArticleDownContext.Provider>
       </main>
       <footer className="foot">
         <div className="foot-in">
