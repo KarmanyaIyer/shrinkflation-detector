@@ -1,9 +1,11 @@
 Fonts in this directory and their copyright holders:
 
-Newsreader-latin.woff2, Newsreader-Italic-latin.woff2
+Newsreader-latin.woff2, Newsreader-Italic-text.woff2
   Copyright 2020 The Newsreader Project Authors (http://github.com/productiontype/Newsreader)
+  Newsreader-Italic-text.woff2 is a static instance (weight 400, optical size 20) of the
+  italic, cut to basic Latin with fontTools 4.66.0.
 
-PublicSans-latin.woff2, PublicSans-Italic-latin.woff2
+PublicSans-latin.woff2
   Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans),
   a modified version of Libre Franklin (https://github.com/impallari/Libre-Franklin)
 
