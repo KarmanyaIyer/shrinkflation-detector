@@ -3,8 +3,8 @@ import { ask } from "../api/client";
 import { ApiError, isAbortError } from "../api/http";
 import type { AskResponse, FieldProduct } from "../api/types";
 import { formatDuration, formatInt } from "../lib/format";
-import { useOpenProduct } from "../lib/drawerRoute";
 import { linkNames } from "../lib/text";
+import { ProductLink } from "./ProductLink";
 
 export const ASK_TIMEOUT_MS = 60_000;
 export const MAX_QUESTION = 300;
@@ -76,9 +76,11 @@ function Elapsed({ startedAt }: { startedAt: number }) {
   }, [startedAt]);
   return (
     <>
-      {seconds < 20
-        ? `Asking the assistant. ${seconds} ${seconds === 1 ? "second" : "seconds"} so far.`
-        : `Still waiting after ${seconds} seconds. The request gives up at 60.`}
+      {seconds < 1
+        ? "Asking the assistant."
+        : seconds < 20
+          ? `Asking the assistant. ${seconds} ${seconds === 1 ? "second" : "seconds"} so far.`
+          : `Still waiting after ${seconds} seconds. The request gives up at 60.`}
     </>
   );
 }
@@ -87,7 +89,6 @@ export function AskSection({ products }: { products: FieldProduct[] | null }) {
   const [question, setQuestion] = useState("");
   const [state, setState] = useState<AskState>({ status: "idle" });
   const controllerRef = useRef<AbortController | null>(null);
-  const openProduct = useOpenProduct();
 
   useEffect(() => () => controllerRef.current?.abort(), []);
 
@@ -182,7 +183,7 @@ export function AskSection({ products }: { products: FieldProduct[] | null }) {
           </div>
         ) : null}
         {state.status === "answer" ? (
-          <Answer question={state.question} response={state.response} products={products} onOpen={openProduct} />
+          <Answer question={state.question} response={state.response} products={products} />
         ) : null}
       </div>
     </section>
@@ -193,12 +194,10 @@ function Answer({
   question,
   response,
   products,
-  onOpen,
 }: {
   question: string;
   response: AskResponse;
   products: FieldProduct[] | null;
-  onOpen: (id: string, trigger?: Element | null) => void;
 }) {
   // Names are linked from the products the tools touched when the response says which; every
   // tracked product otherwise.
@@ -212,14 +211,9 @@ function Answer({
   const render = (text: string): ReactNode[] =>
     linkNames(text, linkable).map((run, i) =>
       run.productId ? (
-        <button
-          key={i}
-          type="button"
-          className="pl"
-          onClick={(event) => onOpen(run.productId!, event.currentTarget)}
-        >
+        <ProductLink key={i} id={run.productId} className="pl">
           {run.text}
-        </button>
+        </ProductLink>
       ) : (
         <span key={i}>{run.text}</span>
       ),

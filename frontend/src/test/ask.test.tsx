@@ -45,14 +45,17 @@ describe("AskSection", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ask" }));
 
     expect(vi.mocked(ask)).toHaveBeenCalledWith("Did anything shrink?", expect.any(AbortSignal));
-    expect(screen.getByRole("status")).toHaveTextContent(/Asking the assistant\. \d+ seconds? so far\./);
+    // No count until a second has passed, so the line never reads "0 seconds".
+    expect(screen.getByRole("status")).toHaveTextContent(/^Asking the assistant\.$/);
     expect(screen.getByRole("button", { name: "Asking" })).toBeDisabled();
 
     await act(async () => resolve(fx.askResponse));
     expect(screen.queryByRole("status")).toBeNull();
     expect(screen.getByText("Did anything shrink?", { selector: ".ans-q" })).toBeInTheDocument();
-    const link = screen.getByRole("button", { name: /Huggies Simply Clean Unscented Baby Wipes/ });
+    // Names are links that wrap with the text, not buttons.
+    const link = screen.getByRole("link", { name: /Huggies Simply Clean Unscented Baby Wipes/ });
     expect(link).toHaveClass("pl");
+    expect(link).toHaveAttribute("href", `/products/${fx.ids.huggies}`);
     fireEvent.click(link);
     expect(screen.getByTestId("loc")).toHaveTextContent(`/products/${fx.ids.huggies}`);
 
@@ -99,8 +102,13 @@ describe("AskSection", () => {
     renderAsk();
     fireEvent.change(screen.getByRole("textbox", { name: "Your question" }), { target: { value: "slow one" } });
     fireEvent.submit(screen.getByRole("textbox", { name: "Your question" }).closest("form")!);
+    expect(screen.getByRole("status")).toHaveTextContent(/^Asking the assistant\.$/);
     await act(async () => {
-      vi.advanceTimersByTime(25_000);
+      vi.advanceTimersByTime(1_000);
+    });
+    expect(screen.getByRole("status")).toHaveTextContent("Asking the assistant. 1 second so far.");
+    await act(async () => {
+      vi.advanceTimersByTime(24_000);
     });
     expect(screen.getByRole("status")).toHaveTextContent("Still waiting after 25 seconds. The request gives up at 60.");
     await act(async () => {

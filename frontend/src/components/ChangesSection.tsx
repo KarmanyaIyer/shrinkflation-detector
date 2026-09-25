@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { useSearchParams } from "react-router";
 import type { CategoryCount, ChangeOut, FeedKind } from "../api/types";
-import { formatDateRange, formatMoney, formatPercent, formatUnitAmount, toNumber, unitWord } from "../lib/format";
+import { formatDateRange, formatMoney, formatPercent, formatUnitAmount, unitWord } from "../lib/format";
 import { direction, FILTER_LABELS, FILTER_ORDER, kindLabel, SIZE_KINDS } from "../lib/kinds";
-import { rememberOpener, useOpenProduct } from "../lib/drawerRoute";
+import { unitChangePct } from "../lib/changes";
+import { useOpenProduct } from "../lib/drawerRoute";
 import { displayName } from "../lib/text";
 import {
   countByKind,
@@ -16,18 +17,15 @@ import {
   type SortKey,
   type TableState,
 } from "../lib/tableState";
+import { ProductLink } from "./ProductLink";
 import { SkLine } from "./Status";
 
 export const PAGE_ROWS = 25;
 // Bars are drawn to this magnitude; anything past it is cut with an overflow mark.
 export const BAR_CAP = 30;
 
-function unitPct(change: ChangeOut): number | null {
-  return toNumber(change.unit_price_change_pct) ?? toNumber(change.price_change_pct);
-}
-
 function UnitCell({ change }: { change: ChangeOut }) {
-  const pct = unitPct(change);
+  const pct = unitChangePct(change);
   const before = change.before?.unit_price;
   const after = change.after?.unit_price;
   const dir = direction(change);
@@ -63,17 +61,19 @@ function Row({ change, onOpen }: { change: ChangeOut; onOpen: (id: string, trigg
   const sizeChanged = SIZE_KINDS.has(change.kind);
   const promo = formatMoney(after?.price_promo);
   const when = formatDateRange(change.before_seen_at, change.after_seen_at) ?? formatDateRange(change.detected_at, null) ?? "";
+  // A click anywhere on the row opens the product, as the name link does. Clicks on a link
+  // are left to the link, and a click that ends a text selection does nothing.
   const onClick = (event: MouseEvent<HTMLTableRowElement>) => {
+    if ((event.target as Element).closest("a, button")) return;
     if (window.getSelection()?.toString()) return;
-    rememberOpener(event.currentTarget.querySelector(".rowbtn"));
     onOpen(change.product.id, event.currentTarget.querySelector(".rowbtn"));
   };
   return (
     <tr onClick={onClick} data-kind={change.kind}>
       <th scope="row" className="c-prod">
-        <button type="button" className="rowbtn">
+        <ProductLink id={change.product.id} className="rowbtn">
           {displayName(change.product.description)}
-        </button>
+        </ProductLink>
         <span className="c-cat">
           {change.product.category} · {kindLabel(change.kind)}
         </span>
@@ -226,8 +226,12 @@ export function ChangesSection({ changes, categories }: { changes: ChangeOut[] |
         <thead>
           <tr>
             <SortHeader label="Product" column="product" state={state} onSort={onSort} />
-            <th scope="col">Package label</th>
-            <th scope="col">Shelf price</th>
+            <th scope="col">
+              <span className="th-l">Package label</span>
+            </th>
+            <th scope="col">
+              <span className="th-l">Shelf price</span>
+            </th>
             <SortHeader label="Price per unit" column="unit" state={state} onSort={onSort} />
             <SortHeader label="When" column="when" state={state} onSort={onSort}>
               <sup>

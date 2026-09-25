@@ -1,4 +1,5 @@
 import type { FieldProduct } from "../api/types";
+import { displayName } from "./text";
 
 export const SEARCH_LIMIT = 10;
 
@@ -44,4 +45,33 @@ export function highlightRuns(text: string, query: string): { text: string; hit:
     }
   }
   return runs;
+}
+
+// True when some typed word matched only the brand, so the result row has to show the brand
+// for the reader to see why it matched.
+export function brandOnlyMatch(product: FieldProduct, query: string): boolean {
+  const brand = (product.brand ?? "").toLowerCase();
+  if (!brand) return false;
+  const shown = `${displayName(product.name)} ${product.category}`.toLowerCase();
+  return query
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length >= 2)
+    .some((word) => brand.includes(word) && !shown.includes(word));
+}
+
+// Up to three searches worth trying: the brands of the products the article names, in the
+// article's order, kept only when the search returns a short list (one to SEARCH_LIMIT hits).
+export function searchSuggestions(products: FieldProduct[], featured: string[], most = 3): string[] {
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const out: string[] = [];
+  for (const id of featured) {
+    const brand = byId.get(id)?.brand?.trim();
+    if (!brand || out.some((word) => word.toLowerCase() === brand.toLowerCase())) continue;
+    const total = searchProducts(products, brand).total;
+    if (total >= 1 && total <= SEARCH_LIMIT) out.push(brand);
+    if (out.length === most) break;
+  }
+  return out;
 }

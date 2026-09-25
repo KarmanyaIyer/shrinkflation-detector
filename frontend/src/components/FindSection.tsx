@@ -1,11 +1,11 @@
 import { useId, useMemo, useState } from "react";
-import type { CategoryCount, FieldProduct } from "../api/types";
+import type { FieldProduct } from "../api/types";
 import { formatInt, formatMoney } from "../lib/format";
 import { kindDirection, kindLabel } from "../lib/kinds";
-import { useOpenProduct } from "../lib/drawerRoute";
 import { useDebouncedValue } from "../lib/useApi";
-import { highlightRuns, SEARCH_LIMIT, searchProducts } from "../lib/search";
+import { brandOnlyMatch, highlightRuns, SEARCH_LIMIT, searchProducts, searchSuggestions } from "../lib/search";
 import { displayName } from "../lib/text";
+import { ProductLink } from "./ProductLink";
 
 function Highlight({ text, query }: { text: string; query: string }) {
   return (
@@ -15,19 +15,16 @@ function Highlight({ text, query }: { text: string; query: string }) {
   );
 }
 
-export function FindSection({ products, categories }: { products: FieldProduct[] | null; categories: CategoryCount[] | null }) {
+// `featured` lists the products the article names, most interesting first; their brands are
+// offered as searches.
+export function FindSection({ products, featured }: { products: FieldProduct[] | null; featured: string[] }) {
   const [query, setQuery] = useState("");
   const debounced = useDebouncedValue(query, 120);
-  const openProduct = useOpenProduct();
   const inputId = useId();
   const countId = useId();
 
   const result = useMemo(() => (products ? searchProducts(products, debounced) : { total: 0, items: [] }), [products, debounced]);
-  const suggestions = useMemo(() => {
-    const cats = [...(categories ?? [])].sort((a, b) => b.products - a.products).slice(0, 2).map((c) => c.category);
-    const changed = (products ?? []).find((p) => p.change && p.brand)?.brand;
-    return [...cats, ...(changed ? [changed] : [])];
-  }, [categories, products]);
+  const suggestions = useMemo(() => (products ? searchSuggestions(products, featured) : []), [products, featured]);
 
   const active = debounced.trim().length > 0;
   const count = !products
@@ -80,7 +77,7 @@ export function FindSection({ products, categories }: { products: FieldProduct[]
           const dir = kindDirection(product.change);
           return (
             <li key={product.id}>
-              <button type="button" className="fr" onClick={(event) => openProduct(product.id, event.currentTarget)}>
+              <ProductLink id={product.id} className="fr">
                 <span className="fr-name">
                   <Highlight text={displayName(product.name)} query={debounced} />
                 </span>
@@ -88,6 +85,11 @@ export function FindSection({ products, categories }: { products: FieldProduct[]
                 <span className="fr-price">{formatMoney(product.price) ?? ""}</span>
                 <span className="fr-meta">
                   <Highlight text={product.category} query={debounced} />
+                  {product.brand && brandOnlyMatch(product, debounced) ? (
+                    <span className="fr-brand">
+                      Brand <Highlight text={product.brand} query={debounced} />
+                    </span>
+                  ) : null}
                   {product.change ? (
                     <>
                       <i className={`kd ${dir === "more" ? "m" : "l"}`} aria-hidden="true" />
@@ -95,7 +97,7 @@ export function FindSection({ products, categories }: { products: FieldProduct[]
                     </>
                   ) : null}
                 </span>
-              </button>
+              </ProductLink>
             </li>
           );
         })}

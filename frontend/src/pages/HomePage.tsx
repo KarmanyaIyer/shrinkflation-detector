@@ -9,6 +9,7 @@ import { Footnotes, NO_REFS } from "../components/Footnotes";
 import { MethodSection } from "../components/MethodSection";
 import { describeLoadError } from "../components/Status";
 import { Story } from "../components/Story";
+import { useReportArticleDown } from "../lib/articleStatus";
 import { buildStory } from "../lib/story";
 import { useApi, usePageTitle } from "../lib/useApi";
 
@@ -22,16 +23,35 @@ export function HomePage() {
   const [params] = useSearchParams();
   usePageTitle(null);
 
+  // useApi returns a new wrapper object on every render; the data inside only changes when a
+  // response lands, so the story is rebuilt only then.
+  const statsData = stats.data;
+  const changesData = changes.data;
+  const categoriesData = categories.data;
   const story = useMemo(
     () =>
-      stats.status === "ok" && changes.status === "ok" && categories.status === "ok"
-        ? buildStory({ stats: stats.data, changes: changes.data, categories: categories.data, now: new Date() })
+      statsData && changesData && categoriesData
+        ? buildStory({ stats: statsData, changes: changesData, categories: categoriesData, now: new Date() })
         : null,
-    [stats, changes, categories],
+    [statsData, changesData, categoriesData],
+  );
+  // The products the article names, for the search suggestions.
+  const featured = useMemo(
+    () =>
+      story
+        ? [
+            ...story.shrinks.map((item) => item.id),
+            ...story.grows.map((item) => item.id),
+            story.annotations.down?.id,
+            story.annotations.up?.id,
+          ].filter((id): id is string => Boolean(id))
+        : [],
+    [story],
   );
 
   const failure = [stats, categories, field, changes].find((state) => state.status === "error")?.error ?? null;
   const ready = story !== null && field.status === "ok";
+  useReportArticleDown(failure !== null);
 
   // Hash links scroll once the sections exist. Old links of the form /?kind=shrink land on
   // the change table. Going back or forward (which is also how the drawer closes) leaves the
@@ -95,12 +115,12 @@ export function HomePage() {
           changes={changes.status === "ok" ? changes.data : null}
           categories={categories.status === "ok" ? categories.data : null}
         />
-        <FindSection
-          products={field.status === "ok" ? field.data.products : null}
-          categories={categories.status === "ok" ? categories.data : null}
-        />
+        <FindSection products={field.status === "ok" ? field.data.products : null} featured={featured} />
         <MethodSection method={story?.method ?? null} />
-        <Footnotes refs={{ 1: (story?.shrinks.length ?? 0) > 0, 2: story !== null, 3: changes.status === "ok" }} />
+        <Footnotes
+          refs={{ 1: story !== null, 2: (story?.shrinks.length ?? 0) > 0, 3: changes.status === "ok" }}
+          sizeNote={story?.sizeNote}
+        />
       </div>
       <Outlet />
     </article>
