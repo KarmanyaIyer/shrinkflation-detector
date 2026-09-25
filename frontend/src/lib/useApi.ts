@@ -53,20 +53,6 @@ export function useDebouncedValue<T>(value: T, delayMs: number): T {
   return debounced;
 }
 
-// True once a loading state has lasted longer than delayMs, so slow first loads can say so.
-export function useSlow(loading: boolean, delayMs: number): boolean {
-  const [slow, setSlow] = useState(false);
-  useEffect(() => {
-    if (!loading) {
-      setSlow(false);
-      return undefined;
-    }
-    const handle = window.setTimeout(() => setSlow(true), delayMs);
-    return () => window.clearTimeout(handle);
-  }, [loading, delayMs]);
-  return slow;
-}
-
 export function usePageTitle(title: string | null): void {
   useEffect(() => {
     document.title = title ? `${title} · Shrinkflation Detector` : "Shrinkflation Detector";

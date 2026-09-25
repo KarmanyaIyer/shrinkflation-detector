@@ -48,8 +48,6 @@ export const ids = {
   dove: "0007940071601",
 };
 
-export const emptyChangeList: ChangeList = { items: [], total: 0, limit: 100, offset: 0 };
-
 // Day-one shape: products tracked, nothing published yet, only the basket build has run.
 export const dayOneStats: Stats = {
   ...stats,

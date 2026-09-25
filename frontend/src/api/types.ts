@@ -1,6 +1,6 @@
 // Named aliases over the generated OpenAPI types. Regenerate schema.d.ts with
 // `pnpm generate-api-types` when the backend changes.
-import type { components, paths } from "./schema";
+import type { components } from "./schema";
 
 type Schemas = components["schemas"];
 
@@ -23,8 +23,6 @@ export type BudgetOut = Schemas["BudgetOut"];
 export type Health = Schemas["Health"];
 export type FieldOut = Schemas["FieldOut"];
 export type FieldProduct = Schemas["FieldProduct"];
-
-export type ChangesQuery = NonNullable<paths["/api/changes"]["get"]["parameters"]["query"]>;
 
 export const FEED_KINDS = ["shrink", "grow", "price_increase", "price_decrease", "all"] as const;
 export type FeedKind = (typeof FEED_KINDS)[number];

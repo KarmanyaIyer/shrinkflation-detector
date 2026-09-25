@@ -15,14 +15,3 @@ export function describeLoadError(error: Error): string {
   }
   return error.message || "Something went wrong while loading.";
 }
-
-export function LoadError({ error, onRetry, id }: { error: Error; onRetry: () => void; id?: string }) {
-  return (
-    <div className="err" role="alert" id={id}>
-      <p>{describeLoadError(error)}</p>
-      <button type="button" className="more" onClick={onRetry}>
-        Retry
-      </button>
-    </div>
-  );
-}
