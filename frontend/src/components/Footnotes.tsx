@@ -1,7 +1,8 @@
 import { GITHUB_URL } from "./Shell";
 
-// Which note markers exist on the page: 1 sits in the size step, 2 in the lede, 3 in the table
-// header. A back link is only rendered when its marker is there to go back to.
+// Which note markers exist on the page, in reading order: 1 sits in the lede, 2 in the size
+// step, 3 in the table header. A back link is only rendered when its marker is there to go
+// back to.
 export interface NoteRefs {
   1: boolean;
   2: boolean;
@@ -9,6 +10,8 @@ export interface NoteRefs {
 }
 
 export const NO_REFS: NoteRefs = { 1: false, 2: false, 3: false };
+
+export const SIZE_NOTE_FALLBACK = "Sizes come from the size text in Kroger’s product API; no package was measured.";
 
 function BackRef({ to, label, refs }: { to: 1 | 2 | 3; label: string; refs: NoteRefs }) {
   if (!refs[to]) return null;
@@ -22,19 +25,18 @@ function BackRef({ to, label, refs }: { to: 1 | 2 | 3; label: string; refs: Note
   );
 }
 
-export function Footnotes({ refs }: { refs: NoteRefs }) {
+export function Footnotes({ refs, sizeNote }: { refs: NoteRefs; sizeNote?: string }) {
   return (
     <>
       <section className="notes" aria-labelledby="n-h">
         <h2 id="n-h">Notes</h2>
         <ol>
           <li id="fn1">
-            Sizes are read from the listing text in Kroger’s API. A size decrease means that text changed. Nobody weighed
-            the package, so a corrected listing and a smaller package look the same here.
+            All data comes from one store. Prices at other Kroger stores can differ.
             <BackRef to={1} label="Back to the text" refs={refs} />
           </li>
           <li id="fn2">
-            All data comes from one store. Prices at other Kroger stores can differ.
+            {sizeNote ?? SIZE_NOTE_FALLBACK}
             <BackRef to={2} label="Back to the text" refs={refs} />
           </li>
           <li id="fn3">

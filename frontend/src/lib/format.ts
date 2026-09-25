@@ -83,11 +83,11 @@ export function formatUnitAmount(value: Numeric): string | null {
   return `$${roundDecimal(value as string | number, digits)}`;
 }
 
-// "$0.397/oz", or null when either part is missing.
+// "$0.397/oz" or "$0.125/item", or null when either part is missing.
 export function formatUnitPrice(value: Numeric, unit: string | null | undefined): string | null {
   const amount = formatUnitAmount(value);
   if (amount === null || !unit) return null;
-  return `${amount}/${unit}`;
+  return `${amount}/${unitWord(unit)}`;
 }
 
 // The unit as it reads after "per": "per oz", "per item" for counts.
@@ -183,6 +183,26 @@ export function formatDateRange(
     return `${from.month} ${from.day} to ${to.month} ${to.day}${suffix}`;
   }
   return `${withYear(from)} to ${withYear(to)}`;
+}
+
+// When a change happened, for prose: "between Sep 15 and 16", "between Sep 30 and Oct 1", or
+// "on Sep 16" when the old and new values were seen on the same store day.
+export function betweenDays(fromIso: string | null | undefined, toIso: string | null | undefined): string | null {
+  const from = dateParts(fromIso);
+  const to = dateParts(toIso);
+  const year = currentYear();
+  const day = (parts: DateParts, withMonth = true) =>
+    `${withMonth ? `${parts.month} ` : ""}${parts.day}${parts.year === year ? "" : `, ${parts.year}`}`;
+  if (!from || !to) {
+    const one = from ?? to;
+    return one ? `on ${day(one)}` : null;
+  }
+  if (from.year === to.year && from.month === to.month && from.day === to.day) return `on ${day(to)}`;
+  if (from.year === to.year && from.month === to.month) {
+    return `between ${from.month} ${from.day} and ${day(to, false)}`;
+  }
+  if (from.year === to.year) return `between ${from.month} ${from.day} and ${day(to)}`;
+  return `between ${day(from)} and ${day(to)}`;
 }
 
 // "84 ms" below a second, "3.1 s" above.

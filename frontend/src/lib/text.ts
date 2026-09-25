@@ -1,18 +1,23 @@
 // Text helpers for names that come straight from the retailer's catalog.
 
-// Trademark marks and promotional suffixes that make a name harder to read in prose.
-const NOISE = /[®™©]|\bBIG DEAL!?/gi;
+// Trademark marks (also spelled "(R)" and "(TM)" in some catalog text) and promotional
+// suffixes that make a name harder to read in prose.
+const NOISE = /[®™©]|\((?:R|TM)\)|\bBIG DEAL!?/gi;
 
 export function cleanName(name: string): string {
   return name.replace(NOISE, "").replace(/\s+/g, " ").trim();
 }
 
+// "REESE'S" reads as "Reese's" and "M&M'S" as "M&M's". Each run of letters keeps its first
+// letter and lowers the rest; a short run after an apostrophe ("'S") or a run after a digit
+// ("10CT") is lowered whole. Short all-caps words such as "ONE" or "BBQ" are left alone.
 function unshout(word: string): string {
-  // "REESE'S" reads as "Reese's"; short all-caps words such as "ONE" or "BBQ" are left alone.
-  if (word.length > 3 && word === word.toUpperCase() && /[A-Z]/.test(word)) {
-    return word.charAt(0) + word.slice(1).toLowerCase();
-  }
-  return word;
+  if (word.length <= 3 || word !== word.toUpperCase() || !/[A-Z]/.test(word)) return word;
+  return word.replace(/[A-Z]+/g, (run: string, at: number) => {
+    const before = word.charAt(at - 1);
+    if (/[0-9]/.test(before) || (/['’]/.test(before) && run.length <= 2)) return run.toLowerCase();
+    return run.charAt(0) + run.slice(1).toLowerCase();
+  });
 }
 
 // The full name as it reads in running text: marks dropped, shouted words settled.
@@ -20,17 +25,62 @@ export function displayName(name: string): string {
   return cleanName(name).split(" ").map(unshout).join(" ");
 }
 
-// A short form of a product name for annotations: the cleaned name cut at a word boundary
-// once it passes `max` characters, with an ellipsis when something was cut.
-export function shortName(name: string, max = 28): string {
-  const words = cleanName(name).split(" ").map(unshout);
-  let out = "";
-  for (const word of words) {
-    const next = out ? `${out} ${word}` : word;
-    if (out && next.length > max) return `${out}…`;
-    out = next;
+// Names longer than this are called by their brand in running prose when that is unambiguous.
+export const PROSE_NAME_MAX = 32;
+
+// The name to use in running prose. A long name that contains its brand as whole words is
+// called by the brand, spelled as it appears in the name, when no name in `others` contains
+// the brand too; otherwise the full display name. "General Mills REESE'S PUFFS Chocolatey
+// Peanut Butter Cereal" with brand "Reese's Puffs" becomes "Reese's Puffs", while a store brand
+// shared by many products keeps the full name.
+export function proseName(
+  name: string,
+  brand: string | null | undefined,
+  others: readonly string[] = [],
+  max = PROSE_NAME_MAX,
+): string {
+  const full = displayName(name);
+  const cleanBrand = brand ? cleanName(brand) : "";
+  if (full.length <= max || !cleanBrand) return full;
+  const body = escapeRegExp(cleanBrand).replace(/['’]/g, "['’]");
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}])${body}(?![\\p{L}\\p{N}])`, "iu");
+  const match = pattern.exec(full);
+  if (!match) return full;
+  if (others.some((other) => pattern.test(displayName(other)))) return full;
+  return match[0];
+}
+
+// Splits text into lines no wider than `max` by the given measure, breaking between words. A
+// word wider than `max` gets a line of its own.
+export function wrapText(text: string, max: number, measure: (text: string) => number): string[] {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(" ").filter(Boolean)) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && measure(next) > max) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
   }
-  return out;
+  if (line) lines.push(line);
+  return lines;
+}
+
+// wrapText with the lines evened out: the narrowest width that still needs no more lines, so a
+// label never ends on one stranded word when it could split more evenly.
+export function balancedWrap(text: string, max: number, measure: (text: string) => number): string[] {
+  const lines = wrapText(text, max, measure);
+  if (lines.length < 2) return lines;
+  let lo = 0;
+  let hi = max;
+  for (let i = 0; i < 12; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (wrapText(text, mid, measure).length <= lines.length) hi = mid;
+    else lo = mid;
+  }
+  return wrapText(text, hi, measure);
 }
 
 export function escapeRegExp(text: string): string {

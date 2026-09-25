@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 import {
   MINUS,
+  betweenDays,
   daysObserved,
   formatDate,
   formatDateRange,
@@ -60,7 +61,7 @@ describe("formatUnitPrice", () => {
     expect(formatUnitPrice("0.3972", "oz")).toBe("$0.397/oz");
     expect(formatUnitPrice("0.3575", "oz")).toBe("$0.358/oz");
     expect(formatUnitPrice("0.0085", "sq ft")).toBe("$0.0085/sq ft");
-    expect(formatUnitPrice("1.5", "each")).toBe("$1.500/each");
+    expect(formatUnitPrice("1.5", "each")).toBe("$1.500/item");
     expect(formatUnitPrice(null, "oz")).toBeNull();
     expect(formatUnitPrice("0.3", null)).toBeNull();
     expect(formatUnitAmount("0.3575")).toBe("$0.358");
@@ -92,6 +93,12 @@ describe("dates", () => {
   });
 
   it("writes a span as short as it can be read", () => {
+    // The year is only shown when it differs from the current one, so pin "now".
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-25T12:00:00Z"));
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
     expect(formatDateRange("2026-08-20T06:00:00Z", "2026-08-24T06:00:00Z")).toBe("Aug 20 to 24");
     expect(formatDateRange("2026-08-31T06:00:00Z", "2026-09-01T06:00:00Z")).toBe("Aug 31 to Sep 1");
     expect(formatDateRange("2026-08-20T06:00:00Z", "2026-08-20T06:00:00Z")).toBe("Aug 20");
@@ -169,5 +176,38 @@ describe("counts and spans", () => {
     expect(percentChange("0.3575", "0.3972")).toBeCloseTo(11.1, 1);
     expect(percentChange("0", "1")).toBeNull();
     expect(percentChange(null, "1")).toBeNull();
+  });
+});
+
+describe("betweenDays", () => {
+  // The year is only shown when it differs from the current one, so pin "now".
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-25T12:00:00Z"));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("names the store days a change fell between", () => {
+    expect(betweenDays("2026-09-15T22:00:00Z", "2026-09-16T22:00:00Z")).toBe("between Sep 15 and 16");
+    expect(betweenDays("2026-09-30T22:00:00Z", "2026-10-01T22:00:00Z")).toBe("between Sep 30 and Oct 1");
+    // 00:30 UTC is still the evening before at the store.
+    expect(betweenDays("2026-09-17T00:30:00Z", "2026-09-17T12:00:00Z")).toBe("between Sep 16 and 17");
+  });
+
+  it("names one day when both sides fall on the same store day or only one is known", () => {
+    expect(betweenDays("2026-09-16T11:00:00Z", "2026-09-16T22:00:00Z")).toBe("on Sep 16");
+    expect(betweenDays(null, "2026-09-16T22:00:00Z")).toBe("on Sep 16");
+    expect(betweenDays("2026-09-16T22:00:00Z", undefined)).toBe("on Sep 16");
+    expect(betweenDays(null, null)).toBeNull();
+    expect(betweenDays("not a date", null)).toBeNull();
+  });
+
+  it("adds the year when it is not the current one", () => {
+    expect(betweenDays("2025-12-30T22:00:00Z", "2025-12-31T22:00:00Z")).toBe("between Dec 30 and 31, 2025");
+    expect(betweenDays("2025-11-30T22:00:00Z", "2025-12-01T22:00:00Z")).toBe("between Nov 30 and Dec 1, 2025");
+    expect(betweenDays("2025-12-31T22:00:00Z", "2026-01-01T22:00:00Z")).toBe("between Dec 31, 2025 and Jan 1");
+    expect(betweenDays("2025-12-31T22:00:00Z", null)).toBe("on Dec 31, 2025");
   });
 });
