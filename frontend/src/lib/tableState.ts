@@ -1,6 +1,6 @@
 // The change table's filters and sort, kept in the query string so a view can be linked.
 import { isFeedKind, type ChangeOut, type FeedKind } from "../api/types";
-import { toNumber } from "./format";
+import { unitChangePct } from "./changes";
 import { FEED_KIND_MEMBERS } from "./kinds";
 
 export type SortKey = "when" | "unit" | "product";
@@ -54,10 +54,8 @@ export function filterChanges(changes: ChangeOut[], state: Pick<TableState, "kin
 
 export function sortChanges(changes: ChangeOut[], state: Pick<TableState, "sort" | "descending">): ChangeOut[] {
   const sign = state.descending ? -1 : 1;
-  const magnitude = (change: ChangeOut) =>
-    Math.abs(toNumber(change.unit_price_change_pct) ?? toNumber(change.price_change_pct) ?? 0);
-  const value = (change: ChangeOut) =>
-    toNumber(change.unit_price_change_pct) ?? toNumber(change.price_change_pct) ?? 0;
+  const value = (change: ChangeOut) => unitChangePct(change) ?? 0;
+  const magnitude = (change: ChangeOut) => Math.abs(value(change));
   return [...changes].sort((a, b) => {
     let order: number;
     if (state.sort === "when") {

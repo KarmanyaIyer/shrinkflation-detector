@@ -1,5 +1,5 @@
 import type { ChangeOut, FeedKind } from "../api/types";
-import { toNumber } from "./format";
+import { unitChangePct } from "./changes";
 
 // Labels for the kinds the backend publishes. Unknown kinds fall back to the raw value.
 export const KIND_LABELS: Record<string, string> = {
@@ -19,7 +19,7 @@ export const SIZE_KINDS = new Set(["shrink", "shrink_price_cut", "grow"]);
 // Which way the price per unit went, from the change itself when it carries the number and
 // from the kind otherwise. "more" costs the shopper more.
 export function direction(change: Pick<ChangeOut, "kind" | "unit_price_change_pct" | "price_change_pct">): "more" | "less" | "flat" {
-  const unit = toNumber(change.unit_price_change_pct) ?? toNumber(change.price_change_pct);
+  const unit = unitChangePct(change);
   if (unit !== null && unit !== 0) return unit > 0 ? "more" : "less";
   if (change.kind === "shrink" || change.kind === "price_increase") return "more";
   if (change.kind === "grow" || change.kind === "price_decrease" || change.kind === "shrink_price_cut") return "less";
