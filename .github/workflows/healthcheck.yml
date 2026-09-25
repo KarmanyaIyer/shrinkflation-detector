@@ -1,8 +1,12 @@
 name: Health check
 
+# The hourly check hits the probe endpoint, which never queries the database, so it does not
+# wake Neon. The daily check after the 11:00 UTC refresh queries the database and fails when
+# the last refresh finished more than 26 hours ago.
 on:
   schedule:
     - cron: "17 * * * *"
+    - cron: "40 11 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -12,15 +16,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      # Three attempts with pauses so a scale-to-zero cold start does not page anyone.
-      - name: Check /api/health
+      # Three attempts with pauses so a restart or a Neon wake-up does not page anyone.
+      - name: Check the API
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
-          url="https://shrink-api.orangemoss-1e2011d7.centralus.azurecontainerapps.io/api/health"
+          base="https://shrink-api.orangemoss-1e2011d7.centralus.azurecontainerapps.io/api"
+          if [ "$SCHEDULE" = "17 * * * *" ]; then
+            url="$base/health/live"
+            deep=0
+          else
+            url="$base/health"
+            deep=1
+          fi
           for attempt in 1 2 3; do
             body=$(curl -sS --max-time 60 "$url" || true)
             if printf '%s' "$body" | grep -q '"status":"ok"'; then
-              echo "healthy: $body"
-              exit 0
+              if [ "$deep" = 0 ]; then
+                echo "healthy: $body"
+                exit 0
+              fi
+              finished=$(printf '%s' "$body" | jq -r '.last_run_finished_at // empty')
+              if [ -n "$finished" ] && [ $(( $(date -u +%s) - $(date -u -d "$finished" +%s) )) -lt 93600 ]; then
+                echo "healthy: $body"
+                exit 0
+              fi
+              echo "last refresh finished too long ago: $body"
+              exit 1
             fi
             echo "attempt $attempt unhealthy: $body"
             sleep 30

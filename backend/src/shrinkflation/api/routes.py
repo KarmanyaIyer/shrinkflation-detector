@@ -36,6 +36,14 @@ def _cache(response: Response, value: str = FEED_CACHE) -> None:
     response.headers["Cache-Control"] = value
 
 
+@router.get("/health/live", include_in_schema=False)
+def live(response: Response) -> dict[str, str]:
+    """Container probe. It must not query the database: Neon suspends its compute only after
+    5 minutes without queries, and probes every 10 s would keep it running all month."""
+    _cache(response, "no-store")
+    return {"status": "ok"}
+
+
 @router.get("/health", response_model=Health)
 def health(db: DbSession, response: Response) -> Health:
     _cache(response, "no-store")

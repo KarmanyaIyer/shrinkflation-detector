@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -22,6 +23,18 @@ def test_health(client: TestClient) -> None:
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.headers["cache-control"] == "no-store"
+
+
+def test_live_probe_does_not_open_a_database_session(client: TestClient) -> None:
+    def fail() -> None:
+        raise AssertionError("the probe opened a database session")
+
+    with patch("shrinkflation.db.session.get_session_factory", side_effect=fail):
+        response = client.get("/api/health/live")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+    assert response.headers["cache-control"] == "no-store"
+    assert "/api/health/live" not in client.get("/api/openapi.json").json()["paths"]
 
 
 def test_changes_feed_lists_the_shrink_with_evidence(client: TestClient) -> None:

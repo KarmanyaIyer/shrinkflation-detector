@@ -39,13 +39,13 @@ time. The compute estimate assumes a 30 day month.
 | HTTP requests | $0 | 2 million requests per month free, then $0.40 per million. |
 | Log Analytics | $0 | First 5 GB per billing account per month free, then $2.30 per GB. Expected volume is under 100 MB. The 1 GB daily cap bounds a bad month at (30 - 5) x $2.30 = $57.50. |
 | Application Insights | $0 | No separate charge. Data it receives is billed as Log Analytics ingestion. Nothing is sent until tracing is wired up. |
-| Neon Postgres | $0 | Free plan: 100 CU-hours per project per month, 0.5 GB storage, compute scales to zero after 5 minutes. Expected: about 2.5 h per day awake at 0.25 CU = 19 CU-hours. Snapshot rows are only written on change, so storage stays well under 0.5 GB in year one. |
+| Neon Postgres | $0 | Free plan: 100 CU-hours per project per month, 0.5 GB storage, compute suspends after 5 minutes without queries. A compute that never suspends uses 0.25 x 720 = 180 CU-hours, so the container probes and the hourly health check call `/api/health/live`, which never queries the database. Expected: the 7 minute refresh plus 5 idle minutes, the daily health check (5 minutes), and 5 minutes per visit. At 5 visits a day that is 0.7 h x 30 x 0.25 CU = about 5 CU-hours. Snapshot rows are only written on change, so storage stays well under 0.5 GB in year one. |
 | GHCR | $0 | Public packages are free. |
 | Egress | $0 | First 100 GB per month of internet egress is free. |
 | Total | $0, up to about $14 if the API is active around the clock | |
 
-Setting `minReplicas` to 1 to avoid cold starts would add idle charges, which the free grant
-does not cover: 0.25 x 2,592,000 x $0.000008 + 0.5 x 2,592,000 x $0.000001 = about $6.50 per month.
+`minReplicas` is 1 because a cold start took about 30 s (measured 2026-09-13). The idle replica
+adds charges the free grant does not cover: 0.25 x 2,592,000 x $0.000008 + 0.5 x 2,592,000 x $0.000001 = about $6.50 per month.
 
 ## First deploy, in order
 
