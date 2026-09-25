@@ -15,6 +15,11 @@ export interface SwarmOptions {
   width: number;
   height: number;
   narrow: boolean;
+  // Short stages (a phone, or the band at the top of a tablet): the swarm starts `top` px below
+  // the stage top, under the annotation labels, and leaves `bottom` px under it for the axis and
+  // captions, instead of sitting in the middle of the stage.
+  top?: number;
+  bottom?: number;
 }
 
 export interface OffColumn {
@@ -115,77 +120,75 @@ export function layoutSwarm(dots: SwarmDot[], options: SwarmOptions): SwarmLayou
   // A tick label needs about 56 px on a phone and 80 px with the larger desktop type.
   const ticks = ticksFor(cap, Math.max(3, Math.min(7, Math.floor((x1 - x0) / (narrow ? 56 : 80)))));
   const sx = (value: number) => x0 + ((value + cap) / (2 * cap)) * (x1 - x0);
-  const cy = Math.round(height * (narrow ? 0.56 : 0.5));
+  const topAligned = options.top !== undefined;
+  const room = topAligned ? Math.max(40, height - options.top! - (options.bottom ?? 0)) : height * 0.36;
 
-  // Radius shrinks until the tallest column fits the stage.
-  let r = narrow ? 4.4 : 7;
+  // Dots are placed around y = 0, then the whole swarm is moved into place. The radius shrinks
+  // until the tallest column fits the room.
+  let r = narrow ? 5.6 : 7;
   let positions = new Map<string, { x: number; y: number }>();
-  let minY = cy;
-  let maxY = cy;
-  for (let attempt = 0; attempt < 6; attempt += 1) {
+  let minY = 0;
+  let maxY = 0;
+  let D = 0;
+  const offZones: { zone: OffZone; dots: SwarmDot[] }[] = [];
+  let right: OffZone | null = null;
+  let left: OffZone | null = null;
+  if (rightDots.length) {
+    const zx0 = x1 + breakGap;
+    const zx1 = width - pad - (narrow ? 4 : 8);
+    right = { x0: zx0, x1: zx1, columns: offColumns(rightDots, zx0 + (narrow ? 6 : 10), zx1 - (narrow ? 6 : 10)) };
+    offZones.push({ zone: right, dots: rightDots });
+  }
+  if (leftDots.length) {
+    const zx0 = pad + (narrow ? 4 : 8);
+    const zx1 = x0 - breakGap;
+    left = { x0: zx0, x1: zx1, columns: offColumns(leftDots, zx0 + (narrow ? 6 : 10), zx1 - (narrow ? 6 : 10)) };
+    offZones.push({ zone: left, dots: leftDots });
+  }
+  for (let attempt = 0; attempt < 8; attempt += 1) {
     positions = new Map();
-    minY = cy;
-    maxY = cy;
-    const gap = narrow ? 1 : 1.6;
-    const D = 2 * r + gap;
+    D = 2 * r + (narrow ? 1.2 : 1.6);
+    minY = -D;
+    maxY = D;
     const placed: { x: number; y: number }[] = [];
     let windowStart = 0;
     for (const dot of inScale) {
       const x = sx(dot.value);
       while (windowStart < placed.length && placed[windowStart]!.x < x - D) windowStart += 1;
-      let y = cy;
+      let y = 0;
       for (let k = 0; k < 2000; k += 1) {
         const off = k === 0 ? 0 : k % 2 ? (k + 1) / 2 : -k / 2;
-        const yy = cy + off;
         let free = true;
         for (let i = windowStart; i < placed.length; i += 1) {
           const o = placed[i]!;
-          if ((o.x - x) ** 2 + (o.y - yy) ** 2 < D * D) {
+          if ((o.x - x) ** 2 + (o.y - off) ** 2 < D * D) {
             free = false;
             break;
           }
         }
         if (free) {
-          y = yy;
+          y = off;
           break;
         }
       }
       placed.push({ x, y });
       positions.set(dot.id, { x, y });
-      minY = Math.min(minY, y);
-      maxY = Math.max(maxY, y);
+      minY = Math.min(minY, y - r);
+      maxY = Math.max(maxY, y + r);
     }
-    const room = height * (narrow ? 0.34 : 0.36);
+    for (const { zone } of offZones) {
+      for (const column of zone.columns) {
+        column.ids.forEach((id, i) => positions.set(id, { x: column.x, y: (i - (column.ids.length - 1) / 2) * D }));
+        const half = ((column.ids.length - 1) / 2) * D + r;
+        minY = Math.min(minY, -half);
+        maxY = Math.max(maxY, half);
+      }
+    }
     if (maxY - minY <= room || r <= 2) break;
-    r = Math.max(2, r * 0.8);
-  }
-  const D = 2 * r + (narrow ? 1 : 1.6);
-  minY = Math.min(minY, cy - D);
-  maxY = Math.max(maxY, cy + D);
-
-  const stack = (zone: OffZone) => {
-    for (const column of zone.columns) {
-      column.ids.forEach((id, i) => {
-        positions.set(id, { x: column.x, y: cy + (i - (column.ids.length - 1) / 2) * D });
-      });
-      minY = Math.min(minY, cy - ((column.ids.length - 1) / 2) * D - D);
-      maxY = Math.max(maxY, cy + ((column.ids.length - 1) / 2) * D + D);
-    }
-  };
-  let right: OffZone | null = null;
-  if (rightDots.length) {
-    const zx0 = x1 + breakGap;
-    const zx1 = width - pad - (narrow ? 4 : 8);
-    right = { x0: zx0, x1: zx1, columns: offColumns(rightDots, zx0 + (narrow ? 6 : 10), zx1 - (narrow ? 6 : 10)) };
-    stack(right);
-  }
-  let left: OffZone | null = null;
-  if (leftDots.length) {
-    const zx0 = pad + (narrow ? 4 : 8);
-    const zx1 = x0 - breakGap;
-    left = { x0: zx0, x1: zx1, columns: offColumns(leftDots, zx0 + (narrow ? 6 : 10), zx1 - (narrow ? 6 : 10)) };
-    stack(left);
+    r = Math.max(2, r * 0.85);
   }
 
-  return { cap, ticks, x0, x1, cy, r, minY, maxY, positions, right, left, sx };
+  const cy = topAligned ? Math.round(options.top! - minY) : Math.round(height * 0.5);
+  for (const [id, p] of positions) positions.set(id, { x: p.x, y: p.y + cy });
+  return { cap, ticks, x0, x1, cy, r, minY: minY + cy, maxY: maxY + cy, positions, right, left, sx };
 }

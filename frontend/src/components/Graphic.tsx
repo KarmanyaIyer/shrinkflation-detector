@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { CategoryCount, ChangeOut, FieldProduct } from "../api/types";
-import { formatInt, formatMoney, formatPercent, quoted, toNumber, unitWord } from "../lib/format";
+import { latestByProduct, unitChangePct } from "../lib/changes";
+import { layoutSwarmChart, type SwarmChart, type TextMeasure } from "../lib/chartLayout";
+import { formatInt, formatMoney, formatPercent, quoted, unitWord } from "../lib/format";
 import { layoutGrid, type GridCategory, type GridLayout } from "../lib/grid";
 import { direction, kindDirection, kindLabel } from "../lib/kinds";
 import type { Story, StepKind } from "../lib/story";
-import { layoutSwarm, type SwarmLayout } from "../lib/swarm";
-import { displayName, shortName } from "../lib/text";
+import { displayName } from "../lib/text";
 import { GraphicRenderer, type DotInput, type Geometry } from "./graphicRenderer";
 import { SizeCards } from "./SizeCards";
 
@@ -22,6 +23,8 @@ interface Size {
   width: number;
   height: number;
   narrow: boolean;
+  // A short stage: the swarm sits under its labels and the size cards show one group at a time.
+  compact: boolean;
 }
 
 interface Tip {
@@ -31,7 +34,14 @@ interface Tip {
   y: number;
 }
 
+interface Layouts {
+  grid: GridLayout;
+  chart: SwarmChart;
+}
+
 const NARROW_BELOW = 560;
+const SHORT_BELOW = 480;
+const SANS = '"Public Sans", "Helvetica Neue", Arial, sans-serif';
 
 function reducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -39,6 +49,23 @@ function reducedMotion(): boolean {
 
 function coarsePointer(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+}
+
+// Measures text with the page's own font through a canvas. Without a canvas (tests), it falls
+// back to an average glyph width. One pixel is added so tabular figures, which the canvas does
+// not apply, never make a label wider than measured.
+function textMeasure(): TextMeasure {
+  let ctx: CanvasRenderingContext2D | null = null;
+  try {
+    ctx = document.createElement("canvas").getContext("2d");
+  } catch {
+    ctx = null;
+  }
+  return (text, px, weight) => {
+    if (!ctx) return text.length * px * (weight >= 600 ? 0.6 : 0.55);
+    ctx.font = `${weight} ${px}px ${SANS}`;
+    return Math.ceil(ctx.measureText(text).width) + 1;
+  };
 }
 
 // Legend rows per step.
@@ -104,39 +131,43 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<GraphicRenderer | null>(null);
+  const stepRef = useRef(step);
   const [size, setSize] = useState<Size | null>(null);
-  const [layouts, setLayouts] = useState<{ grid: GridLayout; swarm: SwarmLayout } | null>(null);
+  const [layouts, setLayouts] = useState<Layouts | null>(null);
   const [tip, setTip] = useState<Tip | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
   const [live, setLive] = useState("");
+  // The stage size at which the wide size cards were found taller than the stage; at that size
+  // the cards use the compact rows instead.
+  const [cardsOverflow, setCardsOverflow] = useState<string | null>(null);
   const touch = useMemo(coarsePointer, []);
+  const sizeKey = size ? `${size.width}x${size.height}` : "";
+  const compactCards = size !== null && (size.compact || cardsOverflow === sizeKey);
 
-  const changeById = useMemo(() => {
-    const map = new Map<string, ChangeOut>();
-    for (const change of changes) map.set(change.product.id, change);
-    return map;
-  }, [changes]);
+  // A product's newest change decides its dot, color, tooltip, and announcement.
+  const changeById = useMemo(() => latestByProduct(changes), [changes]);
   const productById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
+  const sizeKindById = useMemo(() => {
+    const map = new Map<string, "shrink" | "grow">();
+    for (const item of story.grows) map.set(item.id, "grow");
+    for (const item of story.shrinks) map.set(item.id, "shrink");
+    return map;
+  }, [story]);
 
   const dots = useMemo<DotInput[]>(
     () =>
       products.map((product) => {
         const change = changeById.get(product.id);
         const dir = change ? direction(change) : kindDirection(product.change);
-        const kind = change?.kind ?? product.change;
-        return {
-          id: product.id,
-          direction: dir === "flat" ? null : dir,
-          sizeKind: kind === "shrink" || kind === "shrink_price_cut" ? "shrink" : kind === "grow" ? "grow" : null,
-        };
+        return { id: product.id, direction: dir === "flat" ? null : dir, sizeKind: sizeKindById.get(product.id) ?? null };
       }),
-    [products, changeById],
+    [products, changeById, sizeKindById],
   );
 
   const pctOf = useCallback(
     (id: string) => {
       const change = changeById.get(id);
-      return change ? (toNumber(change.unit_price_change_pct) ?? toNumber(change.price_change_pct)) : null;
+      return change ? unitChangePct(change) : null;
     },
     [changeById],
   );
@@ -189,13 +220,14 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
     return story.grows.map((item) => item.id);
   }, [step, gridCategories, changeById, productById, swarmDots, story]);
 
-  // Renderer lifetime.
-  useEffect(() => {
+  // Renderer lifetime. A layout effect declared before the geometry effect, so a renderer
+  // rebuilt for new dots gets its geometry in the same commit, and it starts at the current step.
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
     let renderer: GraphicRenderer;
     try {
-      renderer = new GraphicRenderer(canvas, dots, reducedMotion());
+      renderer = new GraphicRenderer(canvas, dots, reducedMotion(), stepRef.current);
     } catch {
       return undefined;
     }
@@ -214,10 +246,11 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
       const rect = stage.getBoundingClientRect();
       const width = Math.max(200, Math.round(rect.width));
       const height = Math.max(200, Math.round(rect.height));
+      const narrow = width < NARROW_BELOW;
       setSize((current) =>
         current && current.width === width && current.height === height
           ? current
-          : { width, height, narrow: width < NARROW_BELOW },
+          : { width, height, narrow, compact: narrow || height < SHORT_BELOW },
       );
     };
     measure();
@@ -227,40 +260,75 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
     return () => observer.disconnect();
   }, []);
 
+  const measureText = useMemo(textMeasure, []);
+  const offText = useMemo(
+    () =>
+      story.offScale.length && story.offScale.every((a) => story.shrinks.some((s) => s.id === a.id))
+        ? "listed size went down"
+        : "listed size changed",
+    [story],
+  );
+
   // Layouts for the size, then card dot positions once the cards have laid out in that size.
   useLayoutEffect(() => {
     const renderer = rendererRef.current;
     const stage = stageRef.current;
-    if (!size || !renderer || !stage) return;
+    if (!size || !stage) return;
     const grid = layoutGrid(gridCategories, size);
-    const swarm = layoutSwarm(swarmDots, size);
-    setLayouts({ grid, swarm });
-    const cards = new Map<string, { x: number; y: number }>();
+    const chart = layoutSwarmChart(
+      {
+        dots: swarmDots,
+        width: size.width,
+        height: size.height,
+        narrow: size.narrow,
+        compact: size.compact,
+        down: story.annotations.down,
+        up: story.annotations.up,
+        offCount: story.offScale.length,
+        offText,
+      },
+      measureText,
+    );
+    setLayouts({ grid, chart });
+    if (!renderer) return;
     const stageRect = stage.getBoundingClientRect();
+    const cardGrid = cardsRef.current?.querySelector(".sc-grid");
+    if (!compactCards && cardGrid && cardGrid.getBoundingClientRect().height > stageRect.height) {
+      setCardsOverflow(sizeKey);
+      return;
+    }
+    const cards = new Map<string, { x: number; y: number }>();
     cardsRef.current?.querySelectorAll<HTMLElement>("[data-dot]").forEach((element) => {
+      const id = element.dataset.dot!;
+      if (element.dataset.kind !== sizeKindById.get(id)) return;
       const rect = element.getBoundingClientRect();
-      cards.set(element.dataset.dot!, {
+      cards.set(id, {
         x: rect.left - stageRect.left + rect.width / 2,
         y: rect.top - stageRect.top + rect.height / 2,
       });
     });
     const geometry: Geometry = {
-      ...size,
+      width: size.width,
+      height: size.height,
+      narrow: size.narrow,
+      compactCards,
       dpr: Math.min(3, window.devicePixelRatio || 1),
       grid,
-      swarm,
+      swarm: chart.swarm,
       cards,
     };
     renderer.setGeometry(geometry);
-  }, [size, gridCategories, swarmDots]);
+  }, [size, sizeKey, compactCards, dots, gridCategories, swarmDots, story, offText, measureText, sizeKindById]);
 
   // Step changes.
   useEffect(() => {
-    rendererRef.current?.go(step);
+    stepRef.current = step;
+    const renderer = rendererRef.current;
+    if (renderer && renderer.currentStep !== step) renderer.go(step);
     setTip(null);
     setHighlight(null);
-    rendererRef.current?.setHover(null);
-    rendererRef.current?.setHighlight(null);
+    renderer?.setHover(null);
+    renderer?.setHighlight(null);
   }, [step]);
 
   // Pause offscreen.
@@ -274,12 +342,17 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
     return () => observer.disconnect();
   }, []);
 
-  // Fonts change label widths, not dot positions, but a late font swap can shift the cards.
+  // Label widths are measured with the web font, so measure again once it has loaded. A late
+  // font swap can also move the size cards.
   useEffect(() => {
     if (typeof document === "undefined" || !document.fonts?.ready) return;
+    let live = true;
     void document.fonts.ready.then(() => {
-      setSize((current) => (current ? { ...current } : current));
+      if (live) setSize((current) => (current ? { ...current } : current));
     });
+    return () => {
+      live = false;
+    };
   }, []);
 
   const showTip = useCallback((id: string, isTouch: boolean) => {
@@ -336,13 +409,13 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
     const change = changeById.get(id);
     const parts = [displayName(product.name), quoted(product.size ?? ""), formatMoney(product.price) ?? "no price"];
     if (change) {
-      const pct = formatPercent(change.unit_price_change_pct ?? change.price_change_pct);
+      const pct = formatPercent(unitChangePct(change));
       const unit = change.after?.unit_price?.unit;
       parts.push(`${kindLabel(change.kind)}${pct ? `, ${pct}${unit ? ` per ${unitWord(unit)}` : ""}` : ""}`);
     } else {
       parts.push("no change recorded");
     }
-    setLive(`${parts.join(", ")}. ${index + 1} of ${formatInt(order.length)}.`);
+    setLive(`${parts.join(", ")}. ${formatInt(index + 1)} of ${formatInt(order.length)}.`);
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLCanvasElement>) {
@@ -391,12 +464,13 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
   const tipProduct = tip ? productById.get(tip.id) : null;
   const tipChange = tip ? changeById.get(tip.id) : undefined;
   const narrow = size?.narrow ?? false;
+  const title = story.steps.find((s) => s.kind === step)?.title ?? "";
 
   return (
     <figure className="sticky" aria-label={`Chart of ${formatInt(products.length)} tracked products and their recorded changes`}>
       <figcaption className="g-head">
-        <div className="swap" key={`${step}-${story.steps.find((s) => s.kind === step)?.title ?? ""}`}>
-          <p className="g-title">{story.steps.find((s) => s.kind === step)?.title ?? ""}</p>
+        <div className="swap" key={`${step}-${title}`}>
+          <p className="g-title">{title}</p>
           <div className="g-legend">
             <Legend step={step} />
           </div>
@@ -418,8 +492,8 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
             if (tip && !tip.touch) hideTip();
           }}
         />
-        {size && layouts ? <Overlay size={size} layouts={layouts} story={story} step={step} /> : null}
-        <SizeCards ref={cardsRef} shrinks={story.shrinks} grows={story.grows} step={step} />
+        {size && layouts ? <Overlay size={size} layouts={layouts} step={step} /> : null}
+        <SizeCards ref={cardsRef} shrinks={story.shrinks} grows={story.grows} step={step} compact={compactCards} />
         {tip && tipProduct ? (
           <TipBox
             tip={tip}
@@ -466,7 +540,7 @@ function TipBox({
     setPos({ x: Math.round(x), y: Math.round(y) });
   }, [tip, stage]);
   const dir = change ? direction(change) : kindDirection(product.change);
-  const pct = change ? formatPercent(change.unit_price_change_pct ?? change.price_change_pct) : null;
+  const pct = change ? formatPercent(unitChangePct(change)) : null;
   const unit = change?.after?.unit_price?.unit;
   return (
     <div
@@ -497,93 +571,18 @@ function TipBox({
   );
 }
 
-function Overlay({
-  size,
-  layouts,
-  story,
-  step,
-}: {
-  size: Size;
-  layouts: { grid: GridLayout; swarm: SwarmLayout };
-  story: Story;
-  step: StepKind;
-}) {
-  const { grid, swarm } = layouts;
+function Overlay({ size, layouts, step }: { size: Size; layouts: Layouts; step: StepKind }) {
+  const { grid, chart } = layouts;
+  const { swarm, axisY } = chart;
   const narrow = size.narrow;
-  const fs = narrow ? 11 : undefined;
-  const axisY = swarm.maxY + (narrow ? 16 : 26);
-  const labelY = axisY + (narrow ? 40 : 46);
-  const tickText = (v: number) => (v === 0 ? "0" : formatPercent(v, 0)!);
-
-  // Annotation labels: the largest decrease prefers to read to the right of its dot and the
-  // largest increase to the left. A label that would leave the stage or overlap the other
-  // flips to the other side; if neither side is free it is lifted above the first.
-  interface Placed {
-    key: string;
-    x: number;
-    y: number;
-    anchor: "start" | "end";
-    textX: number;
-    top: number;
-    rows: string[];
-    x0: number;
-    x1: number;
-  }
-  const annotations: Placed[] = [];
-  const charW = narrow ? 5.6 : 6.6;
-  const rowH = narrow ? 13 : 16;
-  const gap = narrow ? 4 : 6;
-  const annTop = swarm.minY - (narrow ? 40 : 64);
-  const candidates = [story.annotations.down, story.annotations.up]
-    .map((a, i) =>
-      a && swarm.positions.get(a.id) ? { a, p: swarm.positions.get(a.id)!, prefer: i === 0 ? ("start" as const) : ("end" as const) } : null,
-    )
-    .filter((c): c is NonNullable<typeof c> => c !== null);
-  for (const c of candidates) {
-    const rows = narrow ? [shortName(c.a.short, 22), ...c.a.line.split(", ")] : [c.a.short, c.a.line];
-    const w = Math.max(...rows.map((row) => row.length)) * charW;
-    const boxFor = (anchor: "start" | "end") => {
-      const x0 = anchor === "start" ? c.p.x + gap : c.p.x - gap - w;
-      return { anchor, x0, x1: x0 + w };
-    };
-    const order: ("start" | "end")[] = c.prefer === "start" ? ["start", "end"] : ["end", "start"];
-    const free = order
-      .map(boxFor)
-      .find(
-        (box) =>
-          box.x0 >= -4 &&
-          box.x1 <= size.width + 10 &&
-          !annotations.some((other) => other.top === annTop && box.x0 < other.x1 + 12 && box.x1 > other.x0 - 12),
-      );
-    const box = free ?? boxFor(c.prefer);
-    const top = free ? annTop : Math.min(...annotations.map((a) => a.top)) - rows.length * rowH - 6;
-    annotations.push({
-      key: c.a.id,
-      x: c.p.x,
-      y: c.p.y,
-      anchor: box.anchor,
-      textX: box.anchor === "start" ? box.x0 : box.x1,
-      top,
-      rows,
-      x0: box.x0,
-      x1: box.x1,
-    });
-  }
-
   const offZones = [swarm.left, swarm.right].filter((zone): zone is NonNullable<typeof zone> => zone !== null);
-  const offCount = story.offScale.length;
-  const offLabel = offCount
-    ? story.offScale.every((a) => story.shrinks.some((s) => s.id === a.id))
-      ? "listed size went down"
-      : "listed size changed"
-    : "";
 
   return (
     <svg className="g-svg" viewBox={`0 0 ${size.width} ${size.height}`} data-step={step} aria-hidden="true">
       <g className="ly ly-grid">
         {grid.labels.map((label) =>
           label.above ? (
-            <text key={label.name} className="t-cat" x={0} y={label.y} fontSize={11}>
+            <text key={label.name} className="t-cat" x={0} y={label.y}>
               {label.name} <tspan className="t-n">{formatInt(label.count)}</tspan>
             </text>
           ) : (
@@ -610,26 +609,16 @@ function Overlay({
         </g>
       ) : null}
       <g className="ly ly-axis">
-        <line className="s-zero" x1={swarm.sx(0)} x2={swarm.sx(0)} y1={swarm.minY - (narrow ? 8 : 14)} y2={axisY} />
+        <line className="s-zero" x1={swarm.sx(0)} x2={swarm.sx(0)} y1={chart.zeroTop} y2={axisY} />
         <line className="s-axis" x1={swarm.x0} x2={swarm.x1} y1={axisY} y2={axisY} />
-        {swarm.ticks.map((v) => {
-          const x = swarm.sx(v);
-          const edge = narrow && (v === swarm.ticks[0] || v === swarm.ticks[swarm.ticks.length - 1]);
-          return (
-            <g key={v}>
-              <line className="s-tick" x1={x} x2={x} y1={axisY} y2={axisY + 5} />
-              <text
-                className="t-tick"
-                x={x}
-                y={axisY + 19}
-                fontSize={fs}
-                textAnchor={edge ? (v < 0 ? "start" : "end") : "middle"}
-              >
-                {tickText(v)}
-              </text>
-            </g>
-          );
-        })}
+        {swarm.ticks.map((v) => (
+          <line key={v} className="s-tick" x1={swarm.sx(v)} x2={swarm.sx(v)} y1={axisY} y2={axisY + 5} />
+        ))}
+        {chart.ticks.map((tick) => (
+          <text key={tick.text} className="t-tick" x={tick.x} y={tick.y} textAnchor={tick.anchor}>
+            {tick.text}
+          </text>
+        ))}
         {offZones.map((zone) => {
           const isRight = zone === swarm.right;
           const bx = isRight ? swarm.x1 + (narrow ? 9 : 16) : swarm.x0 - (narrow ? 9 : 16);
@@ -648,68 +637,53 @@ function Overlay({
                 fill="none"
               />
               {zone.columns.map((column, i) => (
-                <g key={i}>
-                  <line className="s-tick" x1={column.x} x2={column.x} y1={axisY} y2={axisY + 5} />
-                  <text
-                    className="t-tick"
-                    x={column.x}
-                    y={axisY + 19}
-                    fontSize={fs}
-                    textAnchor={narrow && i === zone.columns.length - 1 && isRight ? "end" : "middle"}
-                  >
-                    {formatPercent(column.value, 0)}
-                  </text>
-                </g>
+                <line key={i} className="s-tick" x1={column.x} x2={column.x} y1={axisY} y2={axisY + 5} />
               ))}
             </g>
           );
         })}
-        <text className="t-axl" x={swarm.sx(0) - 10} y={labelY} textAnchor="end" fontSize={fs}>
-          {"← Price per unit fell"}
-        </text>
-        <text className="t-axl" x={swarm.sx(0) + 10} y={labelY} fontSize={fs}>
-          {"Price per unit rose →"}
-        </text>
+        {chart.offTicks.map((tick, i) => (
+          <text key={i} className="t-tick" x={tick.x} y={tick.y} textAnchor={tick.anchor}>
+            {tick.text}
+          </text>
+        ))}
+        {chart.captions.map((caption) => (
+          <text key={caption.text} className="t-axl" x={caption.x} y={caption.y} textAnchor={caption.anchor}>
+            {caption.text}
+          </text>
+        ))}
       </g>
       <g className="ly ly-ann">
-        {annotations.map((a) => (
-          <g key={a.key}>
-            <line className="s-lead" x1={a.x} x2={a.x} y1={a.y - swarm.r - 3} y2={a.top + 8} />
-            <line className="s-lead" x1={a.x} x2={a.textX} y1={a.top + 8} y2={a.top + 8} />
+        {chart.annotations.map((a) => (
+          <g key={a.id}>
+            <line className="s-lead" x1={a.x} x2={a.x} y1={a.y - swarm.r - 3} y2={a.leaderY} />
+            <line className="s-lead" x1={a.x} x2={a.textX} y1={a.leaderY} y2={a.leaderY} />
             {a.rows.map((row, i) => (
               <text
                 key={i}
-                className={i === 0 ? "t-ann-b" : "t-ann"}
+                className={row.bold ? "t-ann-b" : "t-ann"}
                 x={a.textX}
-                y={a.top - (a.rows.length - 1 - i) * rowH}
+                y={a.base - (a.rows.length - 1 - i) * chart.rowH}
                 textAnchor={a.anchor}
-                fontSize={fs}
               >
-                {row}
+                {row.text}
               </text>
             ))}
           </g>
         ))}
-        {swarm.right && offCount ? (
-          <>
-            <text className="t-ann-b" x={swarm.right.x1} y={swarm.cy - (narrow ? 34 : 46)} textAnchor="end" fontSize={fs}>
-              {offCount} off the scale
-            </text>
-            <text className="t-ann" x={swarm.right.x1} y={swarm.cy - (narrow ? 21 : 29)} textAnchor="end" fontSize={fs}>
-              {offLabel}
-            </text>
-          </>
-        ) : null}
-        {swarm.left && !swarm.right && offCount ? (
-          <>
-            <text className="t-ann-b" x={swarm.left.x0} y={swarm.cy - (narrow ? 34 : 46)} fontSize={fs}>
-              {offCount} off the scale
-            </text>
-            <text className="t-ann" x={swarm.left.x0} y={swarm.cy - (narrow ? 21 : 29)} fontSize={fs}>
-              {offLabel}
-            </text>
-          </>
-        ) : null}
+        {chart.offLabel
+          ? chart.offLabel.rows.map((row, i, rows) => (
+              <text
+                key={i}
+                className={row.bold ? "t-ann-b" : "t-ann"}
+                x={chart.offLabel!.x}
+                y={chart.offLabel!.base - (rows.length - 1 - i) * chart.rowH}
+                textAnchor={chart.offLabel!.anchor}
+              >
+                {row.text}
+              </text>
+            ))
+          : null}
       </g>
     </svg>
   );

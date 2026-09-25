@@ -75,8 +75,10 @@ export function layoutGrid(categories: GridCategory[], options: GridOptions): Gr
     return { positions, r: pitch * 0.37, pitch, labels, labelWidth: LABEL_WIDTH };
   }
 
-  const labelH = 16;
-  const gapY = 5;
+  // 11 px labels (set by the overlay) on a 15 px line, so the thirteen category rows still leave
+  // room for dots on a 740 px tall phone.
+  const labelH = 15;
+  const gapY = 4;
   let cols = 140;
   for (let candidate = 34; candidate <= 140; candidate += 1) {
     const pitch = width / candidate;

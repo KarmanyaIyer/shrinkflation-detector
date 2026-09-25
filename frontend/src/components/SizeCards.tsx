@@ -1,13 +1,17 @@
-import { forwardRef } from "react";
-import { Link } from "react-router";
+import { forwardRef, type CSSProperties } from "react";
 import { formatPercent, quoted, unitWord } from "../lib/format";
-import { productPath, useOpenProduct } from "../lib/drawerRoute";
 import type { SizeCase, StepKind } from "../lib/story";
+import { displayName } from "../lib/text";
+import { ProductLink } from "./ProductLink";
 
 // The before and after label cards for the size steps. The canvas dot for each product lands
 // on the `.sc-dot` placeholder, measured by the graphic after layout.
+//
+// On a wide stage every card sits in one grid whose rows are shared through subgrid, so the
+// package boxes and figures line up across both groups whatever the length of the names. On a
+// compact stage the cards are rows and only the group for the current step is shown.
 function Card({ item, active }: { item: SizeCase; active: boolean }) {
-  const openProduct = useOpenProduct();
+  const kind = item.kind === "grow" ? "grow" : "shrink";
   const qb = item.quantityBefore ?? 1;
   const qa = item.quantityAfter ?? 1;
   const max = Math.max(qb, qa, 0.0001);
@@ -22,25 +26,18 @@ function Card({ item, active }: { item: SizeCase; active: boolean }) {
         : "No shelf price listed";
   const pct = formatPercent(item.unitPct);
   const unit = unitWord(item.unit);
+  // A dimmed card is context for the active group, not something to use: it leaves the tab
+  // order and the accessibility tree until its step comes up.
   return (
-    <div className={`sc ${item.kind === "grow" ? "grow" : "shrink"}${active ? " on" : ""}`} data-id={item.id}>
+    <div className={`sc ${kind}${active ? " on" : ""}`} data-id={item.id} inert={!active} aria-hidden={!active}>
       <span className="sc-top">
-        <span className="sc-dot" data-dot={item.id} aria-hidden="true" />
-        <Link
-          className="sc-name"
-          to={productPath(item.id)}
-          state={{ fromArticle: true }}
-          onClick={(event) => {
-            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-            event.preventDefault();
-            openProduct(item.id, event.currentTarget);
-          }}
-        >
-          {item.short}
-        </Link>
+        <span className="sc-dot" data-dot={item.id} data-kind={kind} aria-hidden="true" />
+        <ProductLink id={item.id} className="sc-name">
+          {displayName(item.name)}
+        </ProductLink>
       </span>
       <span className="sc-when">{item.when}</span>
-      <span className="pk" aria-hidden="true" style={{ ["--hb" as string]: hb, ["--ha" as string]: ha }}>
+      <span className="pk" aria-hidden="true" style={{ "--hb": hb, "--ha": ha } as CSSProperties}>
         <span className="pk-col">
           <span className="pk-box pk-before" />
         </span>
@@ -60,17 +57,20 @@ function Card({ item, active }: { item: SizeCase; active: boolean }) {
         </span>
       </span>
       <span className="sc-price">{price}</span>
-      {pct ? <span className="sc-big">{pct}</span> : null}
-      {item.unitBefore && item.unitAfter ? (
-        <span className="sc-bigl">
-          Price per {unit}
-          <br />
-          {item.unitBefore} to {item.unitAfter}
-        </span>
-      ) : null}
-      {item.note ? <span className="sc-note">{item.note}</span> : null}
+      {/* Always rendered so each card fills the same subgrid rows. */}
+      <span className="sc-big">{pct ?? ""}</span>
+      <span className="sc-bigl">
+        {item.unitBefore && item.unitAfter ? (
+          <>
+            Price per {unit}
+            <br />
+            {item.unitBefore} to {item.unitAfter}
+          </>
+        ) : null}
+      </span>
+      <span className="sc-note">{item.note}</span>
       <span className="sc-compact">
-        {quoted(item.before)} to {quoted(item.after)}
+        <span className="nw">{quoted(item.before)}</span> to <span className="nw">{quoted(item.after)}</span>
         {item.priceAfter ? ` at ${item.priceAfter}` : ""}
         <br />
         {pct ? <b>{pct}</b> : null}
@@ -83,31 +83,43 @@ function Card({ item, active }: { item: SizeCase; active: boolean }) {
 
 export const SizeCards = forwardRef<
   HTMLDivElement,
-  { shrinks: SizeCase[]; grows: SizeCase[]; step: StepKind }
->(function SizeCards({ shrinks, grows, step }, ref) {
+  { shrinks: SizeCase[]; grows: SizeCase[]; step: StepKind; compact: boolean }
+>(function SizeCards({ shrinks, grows, step, compact }, ref) {
   const shown = step === "shrinks" || step === "grows";
+  const ns = shrinks.length;
+  const ng = grows.length;
+  // Shrink columns may narrow to nothing; grow columns keep room for their one-line heading.
+  const columns = compact
+    ? undefined
+    : ({ gridTemplateColumns: `repeat(${ns}, minmax(0, 1fr)) repeat(${ng}, 1fr)` } as CSSProperties);
   return (
-    <div className="g-cards" ref={ref} data-step={step} aria-hidden={!shown} inert={!shown}>
-      {shrinks.length ? (
-        <div className="sc-group shrank">
-          <p className="sc-h">Size text went down</p>
-          <div className="sc-row">
-            {shrinks.map((item) => (
-              <Card key={item.id} item={item} active={step === "shrinks"} />
-            ))}
+    <div className={`g-cards${compact ? " compact" : ""}`} ref={ref} data-step={step} aria-hidden={!shown} inert={!shown}>
+      <div className="sc-grid" style={columns}>
+        {ns ? (
+          <div className={`sc-group shrank${step === "shrinks" ? " on" : ""}`}>
+            <p className="sc-h" style={compact ? undefined : { gridColumn: `1 / span ${ns}` }}>
+              Size text went down
+            </p>
+            <div className="sc-row">
+              {shrinks.map((item) => (
+                <Card key={item.id} item={item} active={step === "shrinks"} />
+              ))}
+            </div>
           </div>
-        </div>
-      ) : null}
-      {grows.length ? (
-        <div className="sc-group grew">
-          <p className="sc-h">Size text went up</p>
-          <div className="sc-row">
-            {grows.map((item) => (
-              <Card key={item.id} item={item} active={step === "grows"} />
-            ))}
+        ) : null}
+        {ng ? (
+          <div className={`sc-group grew${step === "grows" ? " on" : ""}${ns ? "" : " only"}`}>
+            <p className="sc-h" style={compact ? undefined : { gridColumn: `${ns + 1} / span ${ng}` }}>
+              Size text went up
+            </p>
+            <div className="sc-row">
+              {grows.map((item) => (
+                <Card key={item.id} item={item} active={step === "grows"} />
+              ))}
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </div>
   );
 });

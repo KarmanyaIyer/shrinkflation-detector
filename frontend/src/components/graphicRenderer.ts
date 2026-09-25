@@ -30,6 +30,9 @@ export interface Geometry {
   height: number;
   dpr: number;
   narrow: boolean;
+  // The size cards are the one-group-at-a-time rows of a short stage, so the dots of the group
+  // not shown are hidden instead of dimmed.
+  compactCards: boolean;
   grid: GridLayout;
   swarm: SwarmLayout;
   // Centers of the card dots for the size steps, measured from the DOM.
@@ -65,7 +68,7 @@ export class GraphicRenderer {
   private readonly byId = new Map<string, Dot>();
   private readonly drawOrder: Dot[];
   private geometry: Geometry | null = null;
-  private step: StepKind = "grid";
+  private step: StepKind;
   private frame = 0;
   private t0 = 0;
   private tweening = false;
@@ -78,8 +81,12 @@ export class GraphicRenderer {
     private readonly canvas: HTMLCanvasElement,
     inputs: DotInput[],
     private readonly reduced: boolean,
+    // The step on screen when the renderer is created, so a renderer rebuilt mid-story starts
+    // where the reader is.
+    initial: StepKind = "grid",
     private readonly onSettled?: () => void,
   ) {
+    this.step = initial;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("canvas 2d context unavailable");
     this.ctx = ctx;
@@ -197,7 +204,7 @@ export class GraphicRenderer {
   }
 
   private targetFor(dot: Dot, step: StepKind, geometry: Geometry): Target {
-    const { grid, swarm, cards, narrow } = geometry;
+    const { grid, swarm, cards, narrow, compactCards } = geometry;
     const gp = grid.positions.get(dot.id) ?? { x: 0, y: 0 };
     const color = dot.direction === "more" ? RGB.more : dot.direction === "less" ? RGB.less : RGB.neutral;
     const atGrid = (c: Target["c"], a: number): Target => ({ x: gp.x, y: gp.y, r: grid.r, a, c });
@@ -215,7 +222,7 @@ export class GraphicRenderer {
         if (dot.sizeKind) {
           const p = cards.get(dot.id) ?? sw ?? gp;
           const on = step === "shrinks" ? dot.sizeKind === "shrink" : dot.sizeKind === "grow";
-          return { x: p.x, y: p.y, r: narrow ? 5 : 7, a: on ? 1 : 0.26, c: color };
+          return { x: p.x, y: p.y, r: narrow || compactCards ? 5 : 7, a: on ? 1 : compactCards ? 0 : 0.26, c: color };
         }
         if (dot.direction && sw) return { x: sw.x, y: sw.y, r: swarm.r, a: 0, c: color };
         return atGrid(RGB.neutral, 0);

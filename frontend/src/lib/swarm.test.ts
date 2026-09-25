@@ -82,6 +82,24 @@ describe("layoutSwarm", () => {
   });
 });
 
+describe("layoutSwarm on a short stage", () => {
+  it("starts the swarm at the given top, keeps the bottom room, and reports dot edges", () => {
+    const top = 120;
+    const bottom = 50;
+    const short = layoutSwarm(dots, { width: 358, height: 333, narrow: true, top, bottom });
+    expect(Math.abs(short.minY - top)).toBeLessThanOrEqual(0.5);
+    expect(short.maxY).toBeLessThanOrEqual(333 - bottom + 0.5);
+    for (const p of short.positions.values()) {
+      expect(p.y - short.r).toBeGreaterThanOrEqual(short.minY - 0.01);
+      expect(p.y + short.r).toBeLessThanOrEqual(short.maxY + 0.01);
+    }
+    // Phones start from larger dots than before (5.6 px) and only shrink them to fit.
+    const roomy = layoutSwarm(dots, { width: 358, height: 600, narrow: true, top: 60, bottom: 50 });
+    expect(roomy.r).toBeCloseTo(5.6, 5);
+    expect(short.r).toBeLessThanOrEqual(roomy.r);
+  });
+});
+
 describe("scale helpers", () => {
   it("picks the smallest round cap and readable ticks", () => {
     expect(capFor([3, -27.3, 23.1])).toBe(30);

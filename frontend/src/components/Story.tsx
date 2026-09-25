@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { CategoryCount, ChangeOut, FieldProduct } from "../api/types";
 import type { Run, Story as StoryData, StoryStep } from "../lib/story";
 import { useOpenProduct } from "../lib/drawerRoute";
+import { STACKED_QUERY } from "../lib/layout";
 import { Graphic } from "./Graphic";
+import { ProductLink } from "./ProductLink";
 
 function coarsePointer(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
@@ -30,6 +32,13 @@ export function renderRuns(runs: Run[], pickVerb = "Select a dot"): ReactNode[] 
         </a>
       );
     }
+    if ("product" in run) {
+      return (
+        <ProductLink key={i} id={run.product} className="pn">
+          {run.text}
+        </ProductLink>
+      );
+    }
     return <span key={i}>{pickVerb}</span>;
   });
 }
@@ -46,8 +55,8 @@ function StepText({ step, pickVerb }: { step: StoryStep; pickVerb: string }) {
 }
 
 // The last step whose top has crossed the trigger line is the active one.
-function activeStep(steps: HTMLElement[], phone: boolean): number {
-  const trigger = window.innerHeight * (phone ? 0.8 : 0.62);
+function activeStep(steps: HTMLElement[], stacked: boolean): number {
+  const trigger = window.innerHeight * (stacked ? 0.8 : 0.62);
   let index = 0;
   steps.forEach((element, i) => {
     if (element.getBoundingClientRect().top < trigger) index = i;
@@ -75,17 +84,14 @@ export function Story({
   useEffect(() => {
     const container = stepsRef.current;
     if (!container || !steps) return undefined;
-    let queued = false;
+    let frame = 0;
     const update = () => {
-      queued = false;
+      frame = 0;
       const elements = Array.from(container.querySelectorAll<HTMLElement>(".step"));
-      const phone = window.innerWidth <= 760;
-      setIndex(activeStep(elements, phone));
+      setIndex(activeStep(elements, window.matchMedia(STACKED_QUERY).matches));
     };
     const onScroll = () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(update);
+      if (!frame) frame = requestAnimationFrame(update);
     };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -93,6 +99,7 @@ export function Story({
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(frame);
     };
   }, [steps]);
 
