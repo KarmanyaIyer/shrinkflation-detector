@@ -1,5 +1,5 @@
+import type { CSSProperties } from "react";
 import type { Story } from "../lib/story";
-import { SkLine } from "./Status";
 import { renderRuns } from "./Story";
 
 const SKIP = [
@@ -8,6 +8,29 @@ const SKIP = [
   { href: "#search", label: "Find a product" },
   { href: "#how", label: "How this works" },
 ];
+
+// Placeholder lines for text that has not loaded. Each line is exactly one line box of the
+// element it sits in (1lh), so the skeleton has the height of that many lines of the final
+// text and nothing moves when the text lands. Line counts differ by layout: "w" lines show only
+// above the phone breakpoint, "n" lines only below it. Measured on the current copy: the
+// headline takes 4 lines from 768 to 1440 px and 5 on a phone, the dek 2 and 4, the lede 5 and
+// 7 (8 at 360 px).
+type SkSpec = [width: string, only?: "w" | "n"];
+
+function SkText({ lines }: { lines: SkSpec[] }) {
+  return (
+    <>
+      {lines.map(([width, only], i) => (
+        <span key={i} className={`skl${only ? ` ${only}` : ""}`} style={{ "--w": width } as CSSProperties} />
+      ))}
+    </>
+  );
+}
+
+const HED: SkSpec[] = [["96%"], ["90%"], ["94%"], ["62%", "w"], ["92%", "n"], ["48%", "n"]];
+const DEK: SkSpec[] = [["98%"], ["70%", "w"], ["96%", "n"], ["92%", "n"], ["44%", "n"]];
+const WHEN: SkSpec[] = [["62%"]];
+const LEDE: SkSpec[] = [["100%"], ["97%"], ["99%"], ["95%"], ["30%", "w"], ["98%", "n"], ["96%", "n"], ["45%", "n"]];
 
 export function ArticleHead({ story }: { story: Story | null }) {
   return (
@@ -18,16 +41,14 @@ export function ArticleHead({ story }: { story: Story | null }) {
       ) : (
         <h1 aria-busy="true">
           <span className="sr-only">Loading the latest figures</span>
-          <SkLine width="92%" height={44} />
-          <SkLine width="74%" height={44} />
+          <SkText lines={HED} />
         </h1>
       )}
       {story ? (
-        <p className="dek">{story.dek}</p>
+        <p className="dek">{renderRuns(story.dek)}</p>
       ) : (
         <p className="dek" aria-hidden="true">
-          <SkLine width="96%" height={20} />
-          <SkLine width="58%" height={20} />
+          <SkText lines={DEK} />
         </p>
       )}
       <p className="byline">
@@ -40,8 +61,8 @@ export function ArticleHead({ story }: { story: Story | null }) {
         {story ? (
           <span className="when">{story.freshness}</span>
         ) : (
-          <span className="when" aria-hidden="true">
-            <SkLine width={260} height={12} />
+          <span className="when sk-when" aria-hidden="true">
+            <SkText lines={WHEN} />
           </span>
         )}
       </p>
@@ -49,10 +70,7 @@ export function ArticleHead({ story }: { story: Story | null }) {
         <p className="lede">{renderRuns(story.lede)}</p>
       ) : (
         <p className="lede" aria-hidden="true">
-          <SkLine width="100%" height={16} />
-          <SkLine width="100%" height={16} />
-          <SkLine width="100%" height={16} />
-          <SkLine width="46%" height={16} />
+          <SkText lines={LEDE} />
         </p>
       )}
       <nav className="skip" aria-label="Jump to a tool">

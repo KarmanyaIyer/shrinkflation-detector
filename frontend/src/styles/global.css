@@ -124,8 +124,23 @@ main:focus {
 .sk-line + .sk-line {
   margin-top: 8px;
 }
-h1 .sk-line {
-  margin: 8px 0;
+/* A head skeleton line is exactly one line box of the text it stands in for (1lh tall, with
+   a bar drawn in the middle), so the loaded text takes the same height and nothing below it
+   moves. "w" lines show only above the phone breakpoint, "n" lines only below it. */
+.skl {
+  display: block;
+  height: 1lh;
+  background: linear-gradient(#ececec, #ececec) no-repeat left center / var(--w, 100%) 0.62em;
+}
+.skl.n {
+  display: none;
+}
+/* An empty block has no text baseline, so it would sit on the byline's baseline and push the
+   row down; centering keeps the row one line tall. */
+.byline .sk-when {
+  flex: 1;
+  min-width: 200px;
+  align-self: center;
 }
 .g-sk {
   background: repeating-linear-gradient(0deg, #f2f2f2 0 10px, var(--paper) 10px 22px);
@@ -410,9 +425,6 @@ figure {
   pointer-events: none;
   overflow: visible;
 }
-.g-stage.fade canvas {
-  animation: fadein 0.3s ease both;
-}
 .g-source {
   flex: none;
   margin: 8px 0 0;
@@ -478,6 +490,18 @@ figure {
   font: 13px var(--sans);
   fill: var(--ink);
 }
+/* The label sizes here match CHART_FONTS in lib/chartLayout.ts, which measures these labels
+   to keep them inside the stage. */
+.g-stage.narrow .t-ann,
+.g-stage.narrow .t-ann-b,
+.g-stage.narrow .t-axl {
+  font-size: 12px;
+}
+.g-stage.narrow .t-tick,
+.g-stage.narrow .t-cat,
+.g-stage.narrow .t-n {
+  font-size: 11px;
+}
 .t-halo {
   stroke: #fff;
   stroke-width: 4px;
@@ -502,7 +526,6 @@ figure {
   inset: 0;
   display: flex;
   align-items: center;
-  gap: 28px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
@@ -513,56 +536,51 @@ figure {
   pointer-events: auto;
   transition-delay: 0.25s;
 }
-.sc-group {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
+/* Wide stage: one grid for both groups. Each card spans the eight shared rows through
+   subgrid, so the boxes and figures line up across cards and groups. */
+.sc-grid {
+  display: grid;
+  width: 100%;
+  column-gap: 22px;
+  grid-template-rows: auto repeat(8, auto);
 }
-.sc-group.shrank {
-  flex: 3;
-}
-.sc-group.grew {
-  flex: 1;
-  border-left: 1px solid var(--rule);
-  padding-left: 28px;
-}
-.sc-group.grew:first-child {
-  border-left: 0;
-  padding-left: 0;
+.sc-group,
+.sc-row {
+  display: contents;
 }
 .sc-h {
+  grid-row: 1;
   margin: 0;
+  padding-bottom: 14px;
   font: 700 12px/1 var(--sans);
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
-.sc-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-}
-.sc-group.grew .sc-row {
-  grid-template-columns: 1fr;
+.g-cards:not(.compact) .sc-group.grew:not(.only) .sc-h,
+.g-cards:not(.compact) .sc-group.grew:not(.only) .sc:first-child {
+  border-left: 1px solid var(--rule);
+  padding-left: 22px;
 }
 .sc {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  grid-row: 2 / span 8;
+  display: grid;
+  grid-template-rows: subgrid;
+  justify-items: start;
+  align-content: start;
   text-align: left;
   transition: opacity 0.45s ease;
   font-family: var(--sans);
   min-width: 0;
 }
-.g-cards[data-step="shrinks"] .sc.grow,
-.g-cards[data-step="grows"] .sc.shrink {
+.g-cards:not(.compact)[data-step="shrinks"] .sc.grow,
+.g-cards:not(.compact)[data-step="grows"] .sc.shrink {
   opacity: 0.26;
 }
 .sc-top {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  min-height: 48px;
 }
 .sc-dot {
   width: 14px;
@@ -661,10 +679,10 @@ figure {
   background: var(--ink);
 }
 .sc-price {
+  justify-self: stretch;
   margin: 14px 0 0;
   padding-top: 10px;
   border-top: 1px solid var(--rule);
-  width: 100%;
   font: 14px/1.35 var(--sans);
 }
 .sc-big {
@@ -689,79 +707,123 @@ figure {
   font: 13px/1.4 var(--sans);
   color: var(--ink);
 }
+.sc-big:empty,
+.sc-bigl:empty,
+.sc-note:empty {
+  margin: 0;
+}
 .sc-compact {
   display: none;
 }
-/* narrow graphic: cards become rows */
-.g-stage.narrow .g-cards {
-  flex-direction: column;
+.sc-compact b {
+  font-weight: 700;
+}
+.nw {
+  white-space: nowrap;
+}
+/* Compact stage (a phone, or the short band at the top of a tablet): each card is a row, and
+   the two groups share one place, so only the group of the current step shows. */
+.g-cards.compact {
   align-items: stretch;
-  justify-content: center;
+}
+.g-cards.compact .sc-grid {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: none;
+  grid-template-areas: "g";
+  align-items: center;
+}
+.g-cards.compact .sc-group {
+  grid-area: g;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.g-cards.compact .sc-group.on {
+  opacity: 1;
+}
+.g-cards.compact .sc-row {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
-.g-stage.narrow .sc-group {
-  gap: 6px;
-  flex: none;
+/* The graphic title already names the one group on screen. */
+.g-cards.compact .sc-h {
+  display: none;
 }
-.g-stage.narrow .sc-group.grew {
-  border-left: 0;
-  padding-left: 0;
-}
-.g-stage.narrow .sc-h {
-  border-top: 1px solid var(--rule);
-  padding-top: 7px;
-  font-size: 11px;
-}
-.g-stage.narrow .sc-row {
-  grid-template-columns: 1fr;
-  gap: 6px;
-}
-.g-stage.narrow .sc {
-  display: grid;
-  grid-template-columns: 58px 1fr;
+.g-cards.compact .sc {
+  grid-row: auto;
+  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   grid-template-areas: "pk top" "pk cmp";
   column-gap: 10px;
   align-items: start;
 }
-.g-stage.narrow .pk {
+.g-cards.compact .pk {
   grid-area: pk;
   height: 54px;
   margin: 2px 0 0;
   gap: 6px;
 }
-.g-stage.narrow .pk-col {
+.g-cards.compact .pk-col {
   width: 22px;
 }
-.g-stage.narrow .sc-top {
+.g-cards.compact .sc-top {
   grid-area: top;
-  min-height: 0;
   gap: 6px;
 }
-.g-stage.narrow .sc-dot {
+.g-cards.compact .sc-dot {
   width: 10px;
   height: 10px;
   margin-top: 5px;
 }
-.g-stage.narrow .sc-name {
+.g-cards.compact .sc-name {
   font-size: 15px;
   line-height: 1.3;
 }
-.g-stage.narrow .sc-when,
-.g-stage.narrow .sc-labels,
-.g-stage.narrow .sc-price,
-.g-stage.narrow .sc-big,
-.g-stage.narrow .sc-bigl,
-.g-stage.narrow .sc-note {
+.g-cards.compact .sc-when,
+.g-cards.compact .sc-labels,
+.g-cards.compact .sc-price,
+.g-cards.compact .sc-big,
+.g-cards.compact .sc-bigl,
+.g-cards.compact .sc-note {
   display: none;
 }
-.g-stage.narrow .sc-compact {
+.g-cards.compact .sc-compact {
   display: block;
   grid-area: cmp;
   margin: 2px 0 0 16px;
   font: 13px/1.35 var(--sans);
 }
-.sc-compact b {
-  font-weight: 700;
+
+/* Compact rows on a wide stage (a tablet, or a short desktop window) get larger type and boxes. */
+.g-stage:not(.narrow) .g-cards.compact .sc-row {
+  gap: 20px;
+}
+.g-stage:not(.narrow) .g-cards.compact .sc {
+  grid-template-columns: 84px minmax(0, 1fr);
+  column-gap: 16px;
+}
+.g-stage:not(.narrow) .g-cards.compact .pk {
+  height: 92px;
+  gap: 8px;
+}
+.g-stage:not(.narrow) .g-cards.compact .pk-col {
+  width: 34px;
+}
+.g-stage:not(.narrow) .g-cards.compact .sc-dot {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+}
+.g-stage:not(.narrow) .g-cards.compact .sc-name {
+  font-size: 19px;
+}
+.g-stage:not(.narrow) .g-cards.compact .sc-compact {
+  margin: 4px 0 0 18px;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 /* tooltip */
@@ -1220,7 +1282,7 @@ details.how[open] summary::before {
   vertical-align: bottom;
   white-space: nowrap;
 }
-.ch-table th button {
+.ch-table thead th button {
   all: unset;
   cursor: pointer;
   display: inline-flex;
@@ -1231,15 +1293,22 @@ details.how[open] summary::before {
   text-transform: inherit;
   min-height: 32px;
 }
+/* Plain headers get the same 32 px box as the sort buttons, so every header label sits on
+   the same line. */
+.ch-table thead .th-l {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
 .ch-table th sup {
   font-size: 10px;
   margin-left: 2px;
 }
-.ch-table th button:focus-visible {
+.ch-table thead th button:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
-.ch-table th button::after {
+.ch-table thead th button::after {
   content: "";
   width: 0;
   height: 0;
@@ -1247,15 +1316,15 @@ details.how[open] summary::before {
   border-right: 4px solid transparent;
   border-top: 5px solid var(--rule);
 }
-.ch-table th[aria-sort="descending"] button::after {
+.ch-table thead th[aria-sort="descending"] button::after {
   border-top-color: var(--ink);
 }
-.ch-table th[aria-sort="ascending"] button::after {
+.ch-table thead th[aria-sort="ascending"] button::after {
   border-top: 0;
   border-bottom: 5px solid var(--ink);
 }
-.ch-table th[aria-sort="ascending"] button,
-.ch-table th[aria-sort="descending"] button {
+.ch-table thead th[aria-sort="ascending"] button,
+.ch-table thead th[aria-sort="descending"] button {
   color: var(--ink);
 }
 .ch-table tbody tr {
@@ -1494,6 +1563,9 @@ details.how[open] summary::before {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+}
+.fr-brand {
+  margin-left: 10px;
 }
 .fr-meta .kd {
   margin-left: 10px;
@@ -1893,13 +1965,12 @@ details.how[open] summary::before {
   }
 }
 
-/* phone */
-@media (max-width: 760px) {
+/* Stacked story, phones and tablets in portrait: the masthead takes two rows and scrolls away,
+   the graphic pins to the top of the screen, and the step cards scroll under it. The width
+   matches STACKED_QUERY in lib/layout.ts. */
+@media (max-width: 960px) {
   :root {
     --mast: auto;
-  }
-  body {
-    font-size: 18px;
   }
   html {
     scroll-padding-top: 12px;
@@ -1916,19 +1987,85 @@ details.how[open] summary::before {
   }
   .mast .back {
     grid-area: back;
-    font-size: 13px;
   }
   .mast-links {
     grid-area: gh;
+    gap: 20px;
   }
-  .mast-links a.opt {
-    display: none;
+  .mast-links a {
+    white-space: nowrap;
   }
   .mast-name {
     grid-area: name;
     justify-self: center;
     font-size: 22px;
     padding: 6px 0 14px;
+  }
+  .scrolly {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  .gcol {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    height: clamp(340px, 47svh, 460px);
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .sticky {
+    position: relative;
+    top: 0;
+    height: 100%;
+    min-height: 0;
+    padding: 8px 16px 6px;
+  }
+  .g-head {
+    min-height: 0;
+    padding: 7px 0 8px;
+  }
+  .g-source {
+    display: none;
+  }
+  .steps {
+    position: relative;
+    z-index: 1;
+    padding: 4svh 16px 8svh;
+  }
+  .step {
+    min-height: 0;
+    margin: 0 0 max(180px, 24svh);
+  }
+  .step:last-child {
+    margin-bottom: 10svh;
+  }
+  .step-in {
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--ink);
+    padding: 14px 16px 16px;
+    opacity: 1;
+  }
+}
+
+/* The two section links need about 520 px beside the back link. */
+@media (max-width: 519px) {
+  .mast-links a.opt {
+    display: none;
+  }
+}
+
+/* phone */
+@media (max-width: 760px) {
+  body {
+    font-size: 18px;
+  }
+  .mast .back {
+    font-size: 13px;
   }
   .head {
     padding: 28px 16px 4px;
@@ -1942,8 +2079,11 @@ details.how[open] summary::before {
     line-height: 1.1;
     margin-bottom: 16px;
   }
-  h1 .sk-line {
-    height: 30px !important;
+  .skl.n {
+    display: block;
+  }
+  .skl.w {
+    display: none;
   }
   .dek {
     font-size: 20px;
@@ -1964,34 +2104,6 @@ details.how[open] summary::before {
   .skip {
     gap: 0 18px;
   }
-  /* The graphic pins to the top half of the screen; the step cards scroll through the
-     lower half and slide under it. */
-  .scrolly {
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-  }
-  .gcol {
-    order: -1;
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    height: 52svh;
-    min-height: 330px;
-    background: var(--paper);
-    border-bottom: 1px solid var(--rule);
-  }
-  .sticky {
-    position: relative;
-    top: 0;
-    height: 100%;
-    min-height: 0;
-    padding: 8px 16px 6px;
-  }
-  .g-head {
-    min-height: 0;
-    padding: 7px 0 8px;
-  }
   .g-title {
     font-size: 14px;
     margin-bottom: 4px;
@@ -2004,28 +2116,6 @@ details.how[open] summary::before {
     width: 9px;
     height: 9px;
     margin-right: 5px;
-  }
-  .g-source {
-    display: none;
-  }
-  .steps {
-    position: relative;
-    z-index: 1;
-    padding: 4svh 16px 8svh;
-  }
-  .step {
-    min-height: 0;
-    margin: 0 0 38svh;
-  }
-  .step:last-child {
-    margin-bottom: 10svh;
-  }
-  .step-in {
-    background: var(--paper);
-    border: 1px solid var(--rule);
-    border-top: 2px solid var(--ink);
-    padding: 14px 16px 16px;
-    opacity: 1;
   }
   .step p {
     font-size: 18px;
@@ -2328,9 +2418,6 @@ details.how[open] summary::before {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
-  }
-  .g-stage.fade canvas {
-    animation: fadein 0.25s ease both !important;
   }
   .step-in {
     transition: opacity 0.2s ease !important;
