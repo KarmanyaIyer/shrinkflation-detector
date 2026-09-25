@@ -2098,6 +2098,15 @@ details.how[open] summary::before {
   .byline .sep {
     display: none;
   }
+  /* On a phone the freshness line after a recent check ("Last checked ... That check found
+     ...") takes two lines, so the skeleton and the loaded line both keep two lines of room and
+     the lede does not move when the data lands. */
+  .byline .when {
+    min-height: 2lh;
+  }
+  .byline .sk-when {
+    align-self: stretch;
+  }
   .lede {
     font-size: 18px;
   }
