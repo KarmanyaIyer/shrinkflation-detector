@@ -264,6 +264,11 @@ h1 {
 .byline .when {
   color: var(--muted);
 }
+/* Short blocks that wrap to two lines split evenly instead of leaving a word or two alone. */
+.byline .when,
+.tool-intro {
+  text-wrap: balance;
+}
 .lede {
   max-width: 640px;
   margin: 0 0 26px;
@@ -915,7 +920,6 @@ figure {
 .tool-intro {
   margin: 12px 0 0;
   max-width: 640px;
-  text-wrap: pretty;
 }
 .pl {
   all: unset;

@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import type { FieldProduct } from "../api/types";
 import { formatInt, formatMoney } from "../lib/format";
 import { kindDirection, kindLabel } from "../lib/kinds";
@@ -23,6 +23,7 @@ export function FindSection({ products, featured }: { products: FieldProduct[] |
   const debounced = useDebouncedValue(query, 120);
   const inputId = useId();
   const countId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const result = useMemo(() => (products ? searchProducts(products, debounced) : { total: 0, items: [] }), [products, debounced]);
   const suggestions = useMemo(() => (products ? searchSuggestions(products, featured) : []), [products, featured]);
@@ -51,6 +52,7 @@ export function FindSection({ products, featured }: { products: FieldProduct[] |
         </label>
         <input
           id={inputId}
+          ref={inputRef}
           type="search"
           placeholder={products ? "Name, brand or category" : "Loading the product list"}
           autoComplete="off"
@@ -68,7 +70,16 @@ export function FindSection({ products, featured }: { products: FieldProduct[] |
         <div className="find-count" role="group" aria-label="Suggestions">
           Try
           {suggestions.map((word) => (
-            <button key={word} type="button" onClick={() => setQuery(word)}>
+            <button
+              key={word}
+              type="button"
+              onClick={() => {
+                setQuery(word);
+                // The suggestions leave the page once a query is set, so focus moves to the box
+                // that now holds the word instead of falling back to the page.
+                inputRef.current?.focus();
+              }}
+            >
               {word}
             </button>
           ))}

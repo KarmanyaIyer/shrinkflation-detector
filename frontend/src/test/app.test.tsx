@@ -439,4 +439,18 @@ describe("search suggestions and brand matches", () => {
     expect(live.textContent).toMatch(/^\d+ match(es)?\.$/);
     expect(screen.queryByRole("group", { name: "Suggestions" })).toBeNull();
   });
+
+  it("keeps focus in the search box after a suggestion is chosen", async () => {
+    renderApp();
+    await screen.findByRole("heading", { level: 1 });
+    const group = screen.getByRole("group", { name: "Suggestions" });
+    const suggestion = within(group).getAllByRole("button")[0]!;
+    suggestion.focus();
+    fireEvent.click(suggestion);
+    const input = screen.getByRole("searchbox", { name: "Search products" });
+    expect(input).toHaveValue(suggestion.textContent);
+    expect(document.activeElement).toBe(input);
+    await waitFor(() => expect(screen.queryByRole("group", { name: "Suggestions" })).toBeNull());
+    expect(document.activeElement).toBe(input);
+  });
 });
