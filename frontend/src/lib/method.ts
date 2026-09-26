@@ -17,7 +17,8 @@ export const METHOD = {
   questionsPerVisitorPerDay: 10,
   // backend/src/shrinkflation/config.py, ask_max_tool_rounds
   maxToolRounds: 4,
-  // infra/main.bicep, refreshCron "0 11 * * *" (the hour, in UTC)
+  // infra/main.bicepparam, the default of REFRESH_CRON, "0 11 * * *" (the hour, in UTC). A deploy
+  // that sets REFRESH_CRON to another hour must change this too.
   refreshHourUtc: 11,
 } as const;
 
