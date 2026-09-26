@@ -77,6 +77,7 @@ describe("article", () => {
     expect(method).toContain("So far there are 1,370 records.");
     expect(method).toContain("So far 78 are published: 38 price increases, 36 price cuts, three size decreases and one size increase.");
     expect(method).toContain("a size text change whose two readings cannot be compared");
+    expect(method).toContain("is published on its own when the size reading did not change");
     // Each fact is stated once on the page.
     const page = document.body.textContent!.replace(/\s+/g, " ");
     expect(page.match(/questions a day/g)).toHaveLength(1);

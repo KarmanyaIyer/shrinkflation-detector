@@ -71,7 +71,7 @@ export function MethodSection({ method }: { method: MethodFacts | null }) {
           confidence of at least {M.publishMinConfidence} and the size moved by {M.sizeNoisePct}% to {M.sizeSuspectPct}%.
           A reading under {M.publishMinConfidence} or a move over {M.sizeSuspectPct}% is held for review, and so is a size
           text change whose two readings cannot be compared. A price move of at least {M.priceNoisePct}% is published on
-          its own when there is no size change, and as part of the size change when there is one.
+          its own when the size reading did not change, and as part of the size change when there is one.
           {m && m.published > 0 ? ` So far ${formatInt(m.published)} are published: ${publishedParts(m)}.` : ""}
         </li>
         <li>

@@ -61,7 +61,10 @@ describe("story copy from the captured data", () => {
       " Pantry is the largest group, with 276 items.",
     ]);
     expect(s.steps[1]!.paragraphs[0]).toEqual([
-      "A change means a morning check found a different size or price than the check before it. That happened to ",
+      "A change means a morning check found a different size or price than the check before it, and the difference passed the ",
+      { link: "#how", text: "publishing rules" },
+      ".",
+      " That happened to ",
       { b: "78 products" },
       ".",
     ]);
@@ -255,6 +258,30 @@ describe("story copy in other states", () => {
     expect(flipped.annotations.down!.id).not.toBe(fx.ids.reeses);
   });
 
+  it("gives a product whose listed size went down and later back up one card, as it is now", () => {
+    const huggies = fx.changes.find((c) => c.product.id === fx.ids.huggies)!;
+    const back: ChangeOut = {
+      ...huggies,
+      id: huggies.id + 1000,
+      kind: "grow",
+      before: huggies.after,
+      after: huggies.before,
+      size_change_pct: "242.86",
+      unit_price_change_pct: "-70.83",
+      detected_at: "2026-09-21T11:05:00Z",
+      before_seen_at: "2026-09-20T11:05:00Z",
+      after_seen_at: "2026-09-21T11:05:00Z",
+    };
+    const s = story({ changes: [back, ...fx.changes] });
+    expect(s.shrinks.map((c) => c.id)).not.toContain(fx.ids.huggies);
+    expect(s.grows.map((c) => c.id)).toContain(fx.ids.huggies);
+    expect([...s.shrinks, ...s.grows].filter((c) => c.id === fx.ids.huggies)).toHaveLength(1);
+    const card = s.grows.find((c) => c.id === fx.ids.huggies)!;
+    expect([card.before, card.after]).toEqual(["56 ct", "192 ct"]);
+    expect(s.counts).toMatchObject({ shrinks: 2, grows: 2 });
+    expect(s.headline).toBe("Over 16 days at one Kroger, 38 prices rose, 36 fell and four listed sizes changed.");
+  });
+
   it("writes the size steps for sizes only", () => {
     const sizes = fx.changes.filter((c) => c.kind === "shrink" || c.kind === "grow");
     const s = story({ changes: sizes, stats: { ...fx.stats, price_increase_count: 0, price_decrease_count: 0, changes_published: 4 } });
@@ -394,7 +421,26 @@ describe("story copy at counts of 0, 1, 2 and 10", () => {
         ].filter(Boolean);
         if (problems.length) bad.push(`${up}/${down}/${shrinks}/${grows} ${problems.join(", ")}: ${text}`);
       }
+      // The text equivalents are read aloud, so they follow the same count rules.
+      for (const alt of s.steps.map((step) => step.alt)) {
+        const problems = [
+          /\b[01] (changed )?(products|ones|dots|categories)\b/.test(alt) && "0 or 1 + plural",
+          /\bthe 0\b|\bwith the [01]\b/i.test(alt) && "the 0 or 1",
+          /\bone (products|dots|categories|changed products|changed ones)\b/.test(alt) && "one + plural",
+          /\b([2-9]|[1-9]\d+) (product|dot|category|changed product)\b/.test(alt) && "count + singular",
+          /undefined|null|NaN/.test(alt) && "missing value",
+        ].filter(Boolean);
+        if (problems.length) bad.push(`${up}/${down}/${shrinks}/${grows} alt ${problems.join(", ")}: ${alt}`);
+      }
     }
     expect(bad).toEqual([]);
+  });
+
+  it("writes the text equivalents with the right number at one and none", () => {
+    const one = mixed(1, 0, 0, 0);
+    expect(one.steps.find((step) => step.kind === "changed")!.alt).toMatch(/^The one changed product highlighted in its category row: /);
+    expect(one.steps.find((step) => step.kind === "end")!.alt).toMatch(/, with the one changed product in color\.$/);
+    const none = mixed(0, 0, 0, 0);
+    expect(none.steps.find((step) => step.kind === "end")!.alt).toMatch(/, with none in color, since nothing has changed yet\.$/);
   });
 });

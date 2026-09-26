@@ -521,17 +521,22 @@ export function buildStory(input: StoryInput): Story {
     kind: "grid",
     title: `${formatInt(counts.products)} products, by category`,
     paragraphs: [gridText.filter(Boolean)],
-    alt: `${formatInt(counts.products)} dots in ${countNoun(sortedCats.length, "category", "categories")}: ${sortedCats
+    alt: `${counts.products === 1 ? "One dot" : `${formatInt(counts.products)} dots`} in ${countNoun(sortedCats.length, "category", "categories")}: ${sortedCats
       .map((c) => `${c.category} ${formatInt(c.products)}`)
       .join(", ")}.`,
   });
 
-  // 2. The changed ones light up.
-  const definition = "A change means a morning check found a different size or price than the check before it.";
+  // 2. The changed ones light up. Small moves and unclear readings are recorded but not
+  // published, so the definition names the rules in the method box.
+  const definition: Run[] = [
+    "A change means a morning check found a different size or price than the check before it, and the difference passed the ",
+    { link: "#how", text: "publishing rules" },
+    ".",
+  ];
   const changedText: Run[][] =
     counts.changed === 0
-      ? [[`${definition} No check has found one yet.`]]
-      : [[`${definition} That happened to `, { b: countNoun(counts.changed, "product") }, "."], colorSentence(counts.up, counts.down, sizeDots)];
+      ? [[...definition, " No check has found one yet."]]
+      : [[...definition, " That happened to ", { b: countNoun(counts.changed, "product") }, "."], colorSentence(counts.up, counts.down, sizeDots)];
   const withChanges = sortedCats.filter((c) => c.changes > 0);
   steps.push({
     kind: "changed",
@@ -540,7 +545,7 @@ export function buildStory(input: StoryInput): Story {
     alt:
       counts.changed === 0
         ? "No product is highlighted: nothing has changed yet."
-        : `The ${formatInt(counts.changed)} changed products highlighted in their category rows: ${withChanges
+        : `${counts.changed === 1 ? "The one changed product highlighted in its category row" : `The ${formatInt(counts.changed)} changed products highlighted in their category rows`}: ${withChanges
             .map((c) => `${c.category} ${c.changes}`)
             .join(", ")}.`,
   });
@@ -617,7 +622,13 @@ export function buildStory(input: StoryInput): Story {
     kind: "end",
     title: `${formatInt(counts.products)} products, by category`,
     paragraphs: [[{ pick: true }, " to open one product’s history, or ", { link: "#ask", text: "ask the data" }, "."]],
-    alt: `All ${formatInt(counts.products)} products by category again, with the ${formatInt(counts.changed)} changed ones in color.`,
+    alt: `${counts.products === 1 ? "The one product" : `All ${formatInt(counts.products)} products`} by category again, ${
+      counts.changed === 0
+        ? "with none in color, since nothing has changed yet"
+        : counts.changed === 1
+          ? "with the one changed product in color"
+          : `with the ${formatInt(counts.changed)} changed ones in color`
+    }.`,
   });
 
   const run = stats.last_run;
