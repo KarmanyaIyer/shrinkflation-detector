@@ -23,6 +23,12 @@ describe("searchProducts", () => {
       { text: "Wipes", hit: true },
     ]);
     expect(highlightRuns("Plain", "")).toEqual([{ text: "Plain", hit: false }]);
+    // The word joiner in a display name does not stop a match across it.
+    expect(highlightRuns("Bacon, 9-\u206011 slices", "9-11")).toEqual([
+      { text: "Bacon, ", hit: false },
+      { text: "9-\u206011", hit: true },
+      { text: " slices", hit: false },
+    ]);
   });
 });
 

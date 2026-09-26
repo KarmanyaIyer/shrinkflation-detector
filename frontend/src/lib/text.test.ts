@@ -26,6 +26,33 @@ describe("names", () => {
     expect(displayName("Lay's Classic Potato Chips")).toBe("Lay's Classic Potato Chips");
   });
 
+  it("settles short words inside a shouted phrase and keeps them elsewhere", () => {
+    expect(displayName("ARM & HAMMER Double Duty Clumping Cat Litter")).toBe("Arm & Hammer Double Duty Clumping Cat Litter");
+    expect(displayName("DELUXE MIXED NUTS SALTED WITH SEA SALT - KROGER - 32 OZ")).toBe(
+      "Deluxe Mixed Nuts Salted with Sea Salt - Kroger - 32 oz",
+    );
+    expect(displayName("FRUIT & CREAM VARIETY PACK NATURALLY FLAVORED INSTANT OATMEAL 8 PK - KROGER - 8.4 OZ")).toBe(
+      "Fruit & Cream Variety Pack Naturally Flavored Instant Oatmeal 8 pk - Kroger - 8.4 oz",
+    );
+    expect(displayName("LIGHTLY SALTED MIXED NUTS LESS THAN 50% PEANUTS WITH SEA SALT")).toBe(
+      "Lightly Salted Mixed Nuts Less than 50% Peanuts with Sea Salt",
+    );
+    expect(displayName("KROGER BBQ SAUCE XL")).toBe("Kroger BBQ Sauce XL");
+    expect(displayName("HERSHEY'S Milk Chocolate XL Candy Bar")).toBe("Hershey's Milk Chocolate XL Candy Bar");
+    expect(displayName("Suave Tropical Coconut Shampoo, 22.5 FL OZ")).toBe("Suave Tropical Coconut Shampoo, 22.5 fl oz");
+    expect(displayName("Maggi Spicy Garlic Noodles 4PK")).toBe("Maggi Spicy Garlic Noodles 4pk");
+    for (const kept of ["ACE Bakery Sourdough", "BIC Flex 5 Razors", "OGX Shampoo", "VO5 Shampoo", "Pantene Set, 72 HR Lush Moisture"]) {
+      expect(displayName(kept)).toBe(kept);
+    }
+  });
+
+  it("keeps a number range on one line", () => {
+    const name = displayName("Oscar Mayer Original Fully Cooked Bacon, Box, 9-11 slices");
+    expect(name).toBe("Oscar Mayer Original Fully Cooked Bacon, Box, 9-\u206011 slices");
+    expect(displayName(name)).toBe(name);
+    expect(displayName("5-Blade Razors")).toBe("5-Blade Razors");
+  });
+
   it("joins prose", () => {
     expect(joinProse(["a"])).toBe("a");
     expect(joinProse(["a", "b"])).toBe("a and b");
@@ -40,15 +67,23 @@ describe("proseName", () => {
 
   it("calls a long name by its brand, spelled as the name spells it", () => {
     expect(proseName(reeses, "Reese's Puffs")).toBe("Reese's Puffs");
-    expect(proseName("Kodiak® Honey Oat Protein Granola Family Size", "kodiak")).toBe("Kodiak");
-    expect(proseName(bags, "Kroger", ["Bounty Paper Towels"])).toBe("Kroger");
+    expect(proseName("Simple Truth Organic® Dark Color Maple Syrup Family Size", "simple truth organic")).toBe("Simple Truth Organic");
+    expect(proseName("ARM & HAMMER Plus OxiClean with Odor Blasters Liquid Detergent", "Arm & Hammer", ["Bounty Paper Towels"])).toBe(
+      "Arm & Hammer",
+    );
+  });
+
+  it("keeps the full name when the brand is one word", () => {
+    expect(proseName("Kodiak® Honey Oat Protein Granola Family Size", "kodiak")).toBe("Kodiak Honey Oat Protein Granola Family Size");
+    expect(proseName(bags, "Kroger", ["Bounty Paper Towels"])).toBe("Kroger Double Zipper Sandwich Bags Extra Large 50 Count");
+    expect(proseName("Dove Shampoo Conditioner Intensive Repair Twin Pack", "Dove")).toBe("Dove Shampoo Conditioner Intensive Repair Twin Pack");
   });
 
   it("keeps the full name when it is short or has no brand", () => {
     expect(proseName("Short name", "Short")).toBe("Short name");
     expect(proseName(reeses, null)).toBe(displayName(reeses));
     expect(proseName(reeses, undefined)).toBe(displayName(reeses));
-    expect(proseName("Kodiak Honey Oat Granola", "Kodiak", [], 10)).toBe("Kodiak");
+    expect(proseName("Late July Mexican Street Corn Chips", "Late July", [], 10)).toBe("Late July");
   });
 
   it("keeps the full name when the brand is not in the name as whole words", () => {
