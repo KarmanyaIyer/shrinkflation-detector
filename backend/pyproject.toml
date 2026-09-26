@@ -50,7 +50,7 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-allowed-confusables = ["–", "×"]
+allowed-confusables = ["×"]
 
 [tool.pyright]
 pythonVersion = "3.13"
