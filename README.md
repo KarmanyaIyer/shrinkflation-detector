@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-141414.svg)](LICENSE)
 
 Tracks the listed package size and regular price of 1,000+ grocery products at one Kroger store
-and publishes every size or price change it records, with the before and after records.
+and publishes the size and price changes that pass its rules, with the before and after records.
 
 Live at [karmanyaiyer.com/projects/shrinkflation](https://karmanyaiyer.com/projects/shrinkflation/).
 
