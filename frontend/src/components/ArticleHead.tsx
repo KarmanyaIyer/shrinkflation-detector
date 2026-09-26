@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Story } from "../lib/story";
-import { noBreakTimes } from "./NoBreak";
+import { noBreak } from "./NoBreak";
 import { renderRuns } from "./Story";
 
 const SKIP = [
@@ -60,7 +60,7 @@ export function ArticleHead({ story }: { story: Story | null }) {
           ·
         </span>
         {story ? (
-          <span className="when">{noBreakTimes(story.freshness)}</span>
+          <span className="when">{noBreak(story.freshness)}</span>
         ) : (
           <span className="when sk-when" aria-hidden="true">
             <SkText lines={WHEN} />

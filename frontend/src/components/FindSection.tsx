@@ -5,12 +5,13 @@ import { kindDirection, kindLabel } from "../lib/kinds";
 import { useDebouncedValue } from "../lib/useApi";
 import { brandOnlyMatch, highlightRuns, SEARCH_LIMIT, searchProducts, searchSuggestions } from "../lib/search";
 import { displayName } from "../lib/text";
+import { noBreak } from "./NoBreak";
 import { ProductLink } from "./ProductLink";
 
 function Highlight({ text, query }: { text: string; query: string }) {
   return (
     <>
-      {highlightRuns(text, query).map((run, i) => (run.hit ? <mark key={i}>{run.text}</mark> : <span key={i}>{run.text}</span>))}
+      {highlightRuns(text, query).map((run, i) => (run.hit ? <mark key={i}>{noBreak(run.text)}</mark> : <span key={i}>{noBreak(run.text)}</span>))}
     </>
   );
 }

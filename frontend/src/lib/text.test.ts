@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balancedWrap, cleanName, displayName, joinProse, linkNames, proseName, wrapText } from "./text";
+import { balancedWrap, brandName, cleanName, displayName, joinProse, linkNames, proseName, wrapText } from "./text";
 
 describe("names", () => {
   it("drops marks and promotional suffixes", () => {
@@ -46,17 +46,45 @@ describe("names", () => {
     }
   });
 
-  it("keeps a number range on one line", () => {
-    const name = displayName("Oscar Mayer Original Fully Cooked Bacon, Box, 9-11 slices");
-    expect(name).toBe("Oscar Mayer Original Fully Cooked Bacon, Box, 9-\u206011 slices");
+  it("leaves number ranges as written, with no hidden characters", () => {
+    const name = "Oscar Mayer Original Fully Cooked Bacon, Box, 9-11 slices";
     expect(displayName(name)).toBe(name);
     expect(displayName("5-Blade Razors")).toBe("5-Blade Razors");
+  });
+
+  it("lowers only size units after a number and keeps other letters after one", () => {
+    expect(displayName("Crest 3D White Advanced Teeth Whitening Toothpaste")).toBe("Crest 3D White Advanced Teeth Whitening Toothpaste");
+    expect(displayName("Pampers Complete Clean Fresh Scent 12X Baby Wipes")).toBe("Pampers Complete Clean Fresh Scent 12X Baby Wipes");
+    expect(displayName("CRUNCHY 3D-PRINTED SNACK 4PK")).toBe("Crunchy 3D-Printed Snack 4pk");
+    expect(displayName("GMCR KCUP CRML VAN CRM N 10CT")).toBe("GMCR Kcup CRML Van CRM N 10ct");
+  });
+
+  it("keeps capitals on long words with no vowel", () => {
+    expect(displayName("Bibigo Sweet & Savory KBBQ Korean-Style Sauced Instant Ramyun Noodles")).toBe(
+      "Bibigo Sweet & Savory KBBQ Korean-Style Sauced Instant Ramyun Noodles",
+    );
+    expect(displayName("HUGGIES SIMP CLN BABYWIPE RGD FLPTP 64")).toBe("Huggies Simp CLN Babywipe RGD FLPTP 64");
+    expect(displayName("M&M'S Peanut")).toBe("M&M's Peanut");
   });
 
   it("joins prose", () => {
     expect(joinProse(["a"])).toBe("a");
     expect(joinProse(["a", "b"])).toBe("a and b");
     expect(joinProse(["a", "b", "c"])).toBe("a, b and c");
+  });
+});
+
+describe("brandName", () => {
+  it("spells the brand the way the displayed name does", () => {
+    expect(brandName("BIC", "BIC Flex 5 Razors")).toBe("BIC");
+    expect(brandName("DIGIORNO", "DIGIORNO Rising Crust Pepperoni Frozen Pizza")).toBe("Digiorno");
+    expect(brandName("Khloud™", "Khloud™ White Cheddar Protein Popcorn 4.0 oz")).toBe("Khloud");
+    expect(brandName("Reese's Puffs", "General Mills® REESE'S™ PUFFS Chocolatey Peanut Butter Cereal")).toBe("Reese's Puffs");
+  });
+
+  it("keeps the brand as listed, marks dropped, when the name does not contain it", () => {
+    expect(brandName("Kodiak Cakes", "Kodiak® Protein-Packed Buttermilk Power Waffles®")).toBe("Kodiak Cakes");
+    expect(brandName("OGX®", "Renewing Argan Oil of Morocco Shampoo")).toBe("OGX");
   });
 });
 

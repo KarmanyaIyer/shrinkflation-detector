@@ -21,8 +21,8 @@ import {
 import { direction, kindLabel } from "../lib/kinds";
 import { takeOpener, type DrawerState } from "../lib/drawerRoute";
 import { useApi, usePageTitle } from "../lib/useApi";
-import { displayName } from "../lib/text";
-import { NoBreakQuotes } from "./NoBreak";
+import { brandName, displayName } from "../lib/text";
+import { NoBreak, noBreak } from "./NoBreak";
 import { SkLine, describeLoadError } from "./Status";
 import { StepChart } from "./StepChart";
 
@@ -158,14 +158,14 @@ function Body({ detail }: { detail: ProductDetail }) {
           ) : null}
           <div>
             <h2 className="dr-title" id="dr-title">
-              {displayName(detail.product.description)}
+              {noBreak(displayName(detail.product.description))}
             </h2>
             <p className="dr-meta">
               {detail.product.category}
               {detail.product.brand ? (
                 <>
                   <span className="sep">·</span>
-                  {displayName(detail.product.brand)}
+                  {brandName(detail.product.brand, detail.product.description)}
                 </>
               ) : null}
               {latest ? (
@@ -178,7 +178,7 @@ function Body({ detail }: { detail: ProductDetail }) {
           </div>
         </div>
         <p className="dr-sum">
-          <NoBreakQuotes text={summaryOf(detail)} />
+          <NoBreak text={summaryOf(detail)} />
         </p>
         <figure className="dr-fig">
           <figcaption>

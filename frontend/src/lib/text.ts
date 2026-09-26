@@ -14,9 +14,8 @@ const UNIT_WORDS = new Set(["OZ", "FL", "PK", "CT", "LB", "LBS", "GAL", "QT", "P
 const MINOR_WORDS = new Set(["a", "an", "and", "as", "at", "for", "in", "of", "on", "or", "than", "the", "to", "with"]);
 // Short initialisms kept in capitals even inside a shouted phrase.
 const KEEP_CAPS = new Set(["BBQ", "XL", "XXL", "GMO", "USA", "EZ", "M&M"]);
-// U+2060 WORD JOINER: invisible and needs no glyph, so "9-11 slices" cannot break after the
-// hyphen. The site fonts have no non-breaking hyphen (U+2011).
-const WORD_JOINER = "\u2060";
+// A number with letters attached: "4PK", "10CT", "3D", "12X".
+const NUMBER_LETTERS = /^([$]?\d[\d.,]*)([A-Z]+)([^A-Za-z]*)$/;
 
 function letters(word: string): string {
   return word.replace(/[^A-Za-z]/g, "");
@@ -32,22 +31,31 @@ function isNumber(word: string | undefined): boolean {
   return word !== undefined && /^[$]?\d[\d.,/%]*$/.test(word);
 }
 
+// A word of three or more capitals with no vowel ("KBBQ", "GMCR", "SPF") is an initialism or
+// an abbreviation, not a shouted word.
+function initialism(word: string): boolean {
+  const bare = letters(word);
+  return bare.length >= 3 && !/[AEIOUY]/.test(bare) && !/['’]/.test(word);
+}
+
 // "REESE'S" reads as "Reese's" and "M&M'S" as "M&M's". Each run of letters keeps its first
-// letter and lowers the rest; a short run after an apostrophe ("'S") or a run after a digit
-// ("10CT") is lowered whole.
+// letter and lowers the rest; a short run after an apostrophe ("'S") or a size unit after a
+// digit ("10CT") is lowered whole, and other letters after a digit ("3D") are kept.
 function settle(word: string): string {
   return word.replace(/[A-Z]+/g, (run: string, at: number) => {
     const before = word.charAt(at - 1);
-    if (/[0-9]/.test(before) || (/['’]/.test(before) && run.length <= 2)) return run.toLowerCase();
+    if (/[0-9]/.test(before)) return UNIT_WORDS.has(run) ? run.toLowerCase() : run;
+    if (/['’]/.test(before) && run.length <= 2) return run.toLowerCase();
     return run.charAt(0) + run.slice(1).toLowerCase();
   });
 }
 
 // The full name as it reads in running text: marks dropped, shouted words settled.
-// Words of four or more characters in capitals are settled. A short one ("ARM", "SEA") is
-// settled only inside a shouted phrase: when most of the name's letters are capitals, or when
-// a neighbouring word is a long shouted word ("ARM & HAMMER"). Otherwise it is taken for an
-// initialism ("BBQ", "ONE", "XL") and left alone. Units after a number are lowered.
+// Words of four or more characters in capitals are settled, except initialisms with no vowel
+// ("KBBQ"). A short one ("ARM", "SEA") is settled only inside a shouted phrase: when most of
+// the name's letters are capitals, or when a neighbouring word is a long shouted word ("ARM &
+// HAMMER"). Otherwise it is taken for an initialism ("BBQ", "ONE", "XL") and left alone. Units
+// after a number are lowered ("4PK", "32 OZ"); other letters after a number are kept ("3D").
 export function displayName(name: string): string {
   const words = cleanName(name).split(" ");
   const all = letters(words.join(""));
@@ -60,17 +68,30 @@ export function displayName(name: string): string {
   const settled = words.map((word, i) => {
     if (!shouted(word)) return word;
     const bare = letters(word);
-    if (word.length <= 3 && /\d[A-Z]/.test(word)) return word.replace(/(\d)([A-Z]+)/g, (_, digit: string, run: string) => digit + run.toLowerCase());
+    const attached = NUMBER_LETTERS.exec(word);
+    if (attached) return UNIT_WORDS.has(attached[2]!) ? `${attached[1]}${attached[2]!.toLowerCase()}${attached[3]}` : word;
     if (UNIT_WORDS.has(bare) && (isNumber(words[i - 1]) || (UNIT_WORDS.has(letters(words[i - 1] ?? "")) && isNumber(words[i - 2])))) {
       return word.toLowerCase();
     }
     const inPhrase = mostlyCaps || longShout(neighbour(i, -1)) || longShout(neighbour(i, 1));
     if (i > 0 && inPhrase && MINOR_WORDS.has(word.toLowerCase())) return word.toLowerCase();
+    if (initialism(word)) return word;
     if (word.length > 3) return settle(word);
     if (!inPhrase || KEEP_CAPS.has(word)) return word;
     return settle(word);
   });
-  return settled.join(" ").replace(/(\d)-(?=\d)/g, `$1-${WORD_JOINER}`);
+  return settled.join(" ");
+}
+
+// The brand for a label beside the product name: spelled as the displayed name spells it when
+// the name contains it ("BIC" in "BIC Flex 5 Razors", "Digiorno" for "DIGIORNO"), so the two
+// never disagree; otherwise the brand with its marks dropped.
+export function brandName(brand: string, name: string): string {
+  const clean = cleanName(brand);
+  const body = escapeRegExp(clean).replace(/['’]/g, "['’]");
+  if (!body) return clean;
+  const match = new RegExp(`(?<![\\p{L}\\p{N}])${body}(?![\\p{L}\\p{N}])`, "iu").exec(displayName(name));
+  return match ? match[0] : clean;
 }
 
 // Names longer than this are called by their brand in running prose when that is unambiguous.

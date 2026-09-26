@@ -2,6 +2,7 @@ import { forwardRef, type CSSProperties } from "react";
 import { formatPercent, quoted, unitWord } from "../lib/format";
 import type { SizeCase, StepKind } from "../lib/story";
 import { displayName } from "../lib/text";
+import { noBreak } from "./NoBreak";
 import { ProductLink } from "./ProductLink";
 
 // The before and after label cards for the size steps. The canvas dot for each product lands
@@ -33,7 +34,7 @@ function Card({ item, active }: { item: SizeCase; active: boolean }) {
       <span className="sc-top">
         <span className="sc-dot" data-dot={item.id} data-kind={kind} aria-hidden="true" />
         <ProductLink id={item.id} className="sc-name">
-          {displayName(item.name)}
+          {noBreak(displayName(item.name))}
         </ProductLink>
       </span>
       <span className="sc-when">{item.when}</span>

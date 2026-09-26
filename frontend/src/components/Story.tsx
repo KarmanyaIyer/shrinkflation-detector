@@ -4,14 +4,14 @@ import type { Run, Story as StoryData, StoryStep } from "../lib/story";
 import { useOpenProduct } from "../lib/drawerRoute";
 import { coarsePointer, STACKED_QUERY } from "../lib/layout";
 import { Graphic } from "./Graphic";
-import { NoBreakQuotes, noBreakQuotes } from "./NoBreak";
+import { NoBreak, noBreak } from "./NoBreak";
 import { ProductLink } from "./ProductLink";
 
 // Turns a copy run into markup. Kept here so the story module stays free of JSX.
 export function renderRuns(runs: Run[], pickVerb = "Select a dot"): ReactNode[] {
   return runs.map((run, i) => {
-    if (typeof run === "string") return <NoBreakQuotes key={i} text={run} />;
-    if ("b" in run) return <strong key={i}>{noBreakQuotes(run.b)}</strong>;
+    if (typeof run === "string") return <NoBreak key={i} text={run} />;
+    if ("b" in run) return <strong key={i}>{noBreak(run.b)}</strong>;
     if ("dot" in run) return <i key={i} className={`kd ${run.dot === "more" ? "m" : "l"}`} aria-hidden="true" />;
     if ("fn" in run) {
       return (
@@ -32,7 +32,7 @@ export function renderRuns(runs: Run[], pickVerb = "Select a dot"): ReactNode[] 
     if ("product" in run) {
       return (
         <ProductLink key={i} id={run.product} className="pn">
-          {run.text}
+          {noBreak(run.text)}
         </ProductLink>
       );
     }

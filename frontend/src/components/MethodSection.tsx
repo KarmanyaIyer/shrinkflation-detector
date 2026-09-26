@@ -1,7 +1,7 @@
 import { countNoun, formatInt, formatMoney, numberWord } from "../lib/format";
 import { hourWord, METHOD } from "../lib/method";
 import type { MethodFacts } from "../lib/story";
-import { NoBreakQuotes } from "./NoBreak";
+import { NoBreak } from "./NoBreak";
 
 // Every claim here was checked against the backend code before it was written. Live numbers
 // come from the stats endpoint; without them (API down) the steps still read correctly. The
@@ -50,7 +50,7 @@ export function MethodSection({ method }: { method: MethodFacts | null }) {
         </li>
         <li>
           <strong>Reading size text.</strong> Each listing’s size text, such as{" "}
-          <NoBreakQuotes text="“12 oz”, “2 pk / 12 fl oz” or “192 ct”," /> becomes a quantity and a unit. Plain text is
+          <NoBreak text="“12 oz”, “2 pk / 12 fl oz” or “192 ct”," /> becomes a quantity and a unit. Plain text is
           parsed by rules. Anything else goes to DeepSeek V4.1 Flash, which hands off to DeepSeek V4 Pro when its reading
           is invalid or its confidence is under {M.escalateBelowConfidence}; ambiguous multipacks go straight to Pro.
           Every model reply must fit a Pydantic schema before it is stored. Model spending is capped at{" "}

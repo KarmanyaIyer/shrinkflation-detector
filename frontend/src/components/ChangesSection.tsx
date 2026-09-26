@@ -17,6 +17,7 @@ import {
   type SortKey,
   type TableState,
 } from "../lib/tableState";
+import { noBreak } from "./NoBreak";
 import { ProductLink } from "./ProductLink";
 import { SkLine } from "./Status";
 
@@ -72,7 +73,7 @@ function Row({ change, onOpen }: { change: ChangeOut; onOpen: (id: string, trigg
     <tr onClick={onClick} data-kind={change.kind}>
       <th scope="row" className="c-prod">
         <ProductLink id={change.product.id} className="rowbtn">
-          {displayName(change.product.description)}
+          {noBreak(displayName(change.product.description))}
         </ProductLink>
         <span className="c-cat">
           {change.product.category} · {kindLabel(change.kind)}

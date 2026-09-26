@@ -21,27 +21,18 @@ export function searchProducts(products: FieldProduct[], query: string, limit = 
   return { total: matches.length, items: matches.slice(0, limit) };
 }
 
-// Splits a name into plain and matched pieces for highlighting. Display names carry an
-// invisible word joiner after a hyphen between digits ("9-11"); matching skips it, and a joiner
-// inside a match is marked with it.
+// Splits a name into plain and matched pieces for highlighting.
 export function highlightRuns(text: string, query: string): { text: string; hit: boolean }[] {
   const words = query.trim().toLowerCase().split(/\s+/).filter((word) => word.length >= 2);
   if (words.length === 0) return [{ text, hit: false }];
-  const at: number[] = [];
-  let plain = "";
-  for (let i = 0; i < text.length; i += 1) {
-    if (text[i] === "\u2060") continue;
-    at.push(i);
-    plain += text[i];
-  }
-  const lower = plain.toLowerCase();
+  const lower = text.toLowerCase();
   const marks = new Array<boolean>(text.length).fill(false);
   for (const word of words) {
     let from = 0;
     while (from <= lower.length - word.length) {
       const found = lower.indexOf(word, from);
       if (found < 0) break;
-      for (let i = at[found]!; i <= at[found + word.length - 1]!; i += 1) marks[i] = true;
+      marks.fill(true, found, found + word.length);
       from = found + word.length;
     }
   }

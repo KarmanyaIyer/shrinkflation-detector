@@ -1,4 +1,4 @@
-import { NoBreakQuotes } from "./NoBreak";
+import { NoBreak } from "./NoBreak";
 import { GITHUB_URL } from "./Shell";
 
 // Which note markers exist on the page, in reading order: 1 sits in the lede, 2 in the size
@@ -37,7 +37,7 @@ export function Footnotes({ refs, sizeNote }: { refs: NoteRefs; sizeNote?: strin
             <BackRef to={1} label="Back to the text" refs={refs} />
           </li>
           <li id="fn2">
-            <NoBreakQuotes text={sizeNote ?? SIZE_NOTE_FALLBACK} />
+            <NoBreak text={sizeNote ?? SIZE_NOTE_FALLBACK} />
             <BackRef to={2} label="Back to the text" refs={refs} />
           </li>
           <li id="fn3">

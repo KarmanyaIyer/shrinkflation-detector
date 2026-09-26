@@ -9,6 +9,7 @@ import type { Story, StepKind } from "../lib/story";
 import { coarsePointer } from "../lib/layout";
 import { displayName } from "../lib/text";
 import { GraphicRenderer, type DotInput, type Geometry } from "./graphicRenderer";
+import { noBreak } from "./NoBreak";
 import { SizeCards } from "./SizeCards";
 
 export interface GraphicProps {
@@ -546,7 +547,7 @@ function TipBox({
       role="status"
       style={{ transform: pos ? `translate(${pos.x}px, ${pos.y}px)` : undefined, visibility: pos ? "visible" : "hidden" }}
     >
-      <b>{displayName(product.name)}</b>
+      <b>{noBreak(displayName(product.name))}</b>
       <span>
         {quoted(product.size ?? "")}, {formatMoney(product.price) ?? "no price"}
       </span>
