@@ -726,11 +726,13 @@ figure {
 .g-cards.compact {
   align-items: stretch;
 }
+/* Groups start at the top of the stage, under the title, however few cards they hold. */
 .g-cards.compact .sc-grid {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: none;
   grid-template-areas: "g";
-  align-items: center;
+  align-items: start;
+  padding-top: 8px;
 }
 .g-cards.compact .sc-group {
   grid-area: g;
@@ -2011,7 +2013,7 @@ details.how[open] summary::before {
     position: sticky;
     top: 0;
     z-index: 3;
-    height: clamp(340px, 47svh, 460px);
+    height: clamp(340px, 47svh, 520px);
     background: var(--paper);
     border-bottom: 1px solid var(--rule);
   }

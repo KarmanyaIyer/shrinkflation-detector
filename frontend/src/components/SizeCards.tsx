@@ -89,9 +89,9 @@ export const SizeCards = forwardRef<
   const ns = shrinks.length;
   const ng = grows.length;
   // Shrink columns may narrow to nothing; grow columns keep room for their one-line heading.
-  const columns = compact
-    ? undefined
-    : ({ gridTemplateColumns: `repeat(${ns}, minmax(0, 1fr)) repeat(${ng}, 1fr)` } as CSSProperties);
+  // A group with no cards gets no track, since repeat(0, ...) would drop the whole template.
+  const tracks = [ns ? `repeat(${ns}, minmax(0, 1fr))` : "", ng ? `repeat(${ng}, 1fr)` : ""].filter(Boolean).join(" ");
+  const columns: CSSProperties | undefined = compact || !tracks ? undefined : { gridTemplateColumns: tracks };
   return (
     <div className={`g-cards${compact ? " compact" : ""}`} ref={ref} data-step={step} aria-hidden={!shown} inert={!shown}>
       <div className="sc-grid" style={columns}>

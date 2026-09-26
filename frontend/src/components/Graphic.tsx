@@ -579,7 +579,7 @@ function Overlay({ size, layouts, step }: { size: Size; layouts: Layouts; step: 
       <g className="ly ly-grid">
         {grid.labels.map((label) =>
           label.above ? (
-            <text key={label.name} className="t-cat" x={0} y={label.y}>
+            <text key={label.name} className="t-cat" x={label.x} y={label.y}>
               {label.name} <tspan className="t-n">{formatInt(label.count)}</tspan>
             </text>
           ) : (
