@@ -2,13 +2,9 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { CategoryCount, ChangeOut, FieldProduct } from "../api/types";
 import type { Run, Story as StoryData, StoryStep } from "../lib/story";
 import { useOpenProduct } from "../lib/drawerRoute";
-import { STACKED_QUERY } from "../lib/layout";
+import { coarsePointer, STACKED_QUERY } from "../lib/layout";
 import { Graphic } from "./Graphic";
 import { ProductLink } from "./ProductLink";
-
-function coarsePointer(): boolean {
-  return typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
-}
 
 // Turns a copy run into markup. Kept here so the story module stays free of JSX.
 export function renderRuns(runs: Run[], pickVerb = "Select a dot"): ReactNode[] {
@@ -54,9 +50,14 @@ function StepText({ step, pickVerb }: { step: StoryStep; pickVerb: string }) {
   );
 }
 
+// Where a step becomes active, as a distance from the top of the viewport.
+function triggerLine(stacked: boolean): number {
+  return window.innerHeight * (stacked ? 0.8 : 0.62);
+}
+
 // The last step whose top has crossed the trigger line is the active one.
 function activeStep(steps: HTMLElement[], stacked: boolean): number {
-  const trigger = window.innerHeight * (stacked ? 0.8 : 0.62);
+  const trigger = triggerLine(stacked);
   let index = 0;
   steps.forEach((element, i) => {
     if (element.getBoundingClientRect().top < trigger) index = i;
@@ -78,27 +79,43 @@ export function Story({
   const openProduct = useOpenProduct();
   const stepsRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  const indexRef = useRef(0);
   const pickVerb = useMemo(() => (coarsePointer() ? "Tap a dot" : "Select a dot"), []);
   const steps = story?.steps ?? null;
 
   useEffect(() => {
     const container = stepsRef.current;
     if (!container || !steps) return undefined;
+    const stacked = window.matchMedia(STACKED_QUERY);
+    const elements = () => Array.from(container.querySelectorAll<HTMLElement>(".step"));
     let frame = 0;
     const update = () => {
       frame = 0;
-      const elements = Array.from(container.querySelectorAll<HTMLElement>(".step"));
-      setIndex(activeStep(elements, window.matchMedia(STACKED_QUERY).matches));
+      indexRef.current = activeStep(elements(), stacked.matches);
+      setIndex(indexRef.current);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
+    // Switching between the side-by-side and the stacked layout (turning a tablet) changes the
+    // height of everything above and between the steps, so the same scroll offset would land on
+    // another step. The step that was active goes back to just past its trigger line instead.
+    const onLayoutChange = () => {
+      const element = elements()[indexRef.current];
+      if (element) {
+        const past = element.getBoundingClientRect().top - triggerLine(stacked.matches) + 24;
+        window.scrollTo({ top: window.scrollY + past, behavior: "instant" });
+      }
+      onScroll();
+    };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+    stacked.addEventListener("change", onLayoutChange);
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      stacked.removeEventListener("change", onLayoutChange);
       cancelAnimationFrame(frame);
     };
   }, [steps]);

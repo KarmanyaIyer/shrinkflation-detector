@@ -6,6 +6,7 @@ import { formatInt, formatMoney, formatPercent, quoted, unitWord } from "../lib/
 import { layoutGrid, type GridCategory, type GridLayout } from "../lib/grid";
 import { direction, kindDirection, kindLabel } from "../lib/kinds";
 import type { Story, StepKind } from "../lib/story";
+import { coarsePointer } from "../lib/layout";
 import { displayName } from "../lib/text";
 import { GraphicRenderer, type DotInput, type Geometry } from "./graphicRenderer";
 import { SizeCards } from "./SizeCards";
@@ -45,10 +46,6 @@ const SANS = '"Public Sans", "Helvetica Neue", Arial, sans-serif';
 
 function reducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function coarsePointer(): boolean {
-  return typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 }
 
 // Measures text with the page's own font through a canvas. Without a canvas (tests), it falls
