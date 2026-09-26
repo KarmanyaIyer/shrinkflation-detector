@@ -1513,6 +1513,11 @@ details.how[open] summary::before {
   color: var(--muted);
   min-height: 21px;
 }
+/* The live count collapses while it is empty, so the suggestions take its place. */
+.find-count:empty {
+  min-height: 0;
+  margin: 0;
+}
 .find-count button {
   all: unset;
   cursor: pointer;

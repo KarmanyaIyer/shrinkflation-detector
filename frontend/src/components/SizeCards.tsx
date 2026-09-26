@@ -98,7 +98,7 @@ export const SizeCards = forwardRef<
         {ns ? (
           <div className={`sc-group shrank${step === "shrinks" ? " on" : ""}`}>
             <p className="sc-h" style={compact ? undefined : { gridColumn: `1 / span ${ns}` }}>
-              Size text went down
+              Listed size went down
             </p>
             <div className="sc-row">
               {shrinks.map((item) => (
@@ -110,7 +110,7 @@ export const SizeCards = forwardRef<
         {ng ? (
           <div className={`sc-group grew${step === "grows" ? " on" : ""}${ns ? "" : " only"}`}>
             <p className="sc-h" style={compact ? undefined : { gridColumn: `${ns + 1} / span ${ng}` }}>
-              Size text went up
+              Listed size went up
             </p>
             <div className="sc-row">
               {grows.map((item) => (

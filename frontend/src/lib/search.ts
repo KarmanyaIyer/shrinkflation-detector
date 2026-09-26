@@ -8,7 +8,7 @@ export interface SearchResult {
   items: FieldProduct[];
 }
 
-// Every word typed must appear in the name, brand, or category. Products with a recorded
+// Every word typed must appear in the name, brand or category. Products with a recorded
 // change come first, then alphabetical, so the interesting hits surface in a short list.
 export function searchProducts(products: FieldProduct[], query: string, limit = SEARCH_LIMIT): SearchResult {
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);

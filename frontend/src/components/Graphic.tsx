@@ -95,13 +95,13 @@ function Legend({ step }: { step: StepKind }) {
       <>
         <span className="lg">
           <i className="sw" />
-          Label before
+          Before
         </span>
         <span className="lg">
           <i className="sw f" />
-          Label after
+          After
         </span>
-        <span className="lg">Box height is the quantity read from the label</span>
+        <span className="lg">Box height is the quantity read from the listed size</span>
       </>
     );
   }

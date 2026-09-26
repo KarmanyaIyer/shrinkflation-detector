@@ -3,6 +3,7 @@ import { ask } from "../api/client";
 import { ApiError, isAbortError } from "../api/http";
 import type { AskResponse, FieldProduct } from "../api/types";
 import { formatDuration, formatInt } from "../lib/format";
+import { METHOD } from "../lib/method";
 import { linkNames } from "../lib/text";
 import { ProductLink } from "./ProductLink";
 
@@ -21,7 +22,10 @@ type AskState =
 export function describeAskError(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.status === 0) return "Could not reach the API. Check your connection and try again.";
-    if (error.status === 429) return error.detail ?? "This connection has asked its 10 questions for today. Try again tomorrow.";
+    // The backend sends its own wording; this is the same sentence for a response without one.
+    if (error.status === 429) {
+      return error.detail ?? `You have used today’s ${METHOD.questionsPerVisitorPerDay} questions. The budget resets at midnight UTC.`;
+    }
     if (error.status === 503) return error.detail ?? "The assistant is paused right now. Try again later.";
     if (error.status >= 500) return "The assistant could not answer right now. Try again in a moment.";
     if (error.detail) return error.detail;
@@ -126,8 +130,8 @@ export function AskSection({ products }: { products: FieldProduct[] | null }) {
     <section className="tool" id="ask" aria-labelledby="ask-h">
       <h2 id="ask-h">Ask the data</h2>
       <p className="tool-intro">
-        An assistant answers from the same records. It can call four read-only tools, and each answer lists the
-        calls it made. Each visitor gets 10 questions a day.
+        An assistant answers from the same records and lists the tool calls behind each answer. Each visitor gets{" "}
+        {METHOD.questionsPerVisitorPerDay} questions a day.
       </p>
       <form className="ask-form" onSubmit={onSubmit} autoComplete="off">
         <label className="sr-only" htmlFor="q">
@@ -138,7 +142,7 @@ export function AskSection({ products }: { products: FieldProduct[] | null }) {
           name="q"
           type="text"
           maxLength={MAX_QUESTION}
-          placeholder="Ask about a product, brand, or category"
+          placeholder="Ask about a product, brand or category"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
         />

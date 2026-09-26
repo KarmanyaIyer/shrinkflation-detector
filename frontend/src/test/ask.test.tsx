@@ -124,7 +124,7 @@ describe("describeAskError", () => {
     expect(describeAskError(new ApiError(0, null))).toBe("Could not reach the API. Check your connection and try again.");
     expect(describeAskError(new ApiError(503, "Paused for today."))).toBe("Paused for today.");
     expect(describeAskError(new ApiError(503, null))).toBe("The assistant is paused right now. Try again later.");
-    expect(describeAskError(new ApiError(429, null))).toBe("This connection has asked its 10 questions for today. Try again tomorrow.");
+    expect(describeAskError(new ApiError(429, null))).toBe("You have used today’s 10 questions. The budget resets at midnight UTC.");
     expect(describeAskError(new ApiError(502, null))).toBe("The assistant could not answer right now. Try again in a moment.");
     expect(describeAskError(new ApiError(422, "question too long"))).toBe("question too long");
     expect(describeAskError(new Error("boom"))).toBe("The assistant could not answer right now. Try again in a moment.");

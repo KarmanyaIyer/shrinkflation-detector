@@ -51,7 +51,7 @@ export function FindSection({ products, featured }: { products: FieldProduct[] |
         <input
           id={inputId}
           type="search"
-          placeholder={products ? `Search ${formatInt(products.length)} products by name, brand, or category` : "Loading the product list"}
+          placeholder={products ? "Name, brand or category" : "Loading the product list"}
           autoComplete="off"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -60,18 +60,19 @@ export function FindSection({ products, featured }: { products: FieldProduct[] |
         />
       </div>
       <p className="find-count" id={countId} aria-live="polite">
-        {count ||
-          (products && !active && suggestions.length ? (
-            <>
-              Try
-              {suggestions.map((word) => (
-                <button key={word} type="button" onClick={() => setQuery(word)}>
-                  {word}
-                </button>
-              ))}
-            </>
-          ) : null)}
+        {count}
       </p>
+      {/* Outside the live region, so the count is announced alone. */}
+      {products && !active && suggestions.length ? (
+        <div className="find-count" role="group" aria-label="Suggestions">
+          Try
+          {suggestions.map((word) => (
+            <button key={word} type="button" onClick={() => setQuery(word)}>
+              {word}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <ul className="find-list">
         {result.items.map((product) => {
           const dir = kindDirection(product.change);

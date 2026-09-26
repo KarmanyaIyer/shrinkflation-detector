@@ -30,7 +30,7 @@ function UnitCell({ change }: { change: ChangeOut }) {
   const after = change.after?.unit_price;
   const dir = direction(change);
   if (pct === null) {
-    return <span className="same">No price per unit: the size text could not be parsed.</span>;
+    return <span className="same">No price per unit: the listed size could not be read.</span>;
   }
   const size = Math.min(Math.abs(pct), BAR_CAP) / BAR_CAP;
   const over = Math.abs(pct) > BAR_CAP;
@@ -78,7 +78,7 @@ function Row({ change, onOpen }: { change: ChangeOut; onOpen: (id: string, trigg
           {change.product.category} · {kindLabel(change.kind)}
         </span>
       </th>
-      <td className="c-size" data-l="Package label">
+      <td className="c-size" data-l="Listed size">
         {sizeChanged ? (
           <>
             <span className="chg">{after?.size_text ?? ""}</span>
@@ -189,8 +189,7 @@ export function ChangesSection({ changes, categories }: { changes: ChangeOut[] |
     <section className="tool wide" id="changes" aria-labelledby="ch-h">
       <h2 id="ch-h">Every change</h2>
       <p className="tool-intro">
-        Every published size or price change, with the listing text and prices exactly as recorded. Filters and sort
-        are kept in the address, so a view can be linked.
+        Each published change, with the listed sizes and shelf prices exactly as recorded.
       </p>
       <div className="ch-controls">
         <div className="seg" role="group" aria-label="Kind of change">
@@ -227,7 +226,7 @@ export function ChangesSection({ changes, categories }: { changes: ChangeOut[] |
           <tr>
             <SortHeader label="Product" column="product" state={state} onSort={onSort} />
             <th scope="col">
-              <span className="th-l">Package label</span>
+              <span className="th-l">Listed size</span>
             </th>
             <th scope="col">
               <span className="th-l">Shelf price</span>

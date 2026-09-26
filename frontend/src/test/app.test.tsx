@@ -68,11 +68,19 @@ describe("article", () => {
     expect(screen.getByText(/(Last checked|Data last updated) Sep 23 at 7:07 a\.m\. Eastern/)).toBeInTheDocument();
     expect(screen.getByText(/Pantry is the largest group, with 276 items\./)).toBeInTheDocument();
     expect(screen.getByText(/The listed size went down on three products/)).toBeInTheDocument();
-    expect(screen.getByText(/1,242 products in 13 categories, 25 API calls\./)).toBeInTheDocument();
-    expect(screen.getByText(/433 model calls, for size reading and the assistant together, have cost \$0\.08/)).toBeInTheDocument();
-    expect(screen.getByText(/78 so far: 38 price increases, 36 price cuts, three size decreases and one size increase\./)).toBeInTheDocument();
-    expect(screen.getByText(/1,370 records hold the history of 1,242 products/)).toBeInTheDocument();
-    expect(screen.getByText(/a size text change whose two readings cannot be compared/)).toBeInTheDocument();
+    const method = document.querySelector("#how")!.textContent!.replace(/\s+/g, " ");
+    expect(method).toContain("1,242 products in 13 categories, 25 API calls. The Sep 23 run checked all of them in 6 minutes 41 seconds with no errors.");
+    expect(method).toContain("Model spending is capped at $1.00 a day; 433 calls, for size reading and the assistant together, have cost $0.08 in total.");
+    expect(method).toContain("per ounce for weight, per fluid ounce for volume, per item for counts and per foot or square foot for lengths and areas.");
+    expect(method).toContain("So far there are 1,370 records.");
+    expect(method).toContain("So far 78 are published: 38 price increases, 36 price cuts, three size decreases and one size increase.");
+    expect(method).toContain("a size text change whose two readings cannot be compared");
+    // Each fact is stated once on the page.
+    const page = document.body.textContent!.replace(/\s+/g, " ");
+    expect(page.match(/questions a day/g)).toHaveLength(1);
+    expect(page.match(/four read-only tools/g)).toHaveLength(1);
+    expect(page.match(/1,370 records/g)).toHaveLength(1);
+    expect(page.match(/0\.5%/g)).toHaveLength(2);
     for (const pattern of FORBIDDEN) expect(document.body.textContent).not.toMatch(pattern);
   });
 
@@ -398,10 +406,12 @@ describe("search suggestions and brand matches", () => {
   it("suggests brands the article names and shows the brand when only it matched", async () => {
     renderApp();
     await screen.findByRole("heading", { level: 1 });
-    const count = document.querySelector(".find-count")!;
-    const words = within(count as HTMLElement)
-      .getAllByRole("button")
-      .map((button) => button.textContent);
+    const group = screen.getByRole("group", { name: "Suggestions" });
+    const words = within(group).getAllByRole("button").map((button) => button.textContent);
+    // The live count the input points to holds only the count, never the suggestions.
+    const live = document.querySelector(".find-count[aria-live]")!;
+    expect(live.textContent).toBe("");
+    expect(live.contains(group)).toBe(false);
     expect(words.length).toBeGreaterThan(0);
     expect(words).not.toContain("Pantry");
     const input = screen.getByRole("searchbox", { name: "Search products" });
@@ -409,5 +419,7 @@ describe("search suggestions and brand matches", () => {
     const list = document.querySelector(".find-list")!;
     await waitFor(() => expect(within(list as HTMLElement).getAllByRole("listitem").length).toBeGreaterThan(0));
     expect(within(list as HTMLElement).getAllByRole("listitem").length).toBeLessThanOrEqual(10);
+    expect(live.textContent).toMatch(/^\d+ match(es)?\.$/);
+    expect(screen.queryByRole("group", { name: "Suggestions" })).toBeNull();
   });
 });
