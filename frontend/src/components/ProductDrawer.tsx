@@ -228,8 +228,8 @@ export function ProductDrawer() {
   const close = useCallback(() => {
     const from = (location.state as DrawerState | null)?.fromArticle;
     if (from) void navigate(-1);
-    else void navigate("/", { replace: true });
-  }, [location.state, navigate]);
+    else void navigate({ pathname: "/", search: location.search }, { replace: true });
+  }, [location.state, location.search, navigate]);
 
   // Take the opener once, lock the page behind, focus the panel, and give focus back on close.
   useLayoutEffect(() => {

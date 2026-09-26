@@ -27,6 +27,13 @@ export function isDrawerPath(pathname: string): boolean {
   return /^\/products\/[^/]+\/?$/.test(pathname);
 }
 
+// The drawer's address for a product. The article's query string (the change table's filters
+// and sort) goes along, so the table behind the drawer keeps its rows and a copied link opens
+// the same view.
+export function productLocation(id: string, search: string): { pathname: string; search: string } {
+  return { pathname: productPath(id), search };
+}
+
 // Opens a product's drawer over the article. The state marks the entry as one the app pushed,
 // so closing can go back instead of pushing a second history entry. A fragment on the article's
 // entry (/#changes) is dropped first: going back to an entry with a fragment makes the browser
@@ -42,7 +49,7 @@ export function useOpenProduct(): (id: string, trigger?: Element | null) => void
       if (!alreadyOpen && location.hash) {
         void navigate({ pathname: location.pathname, search: location.search }, { replace: true });
       }
-      void navigate(productPath(id), { state, replace: alreadyOpen });
+      void navigate(productLocation(id, location.search), { state, replace: alreadyOpen });
     },
     [navigate, location.pathname, location.search, location.hash],
   );

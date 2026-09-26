@@ -261,6 +261,38 @@ describe("product drawer", () => {
     expect(document.title).toBe("Shrinkflation Detector");
   });
 
+  it("keeps the table's filter and sort behind the drawer and returns focus to the row", async () => {
+    renderApp("/?kind=shrink&sort=-unit#changes");
+    await screen.findByRole("heading", { level: 1 });
+    const table = screen.getByRole("table", { name: "Published changes" });
+    expect(within(table).getAllByRole("row")).toHaveLength(4);
+    const link = within(table).getAllByRole("link", { name: /Huggies/ })[0]!;
+    expect(link).toHaveAttribute("href", `/products/${fx.ids.huggies}?kind=shrink&sort=-unit`);
+    link.focus();
+    fireEvent.click(link);
+    expect(screen.getByTestId("loc")).toHaveTextContent(`/products/${fx.ids.huggies}?kind=shrink&sort=-unit`);
+    const dialog = await screen.findByRole("dialog");
+    await within(dialog).findByRole("heading", { level: 2 });
+    // The table behind the drawer keeps its rows.
+    expect(within(table).getAllByRole("row")).toHaveLength(4);
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(screen.getByTestId("loc")).toHaveTextContent(/^\/\?kind=shrink&sort=-unit$/);
+    expect(within(table).getAllByRole("row")).toHaveLength(4);
+    expect(document.activeElement).toBe(link);
+  });
+
+  it("closes a shared filtered drawer link onto the same table view", async () => {
+    renderApp(`/products/${fx.ids.khloud}?kind=grow`);
+    const dialog = await screen.findByRole("dialog");
+    await within(dialog).findByRole("heading", { level: 2 });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(screen.getByTestId("loc")).toHaveTextContent(/^\/\?kind=grow$/);
+    const table = screen.getByRole("table", { name: "Published changes" });
+    expect(within(table).getAllByRole("row")).toHaveLength(2);
+  });
+
   it("renders the article behind a directly loaded product", async () => {
     renderApp(`/products/${fx.ids.huggies}`);
     const dialog = await screen.findByRole("dialog");
