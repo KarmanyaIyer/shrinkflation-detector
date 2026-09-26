@@ -11,7 +11,7 @@ export const ASK_TIMEOUT_MS = 60_000;
 export const MAX_QUESTION = 300;
 
 // Questions the fixed tool set can always answer from the records.
-export const EXAMPLES = ["Did anything shrink?", "Which categories changed the most?", "What changed in the last week?"];
+export const EXAMPLES = ["Which listed sizes changed?", "Which categories changed the most?", "What changed in the last week?"];
 
 type AskState =
   | { status: "idle" }

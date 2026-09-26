@@ -41,17 +41,17 @@ describe("AskSection", () => {
 
     const input = screen.getByRole("textbox", { name: "Your question" });
     expect(screen.getByRole("button", { name: "Ask" })).toBeDisabled();
-    fireEvent.change(input, { target: { value: "Did anything shrink?" } });
+    fireEvent.change(input, { target: { value: "Which listed sizes changed?" } });
     fireEvent.click(screen.getByRole("button", { name: "Ask" }));
 
-    expect(vi.mocked(ask)).toHaveBeenCalledWith("Did anything shrink?", expect.any(AbortSignal));
+    expect(vi.mocked(ask)).toHaveBeenCalledWith("Which listed sizes changed?", expect.any(AbortSignal));
     // No count until a second has passed, so the line never reads "0 seconds".
     expect(screen.getByRole("status")).toHaveTextContent(/^Asking the assistant\.$/);
     expect(screen.getByRole("button", { name: "Asking" })).toBeDisabled();
 
     await act(async () => resolve(fx.askResponse));
     expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.getByText("Did anything shrink?", { selector: ".ans-q" })).toBeInTheDocument();
+    expect(screen.getByText("Which listed sizes changed?", { selector: ".ans-q" })).toBeInTheDocument();
     // Names are links that wrap with the text, not buttons.
     const link = screen.getByRole("link", { name: /Huggies Simply Clean Unscented Baby Wipes/ });
     expect(link).toHaveClass("pl");
