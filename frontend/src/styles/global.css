@@ -2080,11 +2080,7 @@ details.how[open] summary::before {
   .cat-sel span {
     min-width: 76px;
   }
-  /* The sort list is for phones, where the column headers are hidden. */
-.sort-sel {
-  display: none;
-}
-.cat-sel select {
+  .cat-sel select {
     flex: 1;
     min-height: 44px;
   }
