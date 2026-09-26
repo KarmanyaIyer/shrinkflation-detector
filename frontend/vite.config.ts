@@ -14,9 +14,6 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       port: 5173,
-      // Tests read a few backend and infra files as text to check the numbers in lib/method.ts.
-      // The dev server keeps Vite's default of this folder only.
-      fs: mode === "test" ? { allow: [".."] } : undefined,
       proxy: {
         "/api": {
           target: env.DEV_API_PROXY_TARGET || "http://127.0.0.1:8000",

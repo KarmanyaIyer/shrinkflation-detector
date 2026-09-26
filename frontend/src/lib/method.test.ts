@@ -1,10 +1,18 @@
+/// <reference types="node" />
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-// The backend and infra sources, read as text, so a changed threshold fails here.
-import configPy from "../../../backend/src/shrinkflation/config.py?raw";
-import detectPy from "../../../backend/src/shrinkflation/pipeline/detect.py?raw";
-import servicePy from "../../../backend/src/shrinkflation/sizes/service.py?raw";
-import bicepparam from "../../../infra/main.bicepparam?raw";
 import { METHOD, hourWord } from "./method";
+
+// The backend and infra sources, read from disk as text, so a changed threshold fails here.
+// They are read with node:fs rather than imported, so Vite never serves files outside frontend/.
+const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const read = (path: string) => readFileSync(resolve(repo, path), "utf8");
+const configPy = read("backend/src/shrinkflation/config.py");
+const detectPy = read("backend/src/shrinkflation/pipeline/detect.py");
+const servicePy = read("backend/src/shrinkflation/sizes/service.py");
+const bicepparam = read("infra/main.bicepparam");
 
 // The number assigned to `name` in Python source: `NAME = 0.7`, `NAME = Decimal("0.5")` or
 // `name: float = 1.00`.
