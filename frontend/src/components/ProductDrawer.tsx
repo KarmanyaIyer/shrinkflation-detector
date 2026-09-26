@@ -138,7 +138,9 @@ function StatesTable({ snapshots }: { snapshots: SnapshotOut[] }) {
             <td className="n" data-l="Per unit">
               {formatUnitPrice(s.unit_price?.value, s.unit_price?.unit) ?? "not parsed"}
             </td>
-            <td data-l="Seen">{formatDateRange(s.first_seen_at, s.last_seen_at)}</td>
+            <td data-l="Seen">
+              <span className="nw">{formatDateRange(s.first_seen_at, s.last_seen_at)}</span>
+            </td>
             <td className="n" data-l="Checks">
               {formatInt(s.observations)}
             </td>
@@ -176,11 +178,11 @@ function Body({ detail }: { detail: ProductDetail }) {
               {noBreak(displayName(detail.product.description))}
             </h2>
             <p className="dr-meta">
-              {detail.product.category}
+              <span className="nw">{detail.product.category}</span>
               {detail.product.brand ? (
                 <>
                   <span className="sep">·</span>
-                  {brandName(detail.product.brand, detail.product.description)}
+                  <span className="nw">{brandName(detail.product.brand, detail.product.description)}</span>
                 </>
               ) : null}
               {latest ? (

@@ -79,7 +79,7 @@ function Row({ change, onOpen }: { change: ChangeOut; onOpen: (id: string, trigg
           {noBreak(displayName(change.product.description))}
         </ProductLink>
         <span className="c-cat">
-          {change.product.category} · {kindLabel(change.kind)}
+          {change.product.category} · <span className="nw">{kindLabel(change.kind)}</span>
         </span>
       </th>
       <td className="c-size" data-l="Listed size">

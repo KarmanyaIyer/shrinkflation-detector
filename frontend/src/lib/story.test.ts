@@ -140,7 +140,7 @@ describe("story copy from the captured data", () => {
       unitPct: 242.86,
       unit: "each",
       when: "Sep 15 to 16",
-      note: "The listed count fell by more than half at the same shelf price.",
+      note: "",
     });
     expect(s.shrinks[1]!.note).toBe("The earlier text said “each”; the new text does not.");
     expect(s.shrinks[2]!.note).toBe("The earlier text had a pack count; the new text does not.");

@@ -155,20 +155,22 @@ export function AskSection({ products }: { products: FieldProduct[] | null }) {
       </form>
       <div className="ask-try">
         <span className="ask-try-l">Try</span>
-        {EXAMPLES.map((example) => (
-          <button
-            key={example}
-            type="button"
-            className="ex"
-            disabled={pending}
-            onClick={() => {
-              setQuestion(example);
-              void submit(example);
-            }}
-          >
-            {example}
-          </button>
-        ))}
+        <div className="ask-try-q">
+          {EXAMPLES.map((example) => (
+            <button
+              key={example}
+              type="button"
+              className="ex"
+              disabled={pending}
+              onClick={() => {
+                setQuestion(example);
+                void submit(example);
+              }}
+            >
+              {example}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="ask-out" aria-live="polite">
         {state.status === "pending" ? (

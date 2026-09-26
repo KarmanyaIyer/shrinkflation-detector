@@ -237,7 +237,8 @@
   .drawer {
     width: 100vw;
     border-left: 0;
-    top: 6svh;
+    /* Clears the top nav row and never cuts through the title row below it. */
+    top: min(6svh, 44px);
     border-top: 1px solid var(--ink);
     animation-name: slideup;
   }

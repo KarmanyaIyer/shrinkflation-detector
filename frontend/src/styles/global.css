@@ -1057,13 +1057,23 @@ figure {
 }
 .ask-try {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2px 22px;
+  align-items: flex-start;
+  gap: 22px;
   margin-top: 14px;
   font: 15px/1.3 var(--sans);
 }
+/* The questions wrap inside their own column, so a second row lines up with the first. */
+.ask-try-q {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+  gap: 2px 22px;
+}
 .ask-try-l {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
   font: 700 12px/1 var(--sans);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2027,7 +2037,8 @@ details.how[open] summary::before {
     overflow: hidden;
     clip: rect(0 0 0 0);
   }
-  .ask-try {
+  .ask-try,
+  .ask-try-q {
     gap: 0 16px;
     font-size: 15px;
   }

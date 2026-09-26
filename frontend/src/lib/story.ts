@@ -233,7 +233,6 @@ export function sizeCase(change: ChangeOut, prose: Namer = (c) => displayName(c.
   const unit = unitOf(change) ?? "";
   const sizePct = toNumber(change.size_change_pct);
   const name = displayName(change.product.description);
-  const measured = unit === "each" ? "count" : "size";
 
   let noteKind: SizeCase["noteKind"] = "plain";
   let note = "";
@@ -246,12 +245,9 @@ export function sizeCase(change: ChangeOut, prose: Namer = (c) => displayName(c.
   } else if (contains(name, beforeText) && !contains(name, afterText)) {
     noteKind = "name";
     note = `The product name still says ${quoted(beforeText)}.`;
-  } else if (sizePct !== null && sizePct <= -50 && samePrice) {
+  } else if (sizePct !== null && Math.abs(sizePct) >= 50 && samePrice) {
+    // The card already shows both sizes and the unchanged price, so a large move adds no clue.
     noteKind = "half";
-    note = `The listed ${measured} fell by more than half at the same shelf price.`;
-  } else if (sizePct !== null && sizePct >= 50 && samePrice) {
-    noteKind = "half";
-    note = `The listed ${measured} rose by half or more at the same shelf price.`;
   }
 
   return {
@@ -515,9 +511,9 @@ export function buildStory(input: StoryInput): Story {
     const top = sortedCats.filter((c) => c.products === largest.products);
     gridText.push(
       top.length === 1
-        ? ` ${largest.category} is the largest group, with ${numberWord(largest.products)} items.`
+        ? ` ${largest.category} is the largest group, with ${numberWord(largest.products)} ${largest.products === 1 ? "item" : "items"}.`
         : top.length < sortedCats.length
-          ? ` ${joinProse(top.map((c) => c.category))} are the largest groups, with ${numberWord(largest.products)} items each.`
+          ? ` ${joinProse(top.map((c) => c.category))} are the largest groups, with ${numberWord(largest.products)} ${largest.products === 1 ? "item" : "items"} each.`
           : "",
     );
   }
