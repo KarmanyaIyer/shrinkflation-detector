@@ -126,15 +126,57 @@ main:focus {
 }
 /* A head skeleton line is exactly one line box of the text it stands in for (1lh tall, with
    a bar drawn in the middle), so the loaded text takes the same height and nothing below it
-   moves. "w" lines show only above the phone breakpoint, "n" lines only below it. */
+   moves. The head text has a fixed measure in each width tier (see the phone section), so its
+   line count is the same across a tier; a line with the class x-<tier> is hidden in that tier.
+   Tiers: w above 760 px, e 632 to 760, d 520 to 631, c 430 to 519, b 390 to 429, a below 390.
+   Each block shows the lines the wider tier hid and hides its own, in that order. */
 .skl {
   display: block;
   height: 1lh;
   background: linear-gradient(#ececec, #ececec) no-repeat left center / var(--w, 100%) 0.62em;
 }
-.skl.n,
-.skl.s {
+.skl.x-w {
   display: none;
+}
+@media (max-width: 760px) {
+  .skl.x-w {
+    display: block;
+  }
+  .skl.x-e {
+    display: none;
+  }
+}
+@media (max-width: 631px) {
+  .skl.x-e {
+    display: block;
+  }
+  .skl.x-d {
+    display: none;
+  }
+}
+@media (max-width: 519px) {
+  .skl.x-d {
+    display: block;
+  }
+  .skl.x-c {
+    display: none;
+  }
+}
+@media (max-width: 429px) {
+  .skl.x-c {
+    display: block;
+  }
+  .skl.x-b {
+    display: none;
+  }
+}
+@media (max-width: 389px) {
+  .skl.x-b {
+    display: block;
+  }
+  .skl.x-a {
+    display: none;
+  }
 }
 /* Safari before 16.4 has no lh unit; the same heights from each element's line-height. */
 @supports not (height: 1lh) {
@@ -2109,18 +2151,6 @@ details.how[open] summary::before {
     line-height: 1.1;
     margin-bottom: 16px;
   }
-  .skl.n {
-    display: block;
-  }
-  .skl.w {
-    display: none;
-  }
-  /* "s" lines are the extra line the dek and lede take on the narrowest phones. */
-  @media (max-width: 380px) {
-    .skl.s {
-      display: block;
-    }
-  }
   .dek {
     font-size: 20px;
     margin-bottom: 20px;
@@ -2464,6 +2494,43 @@ details.how[open] summary::before {
   }
   .dr-dl dt {
     margin-top: 8px;
+  }
+}
+
+/* Head text measure on phones and small tablets: a fixed width in each tier, so the headline,
+   dek and lede wrap the same way across the tier and the skeleton (x-<tier> lines above) holds
+   their exact height. From 632 px the head is the 600 px column of the step cards. */
+@media (min-width: 632px) and (max-width: 760px) {
+  .head {
+    max-width: 632px;
+  }
+}
+@media (max-width: 631px) {
+  .head h1,
+  .dek,
+  .lede {
+    max-width: 488px;
+  }
+}
+@media (max-width: 519px) {
+  .head h1,
+  .dek,
+  .lede {
+    max-width: 398px;
+  }
+}
+@media (max-width: 429px) {
+  .head h1,
+  .dek,
+  .lede {
+    max-width: 358px;
+  }
+}
+@media (max-width: 389px) {
+  .head h1,
+  .dek,
+  .lede {
+    max-width: 328px;
   }
 }
 

@@ -11,27 +11,39 @@ const SKIP = [
 ];
 
 // Placeholder lines for text that has not loaded. Each line is exactly one line box of the
-// element it sits in (1lh), so the skeleton has the height of that many lines of the final
-// text and nothing moves when the text lands. Line counts differ by layout: "w" lines show only
-// above the phone breakpoint (760 px), "n" lines only below it, and "s" lines only at 380 px and
-// under. Measured on the current copy: the headline takes 3 lines from 768 to 1440 px and 4 on a
-// phone, the dek 2, 3 at 390 px and 4 at 360 px, the lede 4, 5 and 6.
-type SkSpec = [width: string, only?: "w" | "n" | "s"];
+// element it sits in (1lh), so the skeleton has the height of that many lines of the final text
+// and nothing moves when the text lands. The head text has a fixed measure in each width tier
+// (global.css): w above 760 px, e 632 to 760, d 520 to 631, c 430 to 519, b 390 to 429, a below
+// 390. Line counts per tier, measured on the current copy with stale, fresh and quiet data:
+const TIERS = ["w", "e", "d", "c", "b", "a"] as const;
+type Tier = (typeof TIERS)[number];
+type Counts = Record<Tier, number>;
 
-function SkText({ lines }: { lines: SkSpec[] }) {
+const HED: Counts = { w: 3, e: 2, d: 3, c: 3, b: 4, a: 4 };
+const DEK: Counts = { w: 2, e: 2, d: 3, c: 3, b: 3, a: 4 };
+const LEDE: Counts = { w: 4, e: 3, d: 4, c: 5, b: 5, a: 6 };
+const WHEN: Counts = { w: 1, e: 1, d: 1, c: 1, b: 1, a: 1 };
+
+const FULL = ["97%", "93%", "99%", "95%", "98%"];
+
+// One set of lines per distinct count; each line carries x-<tier> for every tier that shows a
+// different set, and the CSS hides it there.
+function SkText({ counts, last }: { counts: Counts; last: string }) {
+  const sets = [...new Set(TIERS.map((tier) => counts[tier]))];
   return (
     <>
-      {lines.map(([width, only], i) => (
-        <span key={i} className={`skl${only ? ` ${only}` : ""}`} style={{ "--w": width } as CSSProperties} />
-      ))}
+      {sets.flatMap((n) => {
+        const hidden = TIERS.filter((tier) => counts[tier] !== n)
+          .map((tier) => ` x-${tier}`)
+          .join("");
+        return Array.from({ length: n }, (_, i) => {
+          const width = i === n - 1 ? last : FULL[i % FULL.length];
+          return <span key={`${n}-${i}`} className={`skl${hidden}`} style={{ "--w": width } as CSSProperties} />;
+        });
+      })}
     </>
   );
 }
-
-const HED: SkSpec[] = [["96%"], ["90%"], ["62%", "w"], ["94%", "n"], ["48%", "n"]];
-const DEK: SkSpec[] = [["98%"], ["70%", "w"], ["96%", "n"], ["92%", "s"], ["44%", "n"]];
-const WHEN: SkSpec[] = [["62%"]];
-const LEDE: SkSpec[] = [["100%"], ["97%"], ["99%"], ["30%", "w"], ["98%", "n"], ["96%", "s"], ["45%", "n"]];
 
 export function ArticleHead({ story }: { story: Story | null }) {
   return (
@@ -42,14 +54,14 @@ export function ArticleHead({ story }: { story: Story | null }) {
       ) : (
         <h1 aria-busy="true">
           <span className="sr-only">Loading the latest figures</span>
-          <SkText lines={HED} />
+          <SkText counts={HED} last="64%" />
         </h1>
       )}
       {story ? (
         <p className="dek">{renderRuns(story.dek)}</p>
       ) : (
         <p className="dek" aria-hidden="true">
-          <SkText lines={DEK} />
+          <SkText counts={DEK} last="58%" />
         </p>
       )}
       <p className="byline">
@@ -63,7 +75,7 @@ export function ArticleHead({ story }: { story: Story | null }) {
           <span className="when">{noBreak(story.freshness)}</span>
         ) : (
           <span className="when sk-when" aria-hidden="true">
-            <SkText lines={WHEN} />
+            <SkText counts={WHEN} last="62%" />
           </span>
         )}
       </p>
@@ -71,7 +83,7 @@ export function ArticleHead({ story }: { story: Story | null }) {
         <p className="lede">{renderRuns(story.lede)}</p>
       ) : (
         <p className="lede" aria-hidden="true">
-          <SkText lines={LEDE} />
+          <SkText counts={LEDE} last="42%" />
         </p>
       )}
       <nav className="skip" aria-label="Jump to a tool">
