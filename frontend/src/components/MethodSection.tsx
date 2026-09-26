@@ -1,7 +1,7 @@
 import { countNoun, formatInt, formatMoney, numberWord } from "../lib/format";
 import { hourWord, METHOD } from "../lib/method";
 import type { MethodFacts } from "../lib/story";
-import { NoBreakQuotes } from "./NoBreakQuotes";
+import { NoBreakQuotes } from "./NoBreak";
 
 // Every claim here was checked against the backend code before it was written. Live numbers
 // come from the stats endpoint; without them (API down) the steps still read correctly. The
@@ -42,7 +42,8 @@ export function MethodSection({ method }: { method: MethodFacts | null }) {
       <ol>
         <li>
           <strong>Collection.</strong> Every day at {String(M.refreshHourUtc).padStart(2, "0")}:00 UTC, which is{" "}
-          {hourWord(M.refreshHourUtc - 4)} Eastern in summer and {hourWord(M.refreshHourUtc - 5)} in winter,
+          <span className="nw">{hourWord(M.refreshHourUtc - 4)}</span> Eastern in summer and{" "}
+          <span className="nw">{hourWord(M.refreshHourUtc - 5)}</span> in winter,
           a job asks Kroger’s public product API for every tracked product
           {m ? `: ${formatInt(m.products)} products in ${formatInt(m.categories)} categories${m.apiCalls !== null ? `, ${formatInt(m.apiCalls)} API calls` : ""}` : ""}.
           {runSentence(m)}

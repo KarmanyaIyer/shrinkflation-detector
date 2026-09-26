@@ -65,7 +65,9 @@ describe("article", () => {
     const dek = document.querySelector(".dek")!;
     expect(dek).toHaveTextContent("The largest: Reese's Puffs went from $5.49 to $3.99, 27.3% less per ounce.");
     expect(within(dek as HTMLElement).getByRole("link", { name: "Reese's Puffs" })).toHaveAttribute("href", `/products/${fx.ids.reeses}`);
-    expect(screen.getByText(/(Last checked|Data last updated) Sep 23 at 7:07 a\.m\. Eastern/)).toBeInTheDocument();
+    const when = document.querySelector(".byline .when")!;
+    expect(when.textContent).toMatch(/^(Last checked|Data last updated) Sep 23 at 7:07 a\.m\. Eastern/);
+    expect(when.querySelector(".nw")!.textContent).toBe("7:07 a.m.");
     expect(screen.getByText(/Pantry is the largest group, with 276 items\./)).toBeInTheDocument();
     expect(screen.getByText(/The listed size went down on three products/)).toBeInTheDocument();
     const method = document.querySelector("#how")!.textContent!.replace(/\s+/g, " ");

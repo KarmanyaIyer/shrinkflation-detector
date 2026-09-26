@@ -22,7 +22,7 @@ import { direction, kindLabel } from "../lib/kinds";
 import { takeOpener, type DrawerState } from "../lib/drawerRoute";
 import { useApi, usePageTitle } from "../lib/useApi";
 import { displayName } from "../lib/text";
-import { NoBreakQuotes } from "./NoBreakQuotes";
+import { NoBreakQuotes } from "./NoBreak";
 import { SkLine, describeLoadError } from "./Status";
 import { StepChart } from "./StepChart";
 

@@ -1,4 +1,4 @@
-import { NoBreakQuotes } from "./NoBreakQuotes";
+import { NoBreakQuotes } from "./NoBreak";
 import { GITHUB_URL } from "./Shell";
 
 // Which note markers exist on the page, in reading order: 1 sits in the lede, 2 in the size

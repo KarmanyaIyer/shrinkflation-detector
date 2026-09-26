@@ -4,7 +4,7 @@ import type { Run, Story as StoryData, StoryStep } from "../lib/story";
 import { useOpenProduct } from "../lib/drawerRoute";
 import { coarsePointer, STACKED_QUERY } from "../lib/layout";
 import { Graphic } from "./Graphic";
-import { NoBreakQuotes, noBreakQuotes } from "./NoBreakQuotes";
+import { NoBreakQuotes, noBreakQuotes } from "./NoBreak";
 import { ProductLink } from "./ProductLink";
 
 // Turns a copy run into markup. Kept here so the story module stays free of JSX.
