@@ -409,7 +409,7 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
     if (change) {
       const pct = formatPercent(unitChangePct(change));
       const unit = change.after?.unit_price?.unit;
-      parts.push(`${kindLabel(change.kind)}${pct ? `, ${pct}${unit ? ` per ${unitProse(unit)}` : ""}` : ""}`);
+      parts.push(`${kindLabel(change.kind, true)}${pct ? `, ${pct}${unit ? ` per ${unitProse(unit)}` : ""}` : ""}`);
     } else {
       parts.push("no change recorded");
     }
@@ -554,7 +554,7 @@ function TipBox({
       {change || product.change ? (
         <span className="tt-k">
           <i className={`kd ${dir === "more" ? "m" : "l"}`} aria-hidden="true" />
-          {kindLabel(change?.kind ?? product.change ?? "")}
+          {kindLabel(change?.kind ?? product.change ?? "", true)}
           {pct ? `, ${pct}${unit ? ` per ${unitWord(unit)}` : ""}` : ""}
         </span>
       ) : (

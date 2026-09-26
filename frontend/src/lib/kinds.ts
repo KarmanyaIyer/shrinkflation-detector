@@ -10,8 +10,16 @@ export const KIND_LABELS: Record<string, string> = {
   price_decrease: "Price down",
 };
 
-export function kindLabel(kind: string): string {
-  return KIND_LABELS[kind] ?? kind.replaceAll("_", " ");
+// Where a label stands alone (the product drawer, the chart tooltip and announcement), size
+// kinds say "listed size", since the detector reads the listing, not the package.
+const LONG_LABELS: Record<string, string> = {
+  shrink: "Listed size down",
+  shrink_price_cut: "Listed size down, cheaper per unit",
+  grow: "Listed size up",
+};
+
+export function kindLabel(kind: string, long = false): string {
+  return (long ? LONG_LABELS[kind] : undefined) ?? KIND_LABELS[kind] ?? kind.replaceAll("_", " ");
 }
 
 export const SIZE_KINDS = new Set(["shrink", "shrink_price_cut", "grow"]);

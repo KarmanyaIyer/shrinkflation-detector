@@ -247,6 +247,11 @@ describe("product drawer", () => {
       "Between Sep 15 and 16, the listed size went from “192 ct” to “56 ct” and the shelf price stayed at $6.99, so the price per item rose 242.9%.",
     );
     expect([...summary.querySelectorAll(".nw")].map((el) => el.textContent)).toEqual(["“192 ct”", "“56 ct”"]);
+    // A size change reads as a listing change: the kind says so and a note gives the caveat.
+    expect(dialog.querySelector(".dr-meta .kind")).toHaveTextContent("Listed size down");
+    expect(dialog.querySelector(".dr-note")).toHaveTextContent(
+      "The detector reads the listed size, so a corrected listing and a smaller package look the same.",
+    );
     expect(within(dialog).getAllByText("read by rules").length).toBeGreaterThan(0);
     expect(within(dialog).queryByText(/\/each$/)).toBeNull();
     // The API lists "Baby" twice.

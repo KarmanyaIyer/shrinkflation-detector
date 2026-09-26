@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as fx from "../api/fixtures";
 import type { ChangeOut, ProductDetail } from "../api/types";
-import { summaryOf } from "../components/ProductDrawer";
+import { sizeNoteOf, summaryOf } from "../components/ProductDrawer";
 
 // The drawer's first sentences, written from the product's records.
 function detail(id: string): ProductDetail {
@@ -85,5 +85,30 @@ describe("summaryOf", () => {
     expect(summaryOf(withChanges(base, [noUnit]))).toBe(
       "One change since Sep 7, 2026. Between Sep 15 and 16, the shelf price went from $5.49 to $3.99.",
     );
+  });
+});
+
+describe("sizeNoteOf", () => {
+  const reads = "The detector reads the listed size, so a corrected listing and";
+
+  it("gives the text clue and the reading caveat for a listed size that went down", () => {
+    expect(sizeNoteOf(detail(fx.ids.philadelphia))).toBe(`The earlier text said “each”; the new text does not. ${reads} a smaller package look the same.`);
+    // The summary already gives the numbers, so a size that fell by more than half adds no clue.
+    expect(sizeNoteOf(detail(fx.ids.huggies))).toBe(`${reads} a smaller package look the same.`);
+    expect(sizeNoteOf(detail(fx.ids.dove))).toBe(`The earlier text had a pack count; the new text does not. ${reads} a smaller package look the same.`);
+  });
+
+  it("says a larger package for a listed size that went up", () => {
+    expect(sizeNoteOf(detail(fx.ids.khloud))).toBe(`The product name still says “4.0 oz”. ${reads} a larger package look the same.`);
+  });
+
+  it("uses the newest size change and stays quiet for price moves", () => {
+    expect(sizeNoteOf(detail(fx.ids.reeses))).toBeNull();
+    const base = detail(fx.ids.huggies);
+    const shrink = base.changes[0]!;
+    const grow: ChangeOut = { ...shrink, id: shrink.id + 1, kind: "grow", detected_at: "2026-09-20T11:00:00Z" };
+    expect(sizeNoteOf(withChanges(base, [shrink, grow]))).toMatch(/a larger package look the same\.$/);
+    const price: ChangeOut = { ...shrink, id: shrink.id + 2, kind: "price_increase", detected_at: "2026-09-21T11:00:00Z" };
+    expect(sizeNoteOf(withChanges(base, [shrink, price]))).toMatch(/a smaller package look the same\.$/);
   });
 });

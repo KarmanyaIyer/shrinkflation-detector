@@ -18,7 +18,8 @@ import {
   quoted,
   unitProse,
 } from "../lib/format";
-import { direction, kindLabel } from "../lib/kinds";
+import { direction, kindLabel, SIZE_KINDS } from "../lib/kinds";
+import { sizeCase } from "../lib/story";
 import { takeOpener, type DrawerState } from "../lib/drawerRoute";
 import { useApi, usePageTitle } from "../lib/useApi";
 import { brandName, displayName } from "../lib/text";
@@ -90,6 +91,18 @@ export function summaryOf(detail: ProductDetail): string {
   return `${lead} since ${since}. ${opening}, ${parts}${moved}.`;
 }
 
+// The caveat for a product whose listed size changed: what its label texts show, when they show
+// something the summary does not, and that the detector cannot tell an edited listing from a new
+// package. Null for a product with no size change.
+export function sizeNoteOf(detail: ProductDetail): string | null {
+  const latest = newestFirst(detail.changes).find((change) => SIZE_KINDS.has(change.kind));
+  if (!latest) return null;
+  const found = sizeCase(latest);
+  const clue = found.noteKind === "pack" || found.noteKind === "each" || found.noteKind === "name" ? found.note : "";
+  const other = latest.kind === "grow" ? "a larger package" : "a smaller package";
+  return [clue, `The detector reads the listed size, so a corrected listing and ${other} look the same.`].filter(Boolean).join(" ");
+}
+
 function StatesTable({ snapshots }: { snapshots: SnapshotOut[] }) {
   const rows = [...snapshots].sort((a, b) => b.first_seen_at.localeCompare(a.first_seen_at));
   const renamed = nameChanges(snapshots);
@@ -141,6 +154,7 @@ function Body({ detail }: { detail: ProductDetail }) {
   const current = detail.current ?? detail.snapshots[detail.snapshots.length - 1];
   const unit = current?.unit_price?.unit;
   const [imageOk, setImageOk] = useState(true);
+  const sizeNote = sizeNoteOf(detail);
   return (
     <>
       <div className="dr-body">
@@ -171,7 +185,7 @@ function Body({ detail }: { detail: ProductDetail }) {
               {latest ? (
                 <>
                   <span className="sep">·</span>
-                  <span className={`kind ${dir === "more" ? "m" : dir === "less" ? "l" : ""}`}>{kindLabel(latest.kind)}</span>
+                  <span className={`kind ${dir === "more" ? "m" : dir === "less" ? "l" : ""}`}>{kindLabel(latest.kind, true)}</span>
                 </>
               ) : null}
             </p>
@@ -180,6 +194,11 @@ function Body({ detail }: { detail: ProductDetail }) {
         <p className="dr-sum">
           <NoBreak text={summaryOf(detail)} />
         </p>
+        {sizeNote ? (
+          <p className="dr-note">
+            <NoBreak text={sizeNote} />
+          </p>
+        ) : null}
         <figure className="dr-fig">
           <figcaption>
             Price per {unitProse(unit)}, {formatDateRange(detail.first_seen_at, detail.last_seen_at)}

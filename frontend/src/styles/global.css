@@ -1851,6 +1851,13 @@ details.how[open] summary::before {
   margin: 18px 0 22px;
   text-wrap: pretty;
 }
+.dr-note {
+  margin: -8px 0 22px;
+  padding-left: 12px;
+  border-left: 2px solid var(--rule);
+  font: 15px/1.5 var(--sans);
+  text-wrap: pretty;
+}
 .dr-fig {
   margin: 0 0 22px;
   padding-top: 10px;
