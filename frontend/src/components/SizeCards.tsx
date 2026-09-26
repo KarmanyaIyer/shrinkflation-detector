@@ -89,6 +89,8 @@ export const SizeCards = forwardRef<
   const shown = step === "shrinks" || step === "grows";
   const ns = shrinks.length;
   const ng = grows.length;
+  // Group heads only when both groups share the stage; with one group the figure title names it.
+  const heads = ns > 0 && ng > 0;
   // Shrink columns may narrow to nothing; grow columns keep room for their one-line heading.
   // A group with no cards gets no track, since repeat(0, ...) would drop the whole template.
   const tracks = [ns ? `repeat(${ns}, minmax(0, 1fr))` : "", ng ? `repeat(${ng}, 1fr)` : ""].filter(Boolean).join(" ");
@@ -98,9 +100,11 @@ export const SizeCards = forwardRef<
       <div className="sc-grid" style={columns}>
         {ns ? (
           <div className={`sc-group shrank${step === "shrinks" ? " on" : ""}`}>
-            <p className="sc-h" style={compact ? undefined : { gridColumn: `1 / span ${ns}` }}>
-              Listed size went down
-            </p>
+            {heads ? (
+              <p className="sc-h" style={compact ? undefined : { gridColumn: `1 / span ${ns}` }}>
+                Listed size went down
+              </p>
+            ) : null}
             <div className="sc-row">
               {shrinks.map((item) => (
                 <Card key={item.id} item={item} active={step === "shrinks"} />
@@ -110,9 +114,11 @@ export const SizeCards = forwardRef<
         ) : null}
         {ng ? (
           <div className={`sc-group grew${step === "grows" ? " on" : ""}${ns ? "" : " only"}`}>
-            <p className="sc-h" style={compact ? undefined : { gridColumn: `${ns + 1} / span ${ng}` }}>
-              Listed size went up
-            </p>
+            {heads ? (
+              <p className="sc-h" style={compact ? undefined : { gridColumn: `${ns + 1} / span ${ng}` }}>
+                Listed size went up
+              </p>
+            ) : null}
             <div className="sc-row">
               {grows.map((item) => (
                 <Card key={item.id} item={item} active={step === "grows"} />

@@ -462,7 +462,10 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
   const tipProduct = tip ? productById.get(tip.id) : null;
   const tipChange = tip ? changeById.get(tip.id) : undefined;
   const narrow = size?.narrow ?? false;
-  const title = story.steps.find((s) => s.kind === step)?.title ?? "";
+  // On a wide stage both size groups show with their own heads, so the title names them both.
+  const bothGroups = !compactCards && story.shrinks.length > 0 && story.grows.length > 0;
+  const title =
+    (step === "shrinks" || step === "grows") && bothGroups ? "Listed size changes" : (story.steps.find((s) => s.kind === step)?.title ?? "");
 
   return (
     <figure className="sticky" aria-label={`Chart of ${formatInt(products.length)} tracked products and their recorded changes`}>

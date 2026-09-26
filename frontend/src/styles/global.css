@@ -638,9 +638,8 @@ figure {
 }
 .pk-fill {
   position: relative;
-  height: var(--hb);
+  height: var(--ha);
   background: var(--c);
-  transition: none;
 }
 .sc.shrink {
   --c: var(--more);
@@ -648,9 +647,18 @@ figure {
 .sc.grow {
   --c: var(--less);
 }
+/* A card's after box grows or shrinks from the before height when its step comes up; a dimmed
+   card shows its final state. */
 .sc.on .pk-fill {
-  height: var(--ha);
-  transition: height 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.75s;
+  animation: pkfill 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.75s backwards;
+}
+@keyframes pkfill {
+  from {
+    height: var(--hb);
+  }
+  to {
+    height: var(--ha);
+  }
 }
 .sc-labels {
   display: flex;
