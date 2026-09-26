@@ -81,7 +81,7 @@ describe("story copy from the captured data", () => {
       ", and all three kept the same shelf price.",
     ]);
     expect(s.steps[3]!.paragraphs[1]).toEqual([
-      "The detector reads Kroger’s listing text, so a corrected listing and a smaller package look the same.",
+      "The detector reads the size Kroger lists, so a corrected listing and a smaller package look the same.",
       { fn: 2 },
     ]);
     expect(s.steps[4]!.title).toBe("Listed size went up");
@@ -110,7 +110,7 @@ describe("story copy from the captured data", () => {
     );
     expect(s.lede).toContainEqual({ fn: 1 });
     expect(s.sizeNote).toBe(
-      "No package was measured. An edit to the listing text changes the reading: “2 ct / 8 oz each” was read as 16 oz and “2 ct / 8 oz” as 8 oz.",
+      "No package was measured. Rewording the listed size changes the reading: “2 ct / 8 oz each” was read as 16 oz and “2 ct / 8 oz” as 8 oz.",
     );
   });
 

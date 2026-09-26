@@ -12,7 +12,7 @@ export interface NoteRefs {
 
 export const NO_REFS: NoteRefs = { 1: false, 2: false, 3: false };
 
-export const SIZE_NOTE_FALLBACK = "No package was measured. Every size comes from the listing text in Kroger’s product API.";
+export const SIZE_NOTE_FALLBACK = "No package was measured. Every size comes from Kroger’s product API.";
 
 function BackRef({ to, label, refs }: { to: 1 | 2 | 3; label: string; refs: NoteRefs }) {
   if (!refs[to]) return null;

@@ -580,7 +580,7 @@ export function buildStory(input: StoryInput): Story {
       title: "Listed size went down",
       paragraphs: [
         [{ b: `The listed size went down on ${countNoun(n, "product")}` }, samePrice],
-        ["The detector reads Kroger’s listing text, so a corrected listing and a smaller package look the same.", { fn: 2 }],
+        ["The detector reads the size Kroger lists, so a corrected listing and a smaller package look the same.", { fn: 2 }],
       ],
       alt: shrinks.map(caseAlt).join(" "),
     });
@@ -663,8 +663,8 @@ export function buildStory(input: StoryInput): Story {
   );
   const sizeNote = `No package was measured.${
     example
-      ? ` An edit to the listing text changes the reading: ${quoted(example.before)} was read as ${example.readBefore} and ${quoted(example.after)} as ${example.readAfter}.`
-      : " Every size comes from the listing text in Kroger’s product API."
+      ? ` Rewording the listed size changes the reading: ${quoted(example.before)} was read as ${example.readBefore} and ${quoted(example.after)} as ${example.readAfter}.`
+      : " Every size comes from Kroger’s product API."
   }`;
 
   return {

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 const QUOTED = /(“[^”]*”)/;
 
-// Keeps each quoted listing text, such as “2 ct / 8 oz each”, on one line.
+// Keeps each quoted listed size, such as “2 ct / 8 oz each”, on one line.
 export function noBreakQuotes(text: string): ReactNode {
   if (!text.includes("“")) return text;
   return text.split(QUOTED).map((part, i) =>
