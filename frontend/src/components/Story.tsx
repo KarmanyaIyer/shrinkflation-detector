@@ -7,37 +7,65 @@ import { Graphic } from "./Graphic";
 import { NoBreak, noBreak } from "./NoBreak";
 import { ProductLink } from "./ProductLink";
 
+// The words a legend dot labels: up to the first comma or period ("up for 41,") when that is
+// four words or fewer, else the first word. They share a nowrap span with the dot, so a dot
+// never ends a line with its label on the next.
+function dotLabel(text: string): string {
+  const clause = /^\s*[^,.]*[,.]?/.exec(text)?.[0] ?? "";
+  if (clause.trim() && clause.trim().split(/\s+/).length <= 4) return clause;
+  return /^\s*\S+/.exec(text)?.[0] ?? "";
+}
+
 // Turns a copy run into markup. Kept here so the story module stays free of JSX.
 export function renderRuns(runs: Run[], pickVerb = "Select a dot"): ReactNode[] {
-  return runs.map((run, i) => {
-    if (typeof run === "string") return <NoBreak key={i} text={run} />;
-    if ("b" in run) return <strong key={i}>{noBreak(run.b)}</strong>;
-    if ("dot" in run) return <i key={i} className={`kd ${run.dot === "more" ? "m" : "l"}`} aria-hidden="true" />;
-    if ("fn" in run) {
-      return (
+  const nodes: ReactNode[] = [];
+  for (let i = 0; i < runs.length; i += 1) {
+    const run = runs[i]!;
+    if (typeof run === "string") {
+      nodes.push(<NoBreak key={i} text={run} />);
+    } else if ("b" in run) {
+      nodes.push(<strong key={i}>{noBreak(run.b)}</strong>);
+    } else if ("dot" in run) {
+      const dot = <i className={`kd ${run.dot === "more" ? "m" : "l"}`} aria-hidden="true" />;
+      const next = runs[i + 1];
+      const label = typeof next === "string" ? dotLabel(next) : "";
+      if (label) {
+        nodes.push(
+          <span key={i} className="nw">
+            {dot}
+            {label}
+          </span>,
+          <NoBreak key={i + 1} text={(next as string).slice(label.length)} />,
+        );
+        i += 1;
+      } else {
+        nodes.push(<span key={i}>{dot}</span>);
+      }
+    } else if ("fn" in run) {
+      nodes.push(
         <sup key={i}>
           <a href={`#fn${run.fn}`} id={`r${run.fn}`} aria-label={`Note ${run.fn}`}>
             {run.fn}
           </a>
-        </sup>
+        </sup>,
       );
-    }
-    if ("link" in run) {
-      return (
+    } else if ("link" in run) {
+      nodes.push(
         <a key={i} href={run.link}>
           {run.text}
-        </a>
+        </a>,
       );
-    }
-    if ("product" in run) {
-      return (
+    } else if ("product" in run) {
+      nodes.push(
         <ProductLink key={i} id={run.product} className="pn">
           {noBreak(run.text)}
-        </ProductLink>
+        </ProductLink>,
       );
+    } else {
+      nodes.push(<span key={i}>{pickVerb}</span>);
     }
-    return <span key={i}>{pickVerb}</span>;
-  });
+  }
+  return nodes;
 }
 
 function StepText({ step, pickVerb }: { step: StoryStep; pickVerb: string }) {
