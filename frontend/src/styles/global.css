@@ -135,6 +135,19 @@ main:focus {
 .skl.n {
   display: none;
 }
+/* Safari before 16.4 has no lh unit; the same heights from each element's line-height. */
+@supports not (height: 1lh) {
+  h1 .skl {
+    height: 1.07em;
+  }
+  .dek .skl,
+  .byline .skl {
+    height: 1.4em;
+  }
+  .lede .skl {
+    height: 1.6em;
+  }
+}
 /* An empty block has no text baseline, so it would sit on the byline's baseline and push the
    row down; centering keeps the row one line tall. */
 .byline .sk-when {
@@ -145,16 +158,6 @@ main:focus {
 .g-sk {
   background: repeating-linear-gradient(0deg, #f2f2f2 0 10px, var(--paper) 10px 22px);
 }
-.err {
-  border-top: 2px solid var(--ink);
-  padding-top: 14px;
-  font-family: var(--sans);
-  font-size: 16px;
-}
-.err p {
-  margin: 0 0 14px;
-}
-
 /* masthead */
 .mast {
   position: sticky;
@@ -2110,6 +2113,14 @@ details.how[open] summary::before {
      the lede does not move when the data lands. */
   .byline .when {
     min-height: 2lh;
+  }
+  @supports not (height: 1lh) {
+    h1 .skl {
+      height: 1.1em;
+    }
+    .byline .when {
+      min-height: 2.8em;
+    }
   }
   .byline .sk-when {
     align-self: stretch;
