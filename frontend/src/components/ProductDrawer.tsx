@@ -26,6 +26,7 @@ import { brandName, displayName } from "../lib/text";
 import { NoBreak, noBreak } from "./NoBreak";
 import { SkLine, describeLoadError } from "./Status";
 import { StepChart } from "./StepChart";
+import "../styles/drawer.css";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, summary, [tabindex]:not([tabindex="-1"])';
 
