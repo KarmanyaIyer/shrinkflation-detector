@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import type { CategoryCount, ChangeOut, FieldProduct } from "../api/types";
 import { latestByProduct, unitChangePct } from "../lib/changes";
 import { layoutSwarmChart, type SwarmChart, type TextMeasure } from "../lib/chartLayout";
-import { formatInt, formatMoney, formatPercent, quoted, unitWord } from "../lib/format";
+import { formatInt, formatMoney, formatPercent, quoted, unitProse, unitWord } from "../lib/format";
 import { layoutGrid, type GridCategory, type GridLayout } from "../lib/grid";
 import { direction, kindDirection, kindLabel } from "../lib/kinds";
 import type { Story, StepKind } from "../lib/story";
@@ -408,7 +408,7 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
     if (change) {
       const pct = formatPercent(unitChangePct(change));
       const unit = change.after?.unit_price?.unit;
-      parts.push(`${kindLabel(change.kind)}${pct ? `, ${pct}${unit ? ` per ${unitWord(unit)}` : ""}` : ""}`);
+      parts.push(`${kindLabel(change.kind)}${pct ? `, ${pct}${unit ? ` per ${unitProse(unit)}` : ""}` : ""}`);
     } else {
       parts.push("no change recorded");
     }

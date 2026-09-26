@@ -1,5 +1,5 @@
 import type { ChangeOut, SnapshotOut } from "../api/types";
-import { formatDateShort, formatPercent, formatUnitAmount, toNumber, unitWord } from "../lib/format";
+import { formatDateShort, formatPercent, formatUnitAmount, toNumber, unitProse, unitWord } from "../lib/format";
 
 const W = 484;
 const H = 190;
@@ -89,7 +89,7 @@ export function StepChart({ snapshots, changes }: StepChartProps) {
 
   return (
     <>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Price per ${unitWord(unit)} from ${firstLabel} to ${lastLabel}: ${segments
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Price per ${unitProse(unit)} from ${firstLabel} to ${lastLabel}: ${segments
         .map((seg) => `${formatUnitAmount(seg.value)} from ${formatDateShort(seg.snapshot.first_seen_at)}`)
         .join(", ")}.`}>
         <line className="c-base" x1={PAD.left} x2={W - PAD.right} y1={baseY} y2={baseY} />

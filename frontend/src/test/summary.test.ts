@@ -34,16 +34,16 @@ describe("summaryOf", () => {
 
   it("writes a size change with the unchanged price and what it did to the price per unit", () => {
     expect(summaryOf(detail(fx.ids.huggies))).toBe(
-      "One change since Sep 7, 2026. Between Sep 15 and 16, the size text went from “192 ct” to “56 ct” and the shelf price stayed at $6.99, so the price per item rose 242.9%.",
+      "One change since Sep 7, 2026. Between Sep 15 and 16, the listed size went from “192 ct” to “56 ct” and the shelf price stayed at $6.99, so the price per item rose 242.9%.",
     );
   });
 
   it("writes a price change in words, without a sign", () => {
     expect(summaryOf(detail(fx.ids.reeses))).toBe(
-      "One change since Sep 7, 2026. Between Sep 15 and 16, the shelf price went from $5.49 to $3.99, so the price per oz fell 27.3%.",
+      "One change since Sep 7, 2026. Between Sep 15 and 16, the shelf price went from $5.49 to $3.99, so the price per ounce fell 27.3%.",
     );
     expect(summaryOf(detail(fx.ids.lateJuly))).toBe(
-      "One change since Sep 7, 2026. Between Sep 22 and 23, the shelf price went from $5.79 to $5.99, so the price per oz rose 3.5%.",
+      "One change since Sep 7, 2026. Between Sep 22 and 23, the shelf price went from $5.79 to $5.99, so the price per ounce rose 3.5%.",
     );
   });
 
@@ -62,11 +62,11 @@ describe("summaryOf", () => {
     };
     // Given oldest first, the newest still leads.
     expect(summaryOf(withChanges(base, [older, drop]))).toBe(
-      "Two changes since Sep 7, 2026. Most recently, between Sep 15 and 16, the shelf price went from $5.49 to $3.99, so the price per oz fell 27.3%.",
+      "Two changes since Sep 7, 2026. Most recently, between Sep 15 and 16, the shelf price went from $5.49 to $3.99, so the price per ounce fell 27.3%.",
     );
     // Same detection time: the higher id is the later change.
     const twin: ChangeOut = { ...older, id: drop.id + 1, detected_at: drop.detected_at };
-    expect(summaryOf(withChanges(base, [drop, twin]))).toMatch(/so the price per oz rose 4\.0%\.$/);
+    expect(summaryOf(withChanges(base, [drop, twin]))).toMatch(/so the price per ounce rose 4\.0%\.$/);
   });
 
   it("says on which day when both sides were seen the same day, and across a month end", () => {

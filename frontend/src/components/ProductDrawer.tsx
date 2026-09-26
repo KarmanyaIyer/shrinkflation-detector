@@ -3,9 +3,10 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { getProduct } from "../api/client";
 import { ApiError } from "../api/http";
 import type { ChangeOut, ProductDetail, SnapshotOut } from "../api/types";
-import { unitChangePct } from "../lib/changes";
+import { compareNewest, unitChangePct } from "../lib/changes";
 import {
   betweenDays,
+  capitalize,
   countNoun,
   formatDate,
   formatDateRange,
@@ -15,31 +16,47 @@ import {
   formatPercent,
   formatUnitPrice,
   quoted,
-  unitWord,
+  unitProse,
 } from "../lib/format";
 import { direction, kindLabel } from "../lib/kinds";
 import { takeOpener, type DrawerState } from "../lib/drawerRoute";
 import { useApi, usePageTitle } from "../lib/useApi";
 import { displayName } from "../lib/text";
+import { NoBreakQuotes } from "./NoBreakQuotes";
 import { SkLine, describeLoadError } from "./Status";
 import { StepChart } from "./StepChart";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, summary, [tabindex]:not([tabindex="-1"])';
 
-// How a record's size text was read: "rules", "a model (name), confidence 0.93", or null.
+// How a record's listed size was read: "rules", "a language model, confidence 0.93", or null.
 function readBy(snapshot: SnapshotOut | null | undefined): string | null {
   const method = snapshot?.parse_method;
   if (!method) return null;
   const confidence = snapshot?.parse_confidence;
   const conf = confidence !== null && confidence !== undefined ? `, confidence ${confidence.toFixed(2)}` : "";
   if (method === "rule") return "rules";
-  if (method.includes("llm") || method.includes("model")) return `a model (${method})${conf}`;
+  if (method.includes("llm") || method.includes("model")) return `a language model${conf}`;
   return `${method}${conf}`;
 }
 
 // A product's changes, newest first, in the API's own order: detection time, then id.
 function newestFirst(changes: ChangeOut[]): ChangeOut[] {
-  return [...changes].sort((a, b) => b.detected_at.localeCompare(a.detected_at) || b.id - a.id);
+  return [...changes].sort(compareNewest);
+}
+
+// The backend starts a new record when the size text (ignoring case), the regular price or the
+// product name changes. The name is not in the record, so a record whose size and price match
+// the one before it marks a name change.
+function nameChanges(snapshots: SnapshotOut[]): Set<number> {
+  const ordered = [...snapshots].sort((a, b) => a.first_seen_at.localeCompare(b.first_seen_at) || a.id - b.id);
+  const ids = new Set<number>();
+  ordered.forEach((s, i) => {
+    const prev = ordered[i - 1];
+    if (prev && prev.size_text.trim().toLowerCase() === s.size_text.trim().toLowerCase() && prev.price_regular === s.price_regular) {
+      ids.add(s.id);
+    }
+  });
+  return ids;
 }
 
 // One or two sentences about the product, written from its records.
@@ -56,7 +73,7 @@ export function summaryOf(detail: ProductDetail): string {
   const before = latest.before;
   const after = latest.after;
   const sizePart =
-    before && after && before.size_text !== after.size_text ? `the size text went from ${quoted(before.size_text)} to ${quoted(after.size_text)}` : "";
+    before && after && before.size_text !== after.size_text ? `the listed size went from ${quoted(before.size_text)} to ${quoted(after.size_text)}` : "";
   const priceBefore = formatMoney(before?.price_regular);
   const priceAfter = formatMoney(after?.price_regular);
   const pricePart =
@@ -67,41 +84,21 @@ export function summaryOf(detail: ProductDetail): string {
         : "";
   const parts = [sizePart, pricePart].filter(Boolean).join(" and ");
   const when = betweenDays(latest.before_seen_at, latest.after_seen_at) ?? `on ${formatDateShort(latest.detected_at) ?? ""}`;
-  const moved = pct !== null && pct !== 0 ? `, so the price per ${unitWord(unit)} ${pct > 0 ? "rose" : "fell"} ${formatPercent(Math.abs(pct))!.replace(/^\+/, "")}` : "";
+  const moved = pct !== null && pct !== 0 ? `, so the price per ${unitProse(unit)} ${pct > 0 ? "rose" : "fell"} ${formatPercent(Math.abs(pct))!.replace(/^\+/, "")}` : "";
   const lead = changes.length === 1 ? "One change" : capitalize(countNoun(changes.length, "change"));
   const opening = changes.length === 1 ? capitalize(when) : `Most recently, ${when}`;
   return `${lead} since ${since}. ${opening}, ${parts}${moved}.`;
 }
 
-function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
-// Keeps each quoted size text on one line.
-function SummaryText({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/(“[^”]*”)/).map((part, i) =>
-        part.startsWith("“") ? (
-          <span key={i} className="nw">
-            {part}
-          </span>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
-}
-
 function StatesTable({ snapshots }: { snapshots: SnapshotOut[] }) {
   const rows = [...snapshots].sort((a, b) => b.first_seen_at.localeCompare(a.first_seen_at));
+  const renamed = nameChanges(snapshots);
   return (
     <table className="dr-table">
       <caption>Stored records, newest first</caption>
       <thead>
         <tr>
-          <th scope="col">Size text</th>
+          <th scope="col">Listed size</th>
           <th scope="col">Price</th>
           <th scope="col" className="n">
             Per unit
@@ -116,8 +113,9 @@ function StatesTable({ snapshots }: { snapshots: SnapshotOut[] }) {
         {rows.map((s) => (
           <tr key={s.id}>
             <td>
-              <b>{s.size_text || "no size text"}</b>
+              <b>{s.size_text || "no size listed"}</b>
               <span className="pm">{readBy(s) ? `read by ${readBy(s)}` : "size not read"}</span>
+              {renamed.has(s.id) ? <span className="pm">name changed</span> : null}
             </td>
             <td data-l="Price">
               {formatMoney(s.price_regular) ?? "no price"}
@@ -167,7 +165,7 @@ function Body({ detail }: { detail: ProductDetail }) {
               {detail.product.brand ? (
                 <>
                   <span className="sep">·</span>
-                  {detail.product.brand}
+                  {displayName(detail.product.brand)}
                 </>
               ) : null}
               {latest ? (
@@ -180,11 +178,11 @@ function Body({ detail }: { detail: ProductDetail }) {
           </div>
         </div>
         <p className="dr-sum">
-          <SummaryText text={summaryOf(detail)} />
+          <NoBreakQuotes text={summaryOf(detail)} />
         </p>
         <figure className="dr-fig">
           <figcaption>
-            {unit ? `Price per ${unitWord(unit)}` : "Price per unit"}, {formatDateRange(detail.first_seen_at, detail.last_seen_at)}
+            Price per {unitProse(unit)}, {formatDateRange(detail.first_seen_at, detail.last_seen_at)}
           </figcaption>
           <StepChart snapshots={detail.snapshots} changes={detail.changes} />
         </figure>
@@ -197,7 +195,7 @@ function Body({ detail }: { detail: ProductDetail }) {
           {detail.retailer_categories?.length ? (
             <>
               <dt>Kroger category</dt>
-              <dd>{detail.retailer_categories.join(", ")}</dd>
+              <dd>{[...new Set(detail.retailer_categories)].join(", ")}</dd>
             </>
           ) : null}
           <dt>First seen</dt>

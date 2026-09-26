@@ -181,10 +181,10 @@ describe("product drawer", () => {
     expect(dialog.contains(document.activeElement)).toBe(true);
     expect(await within(dialog).findByRole("heading", { level: 2 })).toHaveTextContent("General Mills Reese's Puffs Chocolatey Peanut Butter Cereal");
     expect(dialog.querySelector(".dr-sum")).toHaveTextContent(
-      /^One change since Sep 7, 2026\. Between Sep \d+ and \d+, the shelf price went from \$5\.49 to \$3\.99, so the price per oz fell 27\.3%\.$/,
+      /^One change since Sep 7, 2026\. Between Sep \d+ and \d+, the shelf price went from \$5\.49 to \$3\.99, so the price per ounce fell 27\.3%\.$/,
     );
     expect(within(dialog).getByRole("table", { name: "Stored records, newest first" })).toBeInTheDocument();
-    expect(within(dialog).getByRole("img", { name: /Price per oz/ })).toBeInTheDocument();
+    expect(within(dialog).getByRole("img", { name: /Price per ounce/ })).toBeInTheDocument();
     expect(document.body).toHaveClass("locked");
 
     fireEvent.keyDown(document, { key: "Escape" });
@@ -234,11 +234,39 @@ describe("product drawer", () => {
     await within(dialog).findByRole("heading", { level: 2 });
     const summary = dialog.querySelector(".dr-sum")!;
     expect(summary).toHaveTextContent(
-      "Between Sep 15 and 16, the size text went from “192 ct” to “56 ct” and the shelf price stayed at $6.99, so the price per item rose 242.9%.",
+      "Between Sep 15 and 16, the listed size went from “192 ct” to “56 ct” and the shelf price stayed at $6.99, so the price per item rose 242.9%.",
     );
     expect([...summary.querySelectorAll(".nw")].map((el) => el.textContent)).toEqual(["“192 ct”", "“56 ct”"]);
     expect(within(dialog).getAllByText("read by rules").length).toBeGreaterThan(0);
     expect(within(dialog).queryByText(/\/each$/)).toBeNull();
+    // The API lists "Baby" twice.
+    expect(dialog.querySelector(".dr-dl")).toHaveTextContent(/Kroger category\s*Baby\s*First seen/);
+    expect(within(dialog).getByRole("columnheader", { name: "Listed size" })).toBeInTheDocument();
+  });
+
+  it("marks a record that differs from the one before it only by name", async () => {
+    renderApp(`/products/${fx.ids.lateJuly}`);
+    const dialog = await screen.findByRole("dialog");
+    await within(dialog).findByRole("heading", { level: 2 });
+    const rows = [...dialog.querySelectorAll(".dr-table tbody tr")];
+    // Newest first: $5.99, then the renamed $5.79 record, then the first one.
+    expect(rows.map((row) => row.querySelector(".pm:last-child")!.textContent)).toEqual(["read by rules", "name changed", "read by rules"]);
+  });
+
+  it("names the reader and cleans the brand the way it cleans names", async () => {
+    renderApp(`/products/${fx.ids.philadelphia}`);
+    const dialog = await screen.findByRole("dialog");
+    await within(dialog).findByRole("heading", { level: 2 });
+    expect(within(dialog).getAllByText(/^read by a language model, confidence \d\.\d\d$/).length).toBeGreaterThan(0);
+    expect(dialog.textContent).not.toMatch(/\bllm\b|a model \(/);
+  });
+
+  it("drops the trademark sign from a brand", async () => {
+    renderApp(`/products/${fx.ids.khloud}`);
+    const dialog = await screen.findByRole("dialog");
+    await within(dialog).findByRole("heading", { level: 2 });
+    expect(dialog.querySelector(".dr-meta")).toHaveTextContent(/^Snacks\s*·\s*Khloud\s*·/);
+    expect(dialog.querySelector(".dr-meta")!.textContent).not.toMatch(/™/);
   });
 
   it("drops the fragment before opening and does not scroll again on close", async () => {
