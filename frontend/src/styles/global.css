@@ -132,7 +132,8 @@ main:focus {
   height: 1lh;
   background: linear-gradient(#ececec, #ececec) no-repeat left center / var(--w, 100%) 0.62em;
 }
-.skl.n {
+.skl.n,
+.skl.s {
   display: none;
 }
 /* Safari before 16.4 has no lh unit; the same heights from each element's line-height. */
@@ -2095,6 +2096,12 @@ details.how[open] summary::before {
   .skl.w {
     display: none;
   }
+  /* "s" lines are the extra line the dek and lede take on the narrowest phones. */
+  @media (max-width: 380px) {
+    .skl.s {
+      display: block;
+    }
+  }
   .dek {
     font-size: 20px;
     margin-bottom: 20px;
@@ -2108,9 +2115,9 @@ details.how[open] summary::before {
   .byline .sep {
     display: none;
   }
-  /* On a phone the freshness line after a recent check ("Last checked ... That check found
-     ...") takes two lines, so the skeleton and the loaded line both keep two lines of room and
-     the lede does not move when the data lands. */
+  /* On a phone the freshness line after a recent check ("Last checked ...: 27 changes flagged,
+     26 published.") takes two lines, so the skeleton and the loaded line both keep two lines of
+     room and the lede does not move when the data lands. */
   .byline .when {
     min-height: 2lh;
   }

@@ -12,10 +12,10 @@ const SKIP = [
 // Placeholder lines for text that has not loaded. Each line is exactly one line box of the
 // element it sits in (1lh), so the skeleton has the height of that many lines of the final
 // text and nothing moves when the text lands. Line counts differ by layout: "w" lines show only
-// above the phone breakpoint, "n" lines only below it. Measured on the current copy: the
-// headline takes 4 lines from 768 to 1440 px and 5 on a phone, the dek 2 and 4, the lede 5 and
-// 7 (8 at 360 px).
-type SkSpec = [width: string, only?: "w" | "n"];
+// above the phone breakpoint (760 px), "n" lines only below it, and "s" lines only at 380 px and
+// under. Measured on the current copy: the headline takes 3 lines from 768 to 1440 px and 4 on a
+// phone, the dek 2, 3 at 390 px and 4 at 360 px, the lede 4, 5 and 6.
+type SkSpec = [width: string, only?: "w" | "n" | "s"];
 
 function SkText({ lines }: { lines: SkSpec[] }) {
   return (
@@ -27,10 +27,10 @@ function SkText({ lines }: { lines: SkSpec[] }) {
   );
 }
 
-const HED: SkSpec[] = [["96%"], ["90%"], ["94%"], ["62%", "w"], ["92%", "n"], ["48%", "n"]];
-const DEK: SkSpec[] = [["98%"], ["70%", "w"], ["96%", "n"], ["92%", "n"], ["44%", "n"]];
+const HED: SkSpec[] = [["96%"], ["90%"], ["62%", "w"], ["94%", "n"], ["48%", "n"]];
+const DEK: SkSpec[] = [["98%"], ["70%", "w"], ["96%", "n"], ["92%", "s"], ["44%", "n"]];
 const WHEN: SkSpec[] = [["62%"]];
-const LEDE: SkSpec[] = [["100%"], ["97%"], ["99%"], ["95%"], ["30%", "w"], ["98%", "n"], ["96%", "n"], ["45%", "n"]];
+const LEDE: SkSpec[] = [["100%"], ["97%"], ["99%"], ["30%", "w"], ["98%", "n"], ["96%", "s"], ["45%", "n"]];
 
 export function ArticleHead({ story }: { story: Story | null }) {
   return (
