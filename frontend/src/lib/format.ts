@@ -96,6 +96,25 @@ export function unitWord(unit: string | null | undefined): string {
   return unit === "each" ? "item" : unit;
 }
 
+const UNIT_PROSE: Record<string, string> = {
+  oz: "ounce",
+  "fl oz": "fluid ounce",
+  each: "item",
+  ft: "foot",
+  "sq ft": "square foot",
+};
+
+// The unit as running prose says it after "per": "per ounce", "per fluid ounce", "per item".
+// Tables, charts, and size strings keep the abbreviations from unitWord.
+export function unitProse(unit: string | null | undefined): string {
+  if (!unit) return "unit";
+  return UNIT_PROSE[unit] ?? unit;
+}
+
+export function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 // Signed with one decimal: "-10.0%" (real minus sign), "+11.1%", "0.0%".
 export function formatPercent(value: Numeric, digits = 1): string | null {
   if (toNumber(value) === null) return null;

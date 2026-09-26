@@ -58,12 +58,12 @@ describe("article", () => {
   it("writes the headline, dek, and steps from the data", async () => {
     renderApp();
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent(
-      "Over 16 days at one Kroger, 38 prices rose, 36 fell and the listed size went down on three and up on one.",
+      "Over 16 days at one Kroger, 38 prices rose, 36 fell and four listed sizes changed.",
     );
     expect(screen.getByText(/Of the 74 price moves, 57 were under 10% per unit\./)).toBeInTheDocument();
     // The product in the dek is a real link to its record.
     const dek = document.querySelector(".dek")!;
-    expect(dek).toHaveTextContent("The largest was a 27.3% drop in price per oz, from $5.49 to $3.99, on Reese's Puffs.");
+    expect(dek).toHaveTextContent("The largest: Reese's Puffs went from $5.49 to $3.99, 27.3% less per ounce.");
     expect(within(dek as HTMLElement).getByRole("link", { name: "Reese's Puffs" })).toHaveAttribute("href", `/products/${fx.ids.reeses}`);
     expect(screen.getByText(/(Last checked|Data last updated) Sep 23 at 7:07 a\.m\. Eastern/)).toBeInTheDocument();
     expect(screen.getByText(/Pantry is the largest group, with 276 items\./)).toBeInTheDocument();

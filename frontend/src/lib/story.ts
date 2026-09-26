@@ -4,11 +4,16 @@
 //
 // Counting rules: price moves are counted as events ("38 prices rose"); everything drawn as a
 // dot is counted per product, by the product's newest change, so the words match the graphic
-// when one product changed more than once.
+// when one product changed more than once. Size cards and size counts use each product's
+// newest size change.
+//
+// Prose spells units out ("per ounce"); chart labels, tables, and size strings keep the
+// abbreviations ("per oz").
 
 import type { CategoryCount, ChangeOut, Stats } from "../api/types";
 import { latestByProduct, unitChangePct } from "./changes";
 import {
+  capitalize,
   countNoun,
   daysBetween,
   formatDate,
@@ -23,6 +28,7 @@ import {
   quoted,
   roundDecimal,
   toNumber,
+  unitProse,
   unitWord,
 } from "./format";
 import { direction, SIZE_KINDS } from "./kinds";
@@ -95,6 +101,8 @@ export interface Annotation {
   // The price part and the percent part of `line`, for layouts that put them on two rows.
   price: string;
   percent: string;
+  // `line` with the unit spelled out, for the text equivalent.
+  spoken: string;
 }
 
 export interface StoryCounts {
@@ -158,10 +166,6 @@ export interface Story {
 
 const HOURS_36 = 36 * 3_600_000;
 
-function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
 // "27.3%" without a sign, for prose that says the direction in words.
 function percentWord(value: number): string {
   return `${roundDecimal(Math.abs(value), 1)}%`;
@@ -187,11 +191,6 @@ function unitOf(change: ChangeOut): string | null {
   return change.after?.unit_price?.unit ?? change.before?.unit_price?.unit ?? null;
 }
 
-// "price per oz" when the change carries a price per unit, "shelf price" when it does not.
-function measureWords(change: ChangeOut): string {
-  return toNumber(change.unit_price_change_pct) !== null ? `price per ${unitWord(unitOf(change))}` : "shelf price";
-}
-
 type Namer = (change: ChangeOut) => string;
 
 function annotation(change: ChangeOut, prose: Namer): Annotation {
@@ -208,6 +207,7 @@ function annotation(change: ChangeOut, prose: Namer): Annotation {
     price,
     percent,
     line: price ? `${price}, ${percent}` : percent,
+    spoken: [price, `${formatPercent(value)} per ${unitProse(unit)}`].filter(Boolean).join(", "),
   };
 }
 
@@ -286,6 +286,8 @@ function dateRange(from: string | null | undefined, to: string | null | undefine
   return a ?? b ?? "";
 }
 
+// "Over 16 days at one Kroger, 38 prices rose, 36 fell and four listed sizes changed." The
+// size clause counts products by their newest size change and never says a package shrank.
 function headlineFor(counts: StoryCounts): string {
   const span = `Over ${countNoun(Math.max(1, counts.days), "day")} at one Kroger`;
   const parts: string[] = [];
@@ -296,19 +298,16 @@ function headlineFor(counts: StoryCounts): string {
   } else if (counts.priceDown) {
     parts.push(`${countNoun(counts.priceDown, "price")} fell`);
   }
-  if (counts.shrinks && counts.grows) {
-    parts.push(`the listed size went down on ${numberWord(counts.shrinks)} and up on ${numberWord(counts.grows)}`);
-  } else if (counts.shrinks) {
-    parts.push(`the listed size went down on ${numberWord(counts.shrinks)}`);
-  } else if (counts.grows) {
-    parts.push(`the listed size went up on ${numberWord(counts.grows)}`);
-  }
+  const sizes = counts.shrinks + counts.grows;
+  if (counts.shrinks && counts.grows) parts.push(`${numberWord(sizes)} listed sizes changed`);
+  else if (counts.shrinks) parts.push(`${countNoun(counts.shrinks, "listed size")} went down`);
+  else if (counts.grows) parts.push(`${countNoun(counts.grows, "listed size")} went up`);
   if (parts.length === 0) return `${span}, no listed size or shelf price changed.`;
-  if (!counts.priceUp && !counts.priceDown) parts.unshift("no shelf price changed");
+  if (!counts.priceUp && !counts.priceDown) parts.unshift("no shelf price moved");
   return `${span}, ${joinProse(parts)}.`;
 }
 
-// "Of the 74 price moves, 57 were under 10% per unit", with the zero, one, and all cases.
+// "Of the 74 price moves, 57 were under 10% per unit", with the none, both, and all cases.
 function under10Sentence(moves: number, under: number): string {
   if (under === 0) {
     return moves === 2 ? "Neither price move was under 10% per unit." : `None of the ${numberWord(moves)} price moves was under 10% per unit.`;
@@ -319,63 +318,76 @@ function under10Sentence(moves: number, under: number): string {
   return `Of the ${numberWord(moves)} price moves, ${numberWord(under)} ${under === 1 ? "was" : "were"} under 10% per unit.`;
 }
 
-// "a 27.3% drop in price per oz, from $5.49 to $3.99, on " + the product.
+// "Reese's Puffs went from $5.49 to $3.99, 27.3% less per ounce." The shelf prices come right
+// after the name, so they cannot be read as prices per unit.
 function largestMove(change: ChangeOut, prose: Namer): Run[] {
   const pct = unitChangePct(change) ?? 0;
   const pb = priceBefore(change);
   const pa = priceAfter(change);
-  const prices = pb && pa && pb !== pa ? `, from ${pb} to ${pa},` : "";
+  const unit = unitOf(change);
+  const prices = pb && pa && pb !== pa ? ` went from ${pb} to ${pa},` : "";
+  const per = toNumber(change.unit_price_change_pct) !== null && unit ? ` per ${unitProse(unit)}` : "";
   return [
-    `a ${percentWord(pct)} ${pct > 0 ? "rise" : "drop"} in ${measureWords(change)}${prices} on `,
     { product: change.product.id, text: prose(change) },
-    ".",
+    `${prices || " moved"} ${percentWord(pct)} ${pct > 0 ? "more" : "less"}${per}.`,
   ];
 }
 
-function dekFor(counts: StoryCounts, priceMoves: ChangeOut[], prose: Namer): Run[] {
+function dekFor(counts: StoryCounts, priceMoves: ChangeOut[], sizeChanges: ChangeOut[], stats: Stats, prose: Namer): Run[] {
   if (priceMoves.length === 0) {
-    const sizes = counts.shrinks + counts.grows;
-    if (sizes === 0) return ["Neither the listed size nor the regular shelf price of any tracked product changed."];
-    return [`No regular shelf price changed. The listed size changed on ${countNoun(sizes, "product")}.`];
+    if (sizeChanges.length === 0) {
+      const first = formatDate(stats.tracking_since);
+      return [first ? `The first check ran ${first}.` : "No check has run yet."];
+    }
+    // The headline already gives the count, so the dek dates the size changes.
+    const days = sizeChanges.map((c) => c.after_seen_at ?? c.detected_at).sort();
+    const first = formatDateShort(days[0]);
+    const last = formatDateShort(days[days.length - 1]);
+    if (sizeChanges.length === 1) return [`It was seen ${last}.`];
+    if (first === last) return [`${capitalize(every(sizeChanges.length))} were seen ${last}.`];
+    return [`The first was seen ${first} and the latest ${last}.`];
   }
   const largest = Math.max(...priceMoves.map((change) => Math.abs(unitChangePct(change) ?? 0)));
   const winners = priceMoves.filter((change) => Math.abs(unitChangePct(change) ?? 0) === largest);
   if (priceMoves.length === 1) return ["One shelf price moved: ", ...largestMove(priceMoves[0]!, prose)];
   const lead = under10Sentence(priceMoves.length, counts.under10);
-  if (winners.length === 1) return [`${lead} The largest was `, ...largestMove(winners[0]!, prose)];
+  if (winners.length === 1) return [`${lead} The largest: `, ...largestMove(winners[0]!, prose)];
   // Ties are on magnitude, so the sign is only shown when every tied move points the same way.
-  const signs = new Set(winners.map((change) => Math.sign(unitChangePct(change) ?? 0)));
-  const value = signs.size === 1 ? formatPercent(unitChangePct(winners[0]!)) : `${percentWord(largest)} either way`;
-  return [`${lead} ${capitalize(countNoun(winners.length, "product"))} tied for the largest move, at ${value} per unit.`];
+  const ups = winners.filter((change) => (unitChangePct(change) ?? 0) > 0).length;
+  const downs = winners.length - ups;
+  const shared = `was shared by ${countNoun(winners.length, "product")}`;
+  if (ups && downs) {
+    return [`${lead} The largest move, ${percentWord(largest)} per unit, ${shared}, ${numberWord(ups)} up and ${numberWord(downs)} down.`];
+  }
+  return [`${lead} The largest move, ${formatPercent(unitChangePct(winners[0]!))} per unit, ${shared}.`];
 }
 
-// run.changes_found counts every change the check classified, including ones held for review or
-// hidden as noise, so the line also says how many of them were published.
+// A one-line freshness note under the byline, from the last finished check. run.changes_found
+// counts every change the check classified, including ones held for review or hidden as noise,
+// so the line says how many of them were published.
 function freshnessFor(stats: Stats, changes: ChangeOut[], now: Date): string {
   const run = stats.last_run;
   if (!run) return "No check has run yet.";
   const at = run.finished_at ?? run.started_at;
-  const date = formatDateShort(at) ?? "";
-  const time = formatTime(at) ?? "";
-  const when = `${date} at ${time} Eastern`;
+  const when = `${formatDateShort(at) ?? ""} at ${formatTime(at) ?? ""} Eastern`;
+  if (now.getTime() - new Date(at).getTime() > HOURS_36) return `Data last updated ${when}.`;
   if (run.status !== "ok") {
-    const checked = `${formatInt(run.products_checked)} of ${formatInt(stats.products_tracked)} products`;
-    return `The last check, ${when}, ended with ${countNoun(run.errors, "error")} after ${checked}. Figures include everything recorded so far.`;
+    // A check with errors skips the batches that failed and carries on.
+    return run.products_checked < stats.products_tracked
+      ? `Last check ${when} covered ${formatInt(run.products_checked)} of ${formatInt(stats.products_tracked)} products.`
+      : `Last check ${when} ended with ${countNoun(Math.max(1, run.errors), "error")}.`;
   }
-  const age = now.getTime() - new Date(at).getTime();
-  if (age > HOURS_36) return `Data last updated ${when}.`;
   const start = new Date(run.started_at).getTime();
   const end = new Date(at).getTime();
   const published = changes.filter((change) => {
     const t = new Date(change.detected_at).getTime();
     return t >= start && t <= end;
   }).length;
-  let found: string;
-  if (run.changes_found === 0) found = "That check found no size or price changes.";
-  else if (published >= run.changes_found) found = `That check found ${countNoun(published, "size or price change")}.`;
-  else if (published === 0) found = `That check flagged ${countNoun(run.changes_found, "change")}, none of which passed the publish rule.`;
-  else found = `That check found ${countNoun(run.changes_found, "size or price change")} and published ${numberWord(published)}.`;
-  return `Last checked ${when}. ${found}`;
+  const found = run.changes_found;
+  if (found === 0) return `Last checked ${when}: no size or price changes.`;
+  if (published >= found) return `Last checked ${when}: ${countNoun(published, "size or price change")}.`;
+  if (published === 0) return `Last checked ${when}: ${countNoun(found, "change")} flagged, ${found === 1 ? "not" : "none"} published.`;
+  return `Last checked ${when}: ${countNoun(found, "change")} flagged, ${numberWord(published)} published.`;
 }
 
 function periodFor(stats: Stats, changes: ChangeOut[]): { period: string; last: string | null } {
@@ -401,31 +413,41 @@ function median(values: number[]): number | null {
 }
 
 function caseAlt(c: SizeCase): string {
-  return `${displayName(c.name)}: ${quoted(c.before)} to ${quoted(c.after)} at ${c.priceAfter ?? "no price"}, price per ${unitWord(c.unit)} ${
+  const price = c.samePrice || !c.priceBefore ? (c.priceAfter ?? "no price") : `${c.priceBefore} to ${c.priceAfter ?? "no price"}`;
+  return `${displayName(c.name)}: ${quoted(c.before)} to ${quoted(c.after)} at ${price}, price per ${unitProse(c.unit)} ${
     formatPercent(c.unitPct) ?? "unchanged"
   }, ${c.when}.`;
 }
 
-// "all three", "both", "it": the pronoun for every item of a group of `n`.
+// "all three", "both", "it": every item of a group of `n`.
 function every(n: number): string {
   return n === 1 ? "it" : n === 2 ? "both" : `all ${numberWord(n)}`;
 }
 
-// The sentences that say what the label texts show across a group of size cases.
-function textEvidence(cases: SizeCase[]): string[] {
-  const out: string[] = [];
-  const textual = cases.filter((c) => c.noteKind === "pack" || c.noteKind === "each").length;
-  const named = cases.filter((c) => c.noteKind === "name");
-  if (textual) {
-    out.push(
-      textual === cases.length
-        ? `On ${cases.length === 1 ? "it" : cases.length === 2 ? "both" : "each one"} the new text dropped a pack count or the word “each”.`
-        : `On ${numberWord(textual)} of them the new text dropped a pack count or the word “each”.`,
-    );
-  }
-  if (named.length === 1 && cases.length === 1) out.push(`Its product name still says ${quoted(named[0]!.before)}.`);
-  else if (named.length) out.push(`On ${numberWord(named.length)} of them the product name still gives the earlier size.`);
-  return out;
+// The legend sentence of the changed step: which way the price per unit went, by product.
+function colorSentence(up: number, down: number, sizeDots: number): Run[] {
+  if (!up && !down) return [];
+  const counting = sizeDots
+    ? `, counting the ${sizeDots === 1 ? "one listed size change" : `${numberWord(sizeDots)} listed size changes`}`
+    : "";
+  const lead = `Color shows which way the price per unit went${counting}: `;
+  const all = (n: number) => (n === 1 ? "." : n === 2 ? " for both." : ` for all ${numberWord(n)}.`);
+  if (up && down) return [lead, { dot: "more" }, `up for ${numberWord(up)}, `, { dot: "less" }, `down for ${numberWord(down)}.`];
+  if (up) return [lead, { dot: "more" }, `up${all(up)}`];
+  return [lead, { dot: "less" }, `down${all(down)}`];
+}
+
+// The swarm step's text: the typical price move. The changed step has already said how many
+// dots are listed size changes, so this only names them when there is no price move at all.
+function swarmText(priceMoves: ChangeOut[], sizeDots: number): Run[] {
+  const values = priceMoves.map((change) => unitChangePct(change) ?? 0).sort((a, b) => a - b);
+  if (values.length >= 3) return [{ b: `The median price move, up or down, was ${percentWord(median(values.map(Math.abs))!)} per unit.` }];
+  if (values.length === 2) return [{ b: `The two price moves were ${formatPercent(values[0])} and ${formatPercent(values[1])} per unit.` }];
+  if (values.length === 1) return [{ b: `The one price move was ${formatPercent(values[0])} per unit.` }];
+  if (sizeDots === 1) return [{ b: "The one dot is a listed size change." }];
+  if (sizeDots === 2) return [{ b: "Both dots are listed size changes." }];
+  if (sizeDots) return [{ b: `All ${numberWord(sizeDots)} dots are listed size changes.` }];
+  return [{ b: "No change has been recorded yet, so the chart is empty." }];
 }
 
 export function buildStory(input: StoryInput): Story {
@@ -433,8 +455,11 @@ export function buildStory(input: StoryInput): Story {
   const latest = latestByProduct(changes);
   const latestList = [...latest.values()];
   const priceMoves = changes.filter((change) => !SIZE_KINDS.has(change.kind));
-  const shrinkChanges = [...latestByProduct(changes.filter((c) => c.kind === "shrink" || c.kind === "shrink_price_cut")).values()];
-  const growChanges = [...latestByProduct(changes.filter((c) => c.kind === "grow")).values()];
+  // Each product's newest size change decides whether it has a card and in which group, so a
+  // listing that went down and later back up shows once, as it is now.
+  const sizeChanges = [...latestByProduct(changes.filter((c) => SIZE_KINDS.has(c.kind))).values()];
+  const shrinkChanges = sizeChanges.filter((c) => c.kind === "shrink" || c.kind === "shrink_price_cut");
+  const growChanges = sizeChanges.filter((c) => c.kind === "grow");
   const { period, last } = periodFor(stats, changes);
   const days = stats.tracking_since && last ? daysBetween(stats.tracking_since, last) : 0;
 
@@ -473,54 +498,45 @@ export function buildStory(input: StoryInput): Story {
 
   const shrinks = shrinkChanges.map((c) => sizeCase(c, prose)).sort((a, b) => (b.unitPct ?? 0) - (a.unitPct ?? 0));
   const grows = growChanges.map((c) => sizeCase(c, prose)).sort((a, b) => (a.unitPct ?? 0) - (b.unitPct ?? 0));
+  const sizeDots = latestList.filter((change) => SIZE_KINDS.has(change.kind)).length;
 
   const sortedCats = [...categories].sort((a, b) => b.products - a.products || a.category.localeCompare(b.category));
   const largest = sortedCats[0];
-  const smallest = sortedCats[sortedCats.length - 1];
 
   const steps: StoryStep[] = [];
 
   // 1. Every product by category.
   const gridText: Run[] = ["Each dot is one product, grouped by category."];
-  if (largest && smallest && largest !== smallest) {
+  if (largest && sortedCats.length > 1) {
+    const top = sortedCats.filter((c) => c.products === largest.products);
     gridText.push(
-      ` ${largest.category} is the largest group, with ${numberWord(largest.products)} items. ${smallest.category} is the smallest, with ${numberWord(smallest.products)}.`,
+      top.length === 1
+        ? ` ${largest.category} is the largest group, with ${numberWord(largest.products)} items.`
+        : top.length < sortedCats.length
+          ? ` ${joinProse(top.map((c) => c.category))} are the largest groups, with ${numberWord(largest.products)} items each.`
+          : "",
     );
   }
   steps.push({
     kind: "grid",
     title: `${formatInt(counts.products)} products, by category`,
-    paragraphs: [gridText],
+    paragraphs: [gridText.filter(Boolean)],
     alt: `${formatInt(counts.products)} dots in ${countNoun(sortedCats.length, "category", "categories")}: ${sortedCats
       .map((c) => `${c.category} ${formatInt(c.products)}`)
       .join(", ")}.`,
   });
 
   // 2. The changed ones light up.
-  const changedText: Run[][] = [];
-  if (counts.changed === 0) {
-    changedText.push([
-      "A change means a morning check found a different size or price than the check before it. No check has found one yet.",
-    ]);
-  } else {
-    changedText.push([
-      "A change means a morning check found a different size or price than the check before it. That happened to ",
-      { b: countNoun(counts.changed, "product") },
-      ".",
-    ]);
-    changedText.push([
-      "Color shows which way the price per unit went: ",
-      { dot: "more" },
-      `up for ${numberWord(counts.up)}, `,
-      { dot: "less" },
-      `down for ${numberWord(counts.down)}.`,
-    ]);
-  }
+  const definition = "A change means a morning check found a different size or price than the check before it.";
+  const changedText: Run[][] =
+    counts.changed === 0
+      ? [[`${definition} No check has found one yet.`]]
+      : [[`${definition} That happened to `, { b: countNoun(counts.changed, "product") }, "."], colorSentence(counts.up, counts.down, sizeDots)];
   const withChanges = sortedCats.filter((c) => c.changes > 0);
   steps.push({
     kind: "changed",
     title: "Products with a recorded change",
-    paragraphs: changedText,
+    paragraphs: changedText.filter((paragraph) => paragraph.length > 0),
     alt:
       counts.changed === 0
         ? "No product is highlighted: nothing has changed yet."
@@ -530,69 +546,42 @@ export function buildStory(input: StoryInput): Story {
   });
 
   // 3. Beeswarm of unit price change.
-  const swarmText: Run[] = [];
-  if (counts.priceUp && counts.priceDown) {
-    swarmText.push("Shelf prices moved both ways: ", {
-      b: `${numberWord(counts.priceUp)} went up and ${numberWord(counts.priceDown)} came down.`,
-    });
-  } else if (counts.priceUp || counts.priceDown) {
-    const n = counts.priceUp || counts.priceDown;
-    swarmText.push({
-      b:
-        n === 1
-          ? `The one price move was ${counts.priceUp ? "an increase" : "a cut"}.`
-          : `All ${numberWord(n)} price moves were ${counts.priceUp ? "increases" : "cuts"}.`,
-    });
-  } else {
-    swarmText.push({ b: "No shelf price changed." });
-  }
-  const mid = counts.priceMoves >= 3 ? median(priceMoves.map((change) => Math.abs(unitChangePct(change) ?? 0))) : null;
-  if (mid !== null) swarmText.push(` The median move, up or down, was ${percentWord(mid)} per unit.`);
-  const sizeDots = latestList.filter((change) => SIZE_KINDS.has(change.kind)).length;
-  if (sizeDots) {
-    const other = counts.priceMoves ? "other " : "";
-    swarmText.push(
-      sizeDots === 1 ? ` The ${other}dot is a listed size change.` : ` The ${other}${numberWord(sizeDots)} dots are listed size changes.`,
-    );
-  }
   const upA = up ? annotation(up, prose) : null;
   const downA = down ? annotation(down, prose) : null;
   const swarmAlt = [
-    "Each changed product placed by its change in price per unit.",
-    upA ? `Largest increase on the axis: ${displayName(upA.name)}, ${upA.line}.` : "",
-    downA ? `Largest decrease on the axis: ${displayName(downA.name)}, ${downA.line}.` : "",
-    offScale.length ? `Off the scale: ${offScale.map((a) => `${displayName(a.name)}, ${a.line}`).join("; ")}.` : "",
+    counts.changed ? "Each changed product placed by its change in price per unit." : "No product has a change to place.",
+    upA ? `Largest increase on the axis: ${displayName(upA.name)}, ${upA.spoken}.` : "",
+    downA ? `Largest decrease on the axis: ${displayName(downA.name)}, ${downA.spoken}.` : "",
+    offScale.length ? `Off the scale: ${offScale.map((a) => `${displayName(a.name)}, ${a.spoken}`).join("; ")}.` : "",
   ]
     .filter(Boolean)
     .join(" ");
   steps.push({
     kind: "swarm",
-    title: `Change in price per unit, ${countNoun(counts.changed, "product")}`,
-    paragraphs: [swarmText],
+    title: counts.changed ? `Change in price per unit, ${countNoun(counts.changed, "product")}` : "Change in price per unit",
+    paragraphs: [swarmText(priceMoves, sizeDots)],
     alt: swarmAlt,
   });
 
-  // 4. Size decreases, with their label texts.
+  // 4. Size decreases, with their listed sizes. Each card's note says what its texts show.
   if (shrinks.length) {
+    const n = shrinks.length;
     const same = shrinks.filter((c) => c.samePrice).length;
-    const first: Run[] = [
-      { b: `The listed size went down on ${countNoun(shrinks.length, "product")}` },
-      same === shrinks.length
-        ? `; the shelf price stayed the same on ${every(shrinks.length)}.`
+    const samePrice =
+      same === n
+        ? n === 1
+          ? ", at the same shelf price."
+          : `, and ${every(n)} kept the same shelf price.`
         : same
-          ? `; the shelf price stayed the same on ${numberWord(same)} of them.`
-          : ".",
-    ];
-    const evidence = textEvidence(shrinks);
-    const second: Run[] = [
-      ...evidence.map((sentence) => `${sentence} `),
-      "The detector reads Kroger’s listing text, so a corrected listing and a smaller package look the same.",
-      { fn: 2 },
-    ];
+          ? `; ${numberWord(same)} of them kept the same shelf price.`
+          : ".";
     steps.push({
       kind: "shrinks",
-      title: "Listings whose size text went down",
-      paragraphs: [first, second],
+      title: "Listed size went down",
+      paragraphs: [
+        [{ b: `The listed size went down on ${countNoun(n, "product")}` }, samePrice],
+        ["The detector reads Kroger’s listing text, so a corrected listing and a smaller package look the same.", { fn: 2 }],
+      ],
       alt: shrinks.map(caseAlt).join(" "),
     });
   }
@@ -603,18 +592,21 @@ export function buildStory(input: StoryInput): Story {
     const text: Run[] = [{ b: `The listed size went up on ${countNoun(grows.length, "product")}` }];
     if (grows.length === 1) {
       const only = grows[0]!;
-      const price = only.samePrice ? `the same ${only.priceAfter}` : `${only.priceBefore} to ${only.priceAfter}`;
+      const price = only.samePrice
+        ? ` at the same ${only.priceAfter}`
+        : only.priceBefore && only.priceAfter
+          ? ` as the shelf price went from ${only.priceBefore} to ${only.priceAfter}`
+          : "";
       text.push(
-        `: ${quoted(only.before)} to ${quoted(only.after)} at ${price}`,
-        only.unitPct !== null && only.unitPct < 0 ? `, so the price per ${unitWord(only.unit)} fell ${percentWord(only.unitPct)}.` : ".",
+        `: ${quoted(only.before)} to ${quoted(only.after)}${price}`,
+        only.unitPct !== null && only.unitPct < 0 ? `, so the price per ${unitProse(only.unit)} fell ${percentWord(only.unitPct)}.` : ".",
       );
     } else {
       text.push(`: ${grows.map((c) => `${c.prose}, ${quoted(c.before)} to ${quoted(c.after)}`).join("; ")}.`);
     }
-    for (const sentence of textEvidence(grows)) text.push(` ${sentence}`);
     steps.push({
       kind: "grows",
-      title: "Listings whose size text went up",
+      title: "Listed size went up",
       paragraphs: [text],
       alt: grows.map(caseAlt).join(" "),
     });
@@ -624,15 +616,7 @@ export function buildStory(input: StoryInput): Story {
   steps.push({
     kind: "end",
     title: `${formatInt(counts.products)} products, by category`,
-    paragraphs: [
-      [
-        `The job has stored ${formatInt(counts.states)} records for these ${formatInt(counts.products)} products so far. `,
-        { pick: true },
-        " to open one product’s history, or ",
-        { link: "#ask", text: "ask the data" },
-        ".",
-      ],
-    ],
+    paragraphs: [[{ pick: true }, " to open one product’s history, or ", { link: "#ask", text: "ask the data" }, "."]],
     alt: `All ${formatInt(counts.products)} products by category again, with the ${formatInt(counts.changed)} changed ones in color.`,
   });
 
@@ -664,10 +648,12 @@ export function buildStory(input: StoryInput): Story {
     ),
   };
 
+  // How the reading works is in the method box; the lede says what is tracked and why the
+  // graphic uses the price per unit.
   const lede: Run[] = [
-    `A scheduled job records the listed package size and regular shelf price of ${formatInt(counts.products)} grocery products at ${stats.location_label}`,
+    `Every morning, a job checks the listed size and regular shelf price of ${formatInt(counts.products)} grocery products at ${stats.location_label}.`,
     { fn: 1 },
-    " through Kroger’s public product API. It reads each size from the listing text, divides price by size to get a price per unit, and stores a new record only when the size, price or product name changes.",
+    " Changes are compared in price per unit, which rises when the shelf price goes up or the listed size goes down.",
   ];
 
   // The size note shows how an edit to the wording moves the reading, from a case where only
@@ -675,17 +661,17 @@ export function buildStory(input: StoryInput): Story {
   const example = [...shrinks, ...grows].find(
     (c) => (c.noteKind === "pack" || c.noteKind === "each") && c.readBefore && c.readAfter,
   );
-  const sizeNote = `Sizes come from the size text in Kroger’s product API; no package was measured.${
+  const sizeNote = `No package was measured.${
     example
-      ? ` An edit to the text changes the reading: ${quoted(example.before)} was read as ${example.readBefore} and ${quoted(example.after)} as ${example.readAfter}.`
-      : ""
+      ? ` An edit to the listing text changes the reading: ${quoted(example.before)} was read as ${example.readBefore} and ${quoted(example.after)} as ${example.readAfter}.`
+      : " Every size comes from the listing text in Kroger’s product API."
   }`;
 
   return {
     counts,
     kicker: "Grocery prices",
     headline: headlineFor(counts),
-    dek: dekFor(counts, priceMoves, prose),
+    dek: dekFor(counts, priceMoves, sizeChanges, stats, prose),
     lede,
     freshness: freshnessFor(stats, changes, now),
     period,
