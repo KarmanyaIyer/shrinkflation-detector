@@ -126,10 +126,10 @@ export function Story({
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
-    // Switching between the side-by-side and the stacked layout (turning a tablet) changes the
-    // height of everything above and between the steps, so the same scroll offset would land on
-    // another step. The step that was active goes back to just past its trigger line instead.
-    const onLayoutChange = () => {
+    // Turning a phone or tablet switches between the side-by-side and the stacked layout, or at
+    // least changes the window height that step spacing follows, so the same scroll offset would
+    // land on another step. The step that was active goes back to just past its trigger line.
+    const reanchor = () => {
       const element = elements()[indexRef.current];
       if (element) {
         const past = element.getBoundingClientRect().top - triggerLine(stacked.matches) + 24;
@@ -137,14 +137,23 @@ export function Story({
       }
       onScroll();
     };
+    // A height change of more than a quarter is a turn; a smaller one (a browser toolbar sliding
+    // away) only updates the active step.
+    let height = window.innerHeight;
+    const onResize = () => {
+      const turned = Math.abs(window.innerHeight - height) > height * 0.25;
+      height = window.innerHeight;
+      if (turned) reanchor();
+      else onScroll();
+    };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    stacked.addEventListener("change", onLayoutChange);
+    window.addEventListener("resize", onResize);
+    stacked.addEventListener("change", reanchor);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      stacked.removeEventListener("change", onLayoutChange);
+      window.removeEventListener("resize", onResize);
+      stacked.removeEventListener("change", reanchor);
       cancelAnimationFrame(frame);
     };
   }, [steps]);

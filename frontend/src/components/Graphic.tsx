@@ -43,6 +43,8 @@ interface Layouts {
 
 const NARROW_BELOW = 560;
 const SHORT_BELOW = 480;
+// Below this height a wide stage (a short window) keeps the small compact rows of a phone.
+const LOW_BELOW = 360;
 const SANS = '"Public Sans", "Helvetica Neue", Arial, sans-serif';
 
 function reducedMotion(): boolean {
@@ -462,6 +464,7 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
   const tipProduct = tip ? productById.get(tip.id) : null;
   const tipChange = tip ? changeById.get(tip.id) : undefined;
   const narrow = size?.narrow ?? false;
+  const low = size !== null && !narrow && size.height < LOW_BELOW;
   // On a wide stage both size groups show with their own heads, so the title names them both.
   const bothGroups = !compactCards && story.shrinks.length > 0 && story.grows.length > 0;
   const title =
@@ -477,7 +480,7 @@ export function Graphic({ story, products, changes, categories, step, onOpen }: 
           </div>
         </div>
       </figcaption>
-      <div className={`g-stage${narrow ? " narrow" : ""}`} ref={stageRef}>
+      <div className={`g-stage${narrow ? " narrow" : ""}${low ? " low" : ""}`} ref={stageRef}>
         <canvas
           ref={canvasRef}
           tabIndex={0}

@@ -858,30 +858,31 @@ figure {
   font: 13px/1.35 var(--sans);
 }
 
-/* Compact rows on a wide stage (a tablet, or a short desktop window) get larger type and boxes. */
-.g-stage:not(.narrow) .g-cards.compact .sc-row {
+/* Compact rows on a wide stage (a tablet, or a short desktop window) get larger type and boxes,
+   unless the stage is under 360 px tall (a large phone on its side). */
+.g-stage:not(.narrow, .low) .g-cards.compact .sc-row {
   gap: 20px;
 }
-.g-stage:not(.narrow) .g-cards.compact .sc {
+.g-stage:not(.narrow, .low) .g-cards.compact .sc {
   grid-template-columns: 84px minmax(0, 1fr);
   column-gap: 16px;
 }
-.g-stage:not(.narrow) .g-cards.compact .pk {
+.g-stage:not(.narrow, .low) .g-cards.compact .pk {
   height: 92px;
   gap: 8px;
 }
-.g-stage:not(.narrow) .g-cards.compact .pk-col {
+.g-stage:not(.narrow, .low) .g-cards.compact .pk-col {
   width: 34px;
 }
-.g-stage:not(.narrow) .g-cards.compact .sc-dot {
+.g-stage:not(.narrow, .low) .g-cards.compact .sc-dot {
   width: 12px;
   height: 12px;
   margin-top: 6px;
 }
-.g-stage:not(.narrow) .g-cards.compact .sc-name {
+.g-stage:not(.narrow, .low) .g-cards.compact .sc-name {
   font-size: 19px;
 }
-.g-stage:not(.narrow) .g-cards.compact .sc-compact {
+.g-stage:not(.narrow, .low) .g-cards.compact .sc-compact {
   margin: 4px 0 0 18px;
   font-size: 15px;
   line-height: 1.45;
@@ -2037,9 +2038,9 @@ details.how[open] summary::before {
   }
 }
 
-/* Stacked story, phones and tablets in portrait: the masthead takes two rows and scrolls away,
-   the graphic pins to the top of the screen, and the step cards scroll under it. The width
-   matches STACKED_QUERY in lib/layout.ts. */
+/* Narrow screens: the masthead takes two rows and scrolls away. A narrow window 500 px tall or
+   less (a phone on its side) keeps the steps and the graphic side by side, with the graphic
+   pinned at the full window height; taller ones stack the story (next block). */
 @media (max-width: 960px) {
   :root {
     --mast: auto;
@@ -2074,6 +2075,28 @@ details.how[open] summary::before {
     padding: 6px 0 14px;
   }
   .scrolly {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    column-gap: 24px;
+    padding: 0 16px;
+  }
+  .sticky {
+    top: 8px;
+    height: calc(100svh - 16px);
+    min-height: 0;
+  }
+  .g-head {
+    min-height: 0;
+    padding: 7px 0 8px;
+  }
+  .g-source {
+    display: none;
+  }
+}
+
+/* Stacked story, phones and tablets in portrait: the graphic pins to the top of the screen and
+   the step cards scroll under it. Matches STACKED_QUERY in lib/layout.ts. */
+@media (max-width: 960px) and (min-height: 501px) {
+  .scrolly {
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -2091,15 +2114,7 @@ details.how[open] summary::before {
     position: relative;
     top: 0;
     height: 100%;
-    min-height: 0;
     padding: 8px 16px 6px;
-  }
-  .g-head {
-    min-height: 0;
-    padding: 7px 0 8px;
-  }
-  .g-source {
-    display: none;
   }
   .steps {
     position: relative;
@@ -2121,6 +2136,16 @@ details.how[open] summary::before {
     border-top: 2px solid var(--ink);
     padding: 14px 16px 16px;
     opacity: 1;
+  }
+}
+
+/* A wide but short window (a large phone on its side): the pinned graphic fits the window. */
+@media (min-width: 961px) and (max-height: 500px) {
+  .sticky {
+    min-height: 0;
+  }
+  .g-source {
+    display: none;
   }
 }
 
