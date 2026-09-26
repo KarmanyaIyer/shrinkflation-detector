@@ -23,7 +23,7 @@ _MULTIPACK = re.compile(rf"^\s*(?P<n>\d+)\s*(?:x|X|×)\s*(?P<q>{_NUM})\s*(?P<u>{
 # "6 ct / 18 oz", "8 pk - 12 fl oz", "5.3 oz., 4 pack": a count next to an amount, scope unstated.
 _PACK_MARKER = re.compile(rf"(?:^|[\s\d]){_PACK_WORD}(?:$|[\s/.,-])", re.IGNORECASE)
 _NUMBER = re.compile(_NUM)
-_SEPARATOR = re.compile(r"/|\d\s*[–-]\s*\d")
+_SEPARATOR = re.compile(r"/|\d\s*[\u2013-]\s*\d")
 _UNIT_ONLY = re.compile(rf"^\s*(?P<u>{_UNIT})\s*$")
 
 
