@@ -2,11 +2,15 @@ import { describe, expect, it } from "vitest";
 import * as fx from "../api/fixtures";
 import {
   countByKind,
+  DEFAULT_STATE,
   defaultDescending,
   filterChanges,
+  parseSortValue,
   parseTableState,
   serializeTableState,
+  SORT_OPTIONS,
   sortChanges,
+  sortValue,
 } from "./tableState";
 
 describe("table state in the query string", () => {
@@ -59,5 +63,17 @@ describe("filtering and sorting", () => {
     expect(largest[largest.length - 1]!.product.id).toBe(fx.ids.reeses);
     const names = sortChanges(fx.changes, { sort: "product", descending: false }).map((c) => c.product.description);
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+  });
+});
+
+describe("sort list", () => {
+  it("round-trips every choice and marks the current one", () => {
+    for (const option of SORT_OPTIONS) expect(sortValue(parseSortValue(option.value))).toBe(option.value);
+    expect(sortValue(DEFAULT_STATE)).toBe("when:desc");
+    expect(new Set(SORT_OPTIONS.map((option) => option.value)).size).toBe(6);
+  });
+
+  it("falls back to the default column for an unknown value", () => {
+    expect(parseSortValue("price:asc")).toEqual({ sort: "when", descending: false });
   });
 });

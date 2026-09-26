@@ -1243,6 +1243,10 @@ details.how[open] summary::before {
   text-transform: uppercase;
   color: var(--muted);
 }
+/* The sort list is for phones, where the column headers are hidden. */
+.sort-sel {
+  display: none;
+}
 .cat-sel select {
   font: 500 15px var(--sans);
   color: var(--ink);
@@ -1305,10 +1309,6 @@ details.how[open] summary::before {
   display: inline-flex;
   align-items: center;
   min-height: 32px;
-}
-.ch-table th sup {
-  font-size: 10px;
-  margin-left: 2px;
 }
 .ch-table thead th button:focus-visible {
   outline: 2px solid var(--ink);
@@ -2243,16 +2243,21 @@ details.how[open] summary::before {
     margin-top: 14px;
     display: flex;
   }
-  .cat-sel select {
+  .cat-sel span {
+    min-width: 76px;
+  }
+  /* The sort list is for phones, where the column headers are hidden. */
+.sort-sel {
+  display: none;
+}
+.cat-sel select {
     flex: 1;
     min-height: 44px;
   }
+  /* Each cell carries its own label and the sort list above replaces the header buttons, so
+     the header row leaves the page (and the tab order) entirely. */
   .ch-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
+    display: none;
   }
   .ch-table,
   .ch-table tbody {

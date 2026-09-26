@@ -2,8 +2,8 @@ import { NoBreak } from "./NoBreak";
 import { GITHUB_URL } from "./Shell";
 
 // Which note markers exist on the page, in reading order: 1 sits in the lede, 2 in the size
-// step, 3 in the table header. A back link is only rendered when its marker is there to go
-// back to.
+// step, 3 in the change table's intro. A back link is only rendered when its marker is there
+// to go back to.
 export interface NoteRefs {
   1: boolean;
   2: boolean;

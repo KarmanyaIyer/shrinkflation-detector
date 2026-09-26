@@ -40,6 +40,27 @@ export function serializeTableState(state: TableState, base = new URLSearchParam
   return params;
 }
 
+// The sort choices offered as one list where the column headers are hidden (phones). Each value
+// is "<column>:<asc|desc>".
+export const SORT_OPTIONS: { value: string; label: string }[] = [
+  { value: "when:desc", label: "Newest first" },
+  { value: "when:asc", label: "Oldest first" },
+  { value: "unit:desc", label: "Largest increase first" },
+  { value: "unit:asc", label: "Largest decrease first" },
+  { value: "product:asc", label: "Product A to Z" },
+  { value: "product:desc", label: "Product Z to A" },
+];
+
+export function sortValue(state: Pick<TableState, "sort" | "descending">): string {
+  return `${state.sort}:${state.descending ? "desc" : "asc"}`;
+}
+
+export function parseSortValue(value: string): Pick<TableState, "sort" | "descending"> {
+  const [key = "", order] = value.split(":");
+  const sort = (SORT_KEYS as string[]).includes(key) ? (key as SortKey) : DEFAULT_STATE.sort;
+  return { sort, descending: order === "desc" };
+}
+
 // The default direction when a column is first chosen: newest and largest first, names A to Z.
 export function defaultDescending(sort: SortKey): boolean {
   return sort !== "product";

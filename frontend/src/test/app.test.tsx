@@ -156,6 +156,15 @@ describe("change table", () => {
     expect(header).toHaveAttribute("aria-sort", "ascending");
     expect(screen.getByTestId("loc")).toHaveTextContent("/?kind=shrink&sort=unit");
 
+    // The sort list phones use writes the same state.
+    const sort = screen.getByRole("combobox", { name: "Sort" });
+    expect(sort).toHaveValue("unit:asc");
+    fireEvent.change(sort, { target: { value: "product:desc" } });
+    expect(screen.getByTestId("loc")).toHaveTextContent("/?kind=shrink&sort=-product");
+    expect(screen.getByRole("columnheader", { name: "Product" })).toHaveAttribute("aria-sort", "descending");
+    fireEvent.change(sort, { target: { value: "when:desc" } });
+    expect(screen.getByTestId("loc")).toHaveTextContent(/^\/\?kind=shrink$/);
+
     fireEvent.change(screen.getByRole("combobox", { name: "Category" }), { target: { value: "Candy" } });
     expect(screen.getByText("No change matches these filters.", { selector: "p" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Show every change" }));

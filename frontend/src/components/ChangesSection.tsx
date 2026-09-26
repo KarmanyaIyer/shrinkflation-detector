@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { useSearchParams } from "react-router";
 import type { CategoryCount, ChangeOut, FeedKind } from "../api/types";
 import { formatDateRange, formatMoney, formatPercent, formatUnitAmount, unitWord } from "../lib/format";
@@ -11,8 +11,11 @@ import {
   DEFAULT_STATE,
   defaultDescending,
   filterChanges,
+  parseSortValue,
   parseTableState,
   serializeTableState,
+  SORT_OPTIONS,
+  sortValue,
   sortChanges,
   type SortKey,
   type TableState,
@@ -120,13 +123,11 @@ function SortHeader({
   column,
   state,
   onSort,
-  children,
 }: {
   label: string;
   column: SortKey;
   state: TableState;
   onSort: (column: SortKey) => void;
-  children?: ReactNode;
 }) {
   const active = state.sort === column;
   return (
@@ -134,7 +135,6 @@ function SortHeader({
       <button type="button" onClick={() => onSort(column)}>
         {label}
       </button>
-      {children}
     </th>
   );
 }
@@ -190,7 +190,12 @@ export function ChangesSection({ changes, categories }: { changes: ChangeOut[] |
     <section className="tool wide" id="changes" aria-labelledby="ch-h">
       <h2 id="ch-h">Every change</h2>
       <p className="tool-intro">
-        Each published change, with the listed sizes and shelf prices exactly as recorded.
+        Each published change, with the listed sizes and shelf prices exactly as recorded and the dates they were seen.
+        <sup>
+          <a href="#fn3" id="r3" aria-label="Note 3">
+            3
+          </a>
+        </sup>
       </p>
       <div className="ch-controls">
         <div className="seg" role="group" aria-label="Kind of change">
@@ -217,6 +222,17 @@ export function ChangesSection({ changes, categories }: { changes: ChangeOut[] |
             ))}
           </select>
         </label>
+        {/* Phones hide the column headers, so the sort is one list there. */}
+        <label className="cat-sel sort-sel">
+          <span>Sort</span>
+          <select value={sortValue(state)} onChange={(event) => update(parseSortValue(event.target.value))} disabled={loading}>
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
       <p className="ch-count" aria-live="polite">
         {countLine ?? <SkLine width={220} height={12} />}
@@ -233,13 +249,7 @@ export function ChangesSection({ changes, categories }: { changes: ChangeOut[] |
               <span className="th-l">Shelf price</span>
             </th>
             <SortHeader label="Price per unit" column="unit" state={state} onSort={onSort} />
-            <SortHeader label="When" column="when" state={state} onSort={onSort}>
-              <sup>
-                <a href="#fn3" id="r3" aria-label="Note 3">
-                  3
-                </a>
-              </sup>
-            </SortHeader>
+            <SortHeader label="When" column="when" state={state} onSort={onSort} />
           </tr>
         </thead>
         <tbody>
