@@ -99,8 +99,10 @@ describe("layoutSwarmChart", () => {
         const numbers = down.rows.filter((row) => !row.bold).map((row) => row.text);
         expect(numbers).toEqual(narrow ? [DOWN.price, DOWN.percent] : [`${DOWN.price}, ${DOWN.percent}`]);
         const up = chart.annotations.find((a) => a.id === UP.id)!;
-        expect(up.rows.filter((row) => row.bold).map((row) => row.text).join(" ")).toBe(UP.label);
-        expect(up.rows.filter((row) => row.bold).length).toBeGreaterThan(1);
+        // The long name is cut to its brand and last words on two rows.
+        const name = up.rows.filter((row) => row.bold).map((row) => row.text);
+        expect(name.length).toBe(2);
+        expect(name.join(" ")).toMatch(/^Kodiak … (\S+ )*Power Waffles$/);
       });
 
       it("keeps every text box inside the stage", () => {

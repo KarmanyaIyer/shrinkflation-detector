@@ -33,7 +33,7 @@ import {
 } from "./format";
 import { direction, SIZE_KINDS } from "./kinds";
 import { isOffScale } from "./swarm";
-import { displayName, joinProse, proseName } from "./text";
+import { displayName, joinProse, leadWords, proseName } from "./text";
 
 export interface StoryInput {
   stats: Stats;
@@ -94,8 +94,10 @@ export interface Annotation {
   id: string;
   name: string;
   // The label name: the prose name when it is short, else the full display name, which the
-  // chart wraps.
+  // chart wraps and shortens past two rows.
   label: string;
+  // How many words at the start of `label` are the brand.
+  lead: number;
   value: number;
   line: string;
   // The price part and the percent part of `line`, for layouts that put them on two rows.
@@ -199,10 +201,12 @@ function annotation(change: ChangeOut, prose: Namer): Annotation {
   const unit = unitOf(change);
   const price = priceLine(change);
   const percent = `${formatPercent(value)}${unit ? ` per ${unitWord(unit)}` : ""}`;
+  const label = prose(change);
   return {
     id: change.product.id,
     name,
-    label: prose(change),
+    label,
+    lead: leadWords(label, change.product.brand),
     value,
     price,
     percent,

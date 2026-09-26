@@ -94,6 +94,19 @@ export function brandName(brand: string, name: string): string {
   return match ? match[0] : clean;
 }
 
+// How many words at the start of `name` are its brand ("Kodiak" of "Kodiak Protein-Packed ..."
+// with brand "Kodiak Cakes"), counted while the words match the brand's words in order. One when
+// the name does not start with the brand, so a shortened label still starts with the name's first
+// word.
+export function leadWords(name: string, brand: string | null | undefined): number {
+  const fold = (word: string) => word.toLowerCase().replace(/['’]/g, "'");
+  const words = name.split(" ").filter(Boolean);
+  const brandWords = brand ? cleanName(brand).split(" ").filter(Boolean) : [];
+  let n = 0;
+  while (n < words.length - 1 && n < brandWords.length && fold(words[n]!) === fold(brandWords[n]!)) n += 1;
+  return Math.max(1, n);
+}
+
 // Names longer than this are called by their brand in running prose when that is unambiguous.
 export const PROSE_NAME_MAX = 32;
 

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   CAPTIONS,
+  NAME_ROWS,
   annotationRows,
+  nameRows,
   placeAnnotations,
   placeCaptions,
   tickAnchor,
@@ -58,14 +60,32 @@ describe("annotationRows", () => {
     expect(annotationRows(noPrice, true, 200, measure)).toEqual(annotationRows(noPrice, false, 200, measure));
   });
 
-  it("wraps a long name into bold rows within the width", () => {
-    const long = { ...input, label: "General Mills Reese's Puffs Chocolatey Peanut Butter Cereal" };
-    const rows = annotationRows(long, false, 170, measure);
+  it("wraps a name into at most two bold rows within the width", () => {
+    const two = { ...input, label: "Tate's Bake Shop Pumpkin Spice Cookies" };
+    const rows = annotationRows(two, false, 170, measure);
     const name = rows.filter((row) => row.bold);
-    expect(name.length).toBe(3);
-    expect(name.map((row) => row.text).join(" ")).toBe(long.label);
+    expect(name.length).toBe(2);
+    expect(name.map((row) => row.text).join(" ")).toBe(two.label);
     for (const row of name) expect(measure(row.text, true)).toBeLessThanOrEqual(170);
     expect(rows[rows.length - 1]).toEqual({ text: "$1.00 to $2.00, +10.0% per oz", bold: false });
+  });
+
+  it("shortens a longer name to its brand and last words", () => {
+    const label = "Kodiak Protein-Packed Buttermilk and Vanilla Frozen Thick and Fluffy Power Waffles";
+    const rows = nameRows(label, 1, 170, (text) => measure(text, true));
+    expect(rows.length).toBeLessThanOrEqual(NAME_ROWS);
+    expect(rows.join(" ")).toBe("Kodiak … Thick and Fluffy Power Waffles");
+    for (const row of rows) expect(measure(row, true)).toBeLessThanOrEqual(170);
+    // Narrower: fewer last words, and the tail never starts on a joining word.
+    const narrow = nameRows(label, 1, 110, (text) => measure(text, true)).join(" ");
+    expect(narrow).toMatch(/^Kodiak … /);
+    expect(narrow).not.toMatch(/… (and|with|of) /);
+    // Brand words at the start stay whole.
+    expect(nameRows("Kodiak Cakes Protein-Packed Buttermilk and Vanilla Frozen Thick and Fluffy Power Waffles", 2, 170, (t) => measure(t, true)).join(" ")).toMatch(
+      /^Kodiak Cakes … .*Waffles$/,
+    );
+    // A name that fits keeps every word.
+    expect(nameRows("Purina ONE", 1, 170, (text) => measure(text, true))).toEqual(["Purina ONE"]);
   });
 });
 

@@ -20,6 +20,7 @@ export const CHART_FONTS = {
 export interface ChartLabel {
   id: string;
   label: string;
+  lead?: number;
   price: string;
   percent: string;
 }

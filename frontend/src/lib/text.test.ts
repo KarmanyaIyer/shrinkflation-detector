@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balancedWrap, brandName, cleanName, displayName, joinProse, linkNames, proseName, wrapText } from "./text";
+import { balancedWrap, brandName, cleanName, displayName, joinProse, leadWords, linkNames, proseName, wrapText } from "./text";
 
 describe("names", () => {
   it("drops marks and promotional suffixes", () => {
@@ -85,6 +85,17 @@ describe("brandName", () => {
   it("keeps the brand as listed, marks dropped, when the name does not contain it", () => {
     expect(brandName("Kodiak Cakes", "Kodiak® Protein-Packed Buttermilk Power Waffles®")).toBe("Kodiak Cakes");
     expect(brandName("OGX®", "Renewing Argan Oil of Morocco Shampoo")).toBe("OGX");
+  });
+});
+
+describe("leadWords", () => {
+  it("counts the brand words the name starts with, and at least one", () => {
+    expect(leadWords("Kodiak Protein-Packed Buttermilk Power Waffles", "Kodiak Cakes")).toBe(1);
+    expect(leadWords("Kodiak Cakes Power Cakes Buttermilk Mix", "Kodiak Cakes")).toBe(2);
+    expect(leadWords("Tate’s Bake Shop Pumpkin Spice Cookies", "Tate's Bake Shop")).toBe(3);
+    expect(leadWords("General Mills Reese's Puffs Cereal", "Reese's Puffs")).toBe(1);
+    expect(leadWords("Plain Name", null)).toBe(1);
+    expect(leadWords("Dove", "Dove")).toBe(1);
   });
 });
 

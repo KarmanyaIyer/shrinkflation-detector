@@ -9,6 +9,8 @@ export type Measure = (text: string, bold?: boolean) => number;
 export interface AnnotationInput {
   id: string;
   label: string;
+  // How many words at the start of the label are the brand, kept when a long label is shortened.
+  lead?: number;
   price: string;
   percent: string;
   // The dot the label points at.
@@ -63,11 +65,35 @@ export interface AnnotationOptions {
 
 const CLEARANCE = 12;
 const LIFT_GAP = 6;
+// A name takes at most this many rows; the dot's tooltip has the full name.
+export const NAME_ROWS = 2;
+// A shortened name never picks up again on one of these words.
+const JOINING = new Set(["a", "an", "and", "&", "as", "at", "for", "in", "of", "on", "or", "the", "to", "with", "+"]);
+
+// A name that would wrap to more than NAME_ROWS rows keeps its brand words and as many of its
+// last words as fit, joined by an ellipsis: "Kodiak … Thick and Fluffy Power Waffles".
+export function nameRows(label: string, lead: number, maxWidth: number, measure: (text: string) => number): string[] {
+  const full = balancedWrap(label, maxWidth, measure);
+  if (full.length <= NAME_ROWS) return full;
+  const words = label.split(" ").filter(Boolean);
+  const head = words.slice(0, lead).join(" ");
+  for (let from = lead + 1; from < words.length; from += 1) {
+    if (JOINING.has(words[from]!.toLowerCase())) continue;
+    const rows = balancedWrap(`${head} … ${words.slice(from).join(" ")}`, maxWidth, measure);
+    if (rows.length <= NAME_ROWS) return rows;
+  }
+  return full;
+}
 
 // The rows of one annotation: the name wrapped to the width, then the numbers (on two rows on
 // narrow stages, where "$6.49 to $7.99, +23.1% per oz" would not fit beside the dot).
-export function annotationRows(input: Pick<AnnotationInput, "label" | "price" | "percent">, narrow: boolean, maxWidth: number, measure: Measure): AnnotationRow[] {
-  const name = balancedWrap(input.label, maxWidth, (text) => measure(text, true)).map((text) => ({ text, bold: true }));
+export function annotationRows(
+  input: Pick<AnnotationInput, "label" | "price" | "percent" | "lead">,
+  narrow: boolean,
+  maxWidth: number,
+  measure: Measure,
+): AnnotationRow[] {
+  const name = nameRows(input.label, input.lead ?? 1, maxWidth, (text) => measure(text, true)).map((text) => ({ text, bold: true }));
   const numbers = narrow
     ? [input.price, input.percent].filter(Boolean)
     : [input.price ? `${input.price}, ${input.percent}` : input.percent];
